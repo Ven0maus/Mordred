@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using SadConsole;
-using SharpDX.XAudio2;
 
 namespace Mordred.WorldGen
 {

@@ -5,15 +5,24 @@ namespace Mordred.GameObjects
 {
     public class WorldItem : Entity
     {
+        public readonly int[] DroppedBy;
+
         public int Amount;
-        public WorldItem(Color foreground, Color background, int glyph, int? amount = null) : base(foreground, background, glyph)
+        public WorldItem(Color foreground, Color background, int glyph, int? amount = null, int[] droppedBy = null) : base(foreground, background, glyph)
         {
             Amount = amount ?? 1;
+            DroppedBy = droppedBy;
         }
 
-        public WorldItem(WorldItem original) : base(original.Animation[0].Foreground, original.Animation[0].Background, original.Animation[0].Glyph)
+        private WorldItem(WorldItem original) : base(original.Animation[0].Foreground, original.Animation[0].Background, original.Animation[0].Glyph)
         {
             Amount = original.Amount;
+            DroppedBy = original.DroppedBy;
+        }
+
+        public WorldItem Clone()
+        {
+            return new WorldItem(this);
         }
     }
 }

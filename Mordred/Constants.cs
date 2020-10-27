@@ -9,6 +9,19 @@
             public const float TimePerTickInSeconds = 0.35f;
         }
 
+        public static class ActorSettings
+        {
+            public const int DefaultHungerTickRate = 10;
+            public const int DefaultMaxHunger = 75;
+        }
+
+        public static class ActionSettings
+        {
+            public const int DefaultGatherTickRate = 8;
+            public const int DefaultWoodcuttingTickRate = 8;
+            public const int DefaultTotalGather = 10;
+        }
+
         public static class VillageSettings
         {
             public const int MaxVillages = 4;

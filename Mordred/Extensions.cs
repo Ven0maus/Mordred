@@ -1,4 +1,5 @@
 ﻿using GoRogue;
+using GoRogue.Pathing;
 using SharpDX.Direct2D1.Effects;
 using System;
 using System.Collections.Generic;
@@ -62,6 +63,31 @@ namespace Mordred
                 if (((coord.X - center.X) * (coord.X - center.X)) + ((coord.Y - center.Y) * (coord.Y - center.Y)) <= radius * radius)
                     yield return coord;
             }
+        }
+
+        public static CustomPath ToCustomPath(this Path path)
+        {
+            return new CustomPath(path);
+        }
+    }
+
+    public sealed class CustomPath : Path
+    {
+        private readonly List<Coord> _coords = new List<Coord>();
+        public CustomPath(Path path) : base(path) 
+        {
+            var length = path.Length;
+            for (int i=0; i < length; i++)
+            {
+                _coords.Add(GetStep(i));
+            }
+        }
+
+        public Coord TakeStep(int step)
+        {
+            var value = _coords[step];
+            _coords.RemoveAt(step);
+            return value;
         }
     }
 }

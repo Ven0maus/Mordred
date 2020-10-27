@@ -4,7 +4,7 @@ using Mordred.Entities.Actions.Implementations;
 using Mordred.WorldGen;
 using System;
 
-namespace Mordred.Entities
+namespace Mordred.Entities.Tribals
 {
     public class Tribeman : Actor
     {
@@ -37,6 +37,9 @@ namespace Mordred.Entities
 
         protected override void GameTick(object sender, EventArgs args)
         {
+            // Make sure we handle our stats automatically
+            base.GameTick(sender, args);
+
             if (Health <= 0) return;
             if (CurrentAction == null && CurrentState == State.Idle)
             {

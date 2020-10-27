@@ -1,5 +1,5 @@
 ﻿using GoRogue;
-using GoRogue.Pathing;
+using Mordred.Entities.Tribals;
 using Mordred.Graphics.Consoles;
 using System;
 using System.Linq;
@@ -9,6 +9,7 @@ namespace Mordred.Entities.Actions.Implementations
     public class WanderAction : BaseAction
     {
         private Coord? _destination;
+        private CustomPath _path;
 
         public override event EventHandler<ActionArgs> ActionCompleted;
 
@@ -35,10 +36,7 @@ namespace Mordred.Entities.Actions.Implementations
         {
             if (tribeman.Position != _destination)
             {
-                if (tribeman.CanMoveTowards(_destination.Value.X, _destination.Value.Y, out Path path))
-                {
-                    return !tribeman.MoveTowards(path) || tribeman.Position == _destination.Value;
-                }
+                return !tribeman.MoveTowards(_path) || tribeman.Position == _destination.Value;
             }
             return true;
         }
@@ -55,6 +53,11 @@ namespace Mordred.Entities.Actions.Implementations
                     var coord = GetWanderingPosition(tribeman);
                     if (coord == null) return true;
                     _destination = coord.Value;
+                    if (!actor.CanMoveTowards(_destination.Value.X, _destination.Value.Y, out _path))
+                    {
+                        ActionCompleted?.Invoke(this, new ActionArgs() { Actor = actor });
+                        return true;
+                    }
                 }
                 var result = Wander(tribeman);
                 if (result)

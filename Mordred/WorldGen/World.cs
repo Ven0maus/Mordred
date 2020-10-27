@@ -70,8 +70,11 @@ namespace Mordred.WorldGen
                     }
                     else
                     {
-                        // Tree or grass
-                        if (Game.Random.Next(0, 100) <= 7)
+                        // Tree, berrybush or grass
+                        int chance = Game.Random.Next(0, 100);
+                        if (chance <= 1)
+                            SetCell(x, y, WorldCells[7].TakeRandom());
+                        else if (chance <= 7)
                             SetCell(x, y, WorldCells[2].TakeRandom());
                         else
                             SetCell(x, y, WorldCells[1].TakeRandom());

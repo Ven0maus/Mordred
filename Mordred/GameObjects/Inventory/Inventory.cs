@@ -27,10 +27,8 @@ namespace Mordred.GameObjects
         public WorldItem Take(int itemId)
         {
             if (!HasItem(itemId)) return null;
-            var item = new WorldItem(ItemCache[itemId])
-            {
-                Amount = Items[itemId]
-            };
+            var item = ItemCache[itemId].Clone();
+            item.Amount = Items[itemId];
             Items.Remove(itemId);
             return item;
         }
@@ -44,7 +42,7 @@ namespace Mordred.GameObjects
         public WorldItem Take(int itemId, int amount)
         {
             if (!HasItem(itemId)) return null;
-            var item = new WorldItem(ItemCache[itemId]);
+            var item = ItemCache[itemId].Clone();
             var current = Items[itemId];
             if (amount >= current)
             {

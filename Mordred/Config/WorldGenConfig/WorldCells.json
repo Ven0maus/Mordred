@@ -66,5 +66,16 @@
       "walkable" : false,
       "layer" : "objects"
     },
+    {
+      "id" : 7,
+      "glyph" : "b",
+      "additionalGlyphs" : null,
+      "name" : "BerryBush",
+	  "foreground" : "Pink",
+      "background" : "Transparent",
+	  "transparent" : false,
+      "walkable" : false,
+      "layer" : "objects"
+    },
   ]
 }

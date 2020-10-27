@@ -1,6 +1,7 @@
 ﻿using GoRogue;
 using Microsoft.Xna.Framework;
 using Mordred.Entities;
+using Mordred.Entities.Tribals;
 using Mordred.GameObjects;
 using Mordred.Graphics.Consoles;
 using System.Collections.Generic;
@@ -103,7 +104,6 @@ namespace Mordred.WorldGen
                     hutPositions.Add(hut);
             }
 
-            var console = Game.Container.GetConsole<MapConsole>();
             for (int i=0; i < amount; i++)
             {
                 var hutPos = hutPositions.TakeRandom();
@@ -116,7 +116,7 @@ namespace Mordred.WorldGen
 
                 // TODO: Make some kind of entity spawner class to handle this?
                 var tribeman = new Tribeman(this, hutPos, pos, Color);
-                console.Children.Add(tribeman);
+                EntitySpawner.Spawn(tribeman);
                 Tribemen.Add(tribeman);
             }
         }

@@ -10,6 +10,7 @@ namespace Mordred.Config.ItemConfig
         public string name;
         public string foreground;
         public string background;
+        public int[] droppedBy;
     }
 
     [Serializable]

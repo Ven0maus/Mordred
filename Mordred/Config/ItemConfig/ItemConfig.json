@@ -5,14 +5,24 @@
       "glyph" : "W",
       "name" : "Wood",
 	  "foreground" : "Brown",
-      "background" : "Transparent",
+      "background" : "Black",
+      "droppedBy" : [2]
     },
     {
       "id" : 1,
       "glyph" : "S",
       "name" : "Stone",
 	  "foreground" : "DarkGray",
-      "background" : "Transparent",
+      "background" : "Black",
+      "droppedBy" : [3]
+    },
+    {
+      "id" : 2,
+      "glyph" : "°",
+      "name" : "Berries",
+	  "foreground" : "Pink",
+      "background" : "Black",
+      "droppedBy" : [7]
     },
   ]
 }
