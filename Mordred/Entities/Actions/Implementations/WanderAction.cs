@@ -2,6 +2,7 @@
 using Mordred.Entities.Tribals;
 using Mordred.Graphics.Consoles;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Mordred.Entities.Actions.Implementations
@@ -13,13 +14,24 @@ namespace Mordred.Entities.Actions.Implementations
 
         public override event EventHandler<ActionArgs> ActionCompleted;
 
-        public Coord? GetWanderingPosition(Tribeman tribeman)
+        public Coord? GetWanderingPosition(Actor actor)
         {
             // Set random destination
-            var positions = tribeman.HutPosition
-                .GetCirclePositions(5)
-                .Where(a => MapConsole.World.InBounds(a.X, a.Y))
-                .ToList();
+            List<Coord> positions;
+            if (actor is Tribeman tribeman)
+            {
+                positions = tribeman.HutPosition
+                    .GetCirclePositions(5)
+                    .Where(a => MapConsole.World.InBounds(a.X, a.Y))
+                    .ToList();
+            }
+            else
+            {
+                positions = ((Coord)actor.Position)
+                    .GetCirclePositions(5)
+                    .Where(a => MapConsole.World.InBounds(a.X, a.Y))
+                    .ToList();
+            }
 
             _destination = positions.TakeRandom();
             positions.Remove(_destination.Value);
@@ -32,11 +44,11 @@ namespace Mordred.Entities.Actions.Implementations
             return _destination;
         }
 
-        public bool Wander(Tribeman tribeman)
+        public bool Wander(Actor actor)
         {
-            if (tribeman.Position != _destination)
+            if (actor.Position != _destination)
             {
-                return !tribeman.MoveTowards(_path) || tribeman.Position == _destination.Value;
+                return !actor.MoveTowards(_path) || actor.Position == _destination.Value;
             }
             return true;
         }
@@ -46,28 +58,23 @@ namespace Mordred.Entities.Actions.Implementations
             // Check for canceled state
             if (base.Execute(actor)) return true;
 
-            if (actor is Tribeman tribeman)
+            if (_destination == null)
             {
-                if (_destination == null)
-                {
-                    var coord = GetWanderingPosition(tribeman);
-                    if (coord == null) return true;
-                    _destination = coord.Value;
-                    if (!actor.CanMoveTowards(_destination.Value.X, _destination.Value.Y, out _path))
-                    {
-                        ActionCompleted?.Invoke(this, new ActionArgs() { Actor = actor });
-                        return true;
-                    }
-                }
-                var result = Wander(tribeman);
-                if (result)
+                var coord = GetWanderingPosition(actor);
+                if (coord == null) return true;
+                _destination = coord.Value;
+                if (!actor.CanMoveTowards(_destination.Value.X, _destination.Value.Y, out _path))
                 {
                     ActionCompleted?.Invoke(this, new ActionArgs() { Actor = actor });
+                    return true;
                 }
-                return result;
             }
-            ActionCompleted?.Invoke(this, new ActionArgs() { Actor = actor });
-            return true;
+            var result = Wander(actor);
+            if (result)
+            {
+                ActionCompleted?.Invoke(this, new ActionArgs() { Actor = actor });
+            }
+            return result;
         }
     }
 }
