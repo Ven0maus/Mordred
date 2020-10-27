@@ -1,4 +1,5 @@
 ﻿using GoRogue;
+using GoRogue.Pathing;
 using Mordred.Graphics.Consoles;
 using System;
 using System.Linq;
@@ -34,7 +35,10 @@ namespace Mordred.Entities.Actions.Implementations
         {
             if (tribeman.Position != _destination)
             {
-                return !tribeman.MoveTowards(_destination.Value.X, _destination.Value.Y) || tribeman.Position == _destination.Value;
+                if (tribeman.CanMoveTowards(_destination.Value.X, _destination.Value.Y, out Path path))
+                {
+                    return !tribeman.MoveTowards(path) || tribeman.Position == _destination.Value;
+                }
             }
             return true;
         }

@@ -33,9 +33,6 @@ namespace Mordred.Entities
             Position = actorPosition;
             Village = village;
             CurrentState = State.Idle;
-
-            // Test woodcutting
-            AddAction(new WoodcuttingAction());
         }
 
         protected override void GameTick(object sender, EventArgs args)

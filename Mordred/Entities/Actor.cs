@@ -1,4 +1,5 @@
 ﻿using GoRogue;
+using GoRogue.Pathing;
 using Microsoft.Xna.Framework;
 using Mordred.Entities.Actions;
 using Mordred.GameObjects;
@@ -34,15 +35,14 @@ namespace Mordred.Entities
             _actorActionsQueue.Enqueue(action);
         }
 
-        public bool CanMoveTowards(int x, int y)
+        public bool CanMoveTowards(int x, int y, out Path path)
         {
-            var path = MapConsole.World.Pathfinder.ShortestPath(Position, new Coord(x, y));
+            path = MapConsole.World.Pathfinder.ShortestPath(Position, new Coord(x, y));
             return path != null;
         }
 
-        public bool MoveTowards(int x, int y)
+        public bool MoveTowards(Path path)
         {
-            var path = MapConsole.World.Pathfinder.ShortestPath(Position, new Coord(x, y));
             if (path == null) return false;
 
             var nextStep = path.GetStep(0);
@@ -52,6 +52,12 @@ namespace Mordred.Entities
                 return true;
             }
             return false;
+        }
+
+        public bool MoveTowards(int x, int y)
+        {
+            var movementPath = MapConsole.World.Pathfinder.ShortestPath(Position, new Coord(x, y));
+            return MoveTowards(movementPath);
         }
 
         private void HandleActions(object sender, EventArgs args)

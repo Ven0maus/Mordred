@@ -1,4 +1,5 @@
 ﻿using GoRogue;
+using GoRogue.Pathing;
 using Mordred.Graphics.Consoles;
 using System;
 using System.Collections.Generic;
@@ -127,7 +128,9 @@ namespace Mordred.Entities.Actions.Implementations
             // We are now delivering the wood back to our hut
             if (_deliveringWood) 
             {
-                if (tribeman.Position == tribeman.HutPosition || !tribeman.MoveTowards(tribeman.HutPosition.X, tribeman.HutPosition.Y))
+                if (tribeman.Position == tribeman.HutPosition || 
+                    !tribeman.CanMoveTowards(tribeman.HutPosition.X, tribeman.HutPosition.Y, out Path movPath) || 
+                    !tribeman.MoveTowards(movPath))
                 {
                     // Add wood to village resource collection
                     tribeman.Village.Inventory.Add(0, tribeman.Inventory.Take(0).Amount);
@@ -156,7 +159,7 @@ namespace Mordred.Entities.Actions.Implementations
             }
 
             // Check if the path towards the tree is valid
-            if (!actor.CanMoveTowards(CurrentTree.Value.X, CurrentTree.Value.Y))
+            if (!actor.CanMoveTowards(CurrentTree.Value.X, CurrentTree.Value.Y, out Path path))
             {
                 CurrentTree = null;
                 if (_taskDone) 
@@ -165,7 +168,7 @@ namespace Mordred.Entities.Actions.Implementations
             }
 
             // Move the actor to the tree and if the actor is near the tree, start chopping the tree
-            if (actor.Position == CurrentTree.Value || !actor.MoveTowards(CurrentTree.Value.X, CurrentTree.Value.Y))
+            if (actor.Position == CurrentTree.Value || !actor.MoveTowards(path))
             {
                 if (ChopTree(CurrentTree.Value, actor))
                 {
