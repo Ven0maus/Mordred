@@ -52,7 +52,7 @@ namespace Mordred.Config
             {
                 var foregroundColor = GetColorByString(item.foreground);
                 var backgroundColor = GetColorByString(item.background);
-                dictionary.Add(item.id, new WorldItem(foregroundColor, backgroundColor, item.glyph[0], 0, item.droppedBy));
+                dictionary.Add(item.id, new WorldItem(item.id, foregroundColor, backgroundColor, item.glyph[0], item.edible, item.edibleWorth, 0, item.droppedBy));
             }
             return dictionary;
         }

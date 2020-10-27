@@ -17,6 +17,15 @@ namespace Mordred.Entities
             return entity;
         }
 
+        public static Entity Spawn(Type entity, params object[] args)
+        {
+            if (entity != typeof(Entity) && !entity.IsSubclassOf(typeof(Entity))) return null;
+            var entityObj = (Entity)Activator.CreateInstance(entity, args);
+            Game.Container.GetConsole<MapConsole>().Children.Add(entityObj);
+            Entities.Add(entityObj);
+            return entityObj;
+        }
+
         public static void Spawn(Entity entity)
         {
             Game.Container.GetConsole<MapConsole>().Children.Add(entity);

@@ -1,5 +1,6 @@
 ﻿using Mordred.Config;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Mordred.GameObjects
 {
@@ -12,6 +13,11 @@ namespace Mordred.GameObjects
         public Inventory()
         {
             Items = new Dictionary<int, int>();
+        }
+
+        public Dictionary<int, int> Peek()
+        {
+            return Items.ToDictionary(a => a.Key, a => a.Value);
         }
 
         public bool HasItem(int itemId)

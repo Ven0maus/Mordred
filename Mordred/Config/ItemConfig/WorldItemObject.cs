@@ -10,6 +10,8 @@ namespace Mordred.Config.ItemConfig
         public string name;
         public string foreground;
         public string background;
+        public bool edible;
+        public double edibleWorth;
         public int[] droppedBy;
     }
 

@@ -3,6 +3,8 @@ using GoRogue.MapViews;
 using GoRogue.Pathing;
 using Microsoft.Xna.Framework;
 using Mordred.Config;
+using Mordred.Entities;
+using Mordred.Entities.Animals;
 using Mordred.Graphics.Consoles;
 using System;
 using System.Collections.Generic;
@@ -80,6 +82,38 @@ namespace Mordred.WorldGen
                             SetCell(x, y, WorldCells[1].TakeRandom());
                         Terrain[y * Width + x] = 1;
                     }
+                }
+            }
+        }
+
+        public void GenerateWildLife()
+        {
+            var wildLifeCount = Game.Random.Next(Constants.WorldSettings.MinWildLife, Constants.WorldSettings.MaxWildLife + 1);
+            var spawnPositions = GetCellCoords(a => a.Walkable).ToList();
+            var animalAmount = new Dictionary<Type, int>();
+
+            // Get all classes that inherit from Animal
+            var animalTypes = ReflectiveEnumerator.GetEnumerableOfType<Animal>().ToList();
+
+            // Automatic selection of all animals
+            for (int i=0; i < wildLifeCount; i++)
+            {
+                var animal = animalTypes.TakeRandom();
+
+                // Max animal packs
+                if (!animalAmount.TryGetValue(animal, out int amount))
+                {
+                    animalAmount.Add(animal, 0);
+                }
+
+                if (amount < Constants.WorldSettings.MaxAnimalPackSize)
+                {
+                    var pos = spawnPositions.TakeRandom();
+                    spawnPositions.Remove(pos);
+                    EntitySpawner.Spawn(animal, pos);
+
+                    // Increase counter
+                    animalAmount[animal]++;
                 }
             }
         }

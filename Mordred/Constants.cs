@@ -9,6 +9,13 @@
             public const float TimePerTickInSeconds = 0.35f;
         }
 
+        public static class WorldSettings
+        {
+            public const int MinWildLife = 4;
+            public const int MaxWildLife = 16;
+            public const int MaxAnimalPackSize = 4;
+        }
+
         public static class ActorSettings
         {
             public const int DefaultHungerTickRate = 10;

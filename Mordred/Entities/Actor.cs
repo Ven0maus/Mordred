@@ -1,11 +1,14 @@
 ﻿using GoRogue;
 using Microsoft.Xna.Framework;
 using Mordred.Entities.Actions;
+using Mordred.Entities.Actions.Implementations;
 using Mordred.GameObjects;
 using Mordred.Graphics.Consoles;
 using SadConsole.Entities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Mordred.Entities
 {
@@ -13,7 +16,7 @@ namespace Mordred.Entities
     {
         public Inventory Inventory { get; private set; }
         public IAction CurrentAction { get; private set; }
-        private readonly Queue<IAction> _actorActionsQueue;
+        private Queue<IAction> _actorActionsQueue;
 
         #region Actor stats
         public virtual int Health { get; private set; }
@@ -35,9 +38,18 @@ namespace Mordred.Entities
             Game.GameTick += HandleActions;
         }
 
-        public void AddAction(IAction action)
+        public void AddAction(IAction action, bool prioritize = false)
         {
-            _actorActionsQueue.Enqueue(action);
+            if (prioritize)
+            {
+                var l = _actorActionsQueue.ToList();
+                l.Insert(0, action);
+                _actorActionsQueue = new Queue<IAction>(l);
+            }
+            else
+            {
+                _actorActionsQueue.Enqueue(action);
+            }
         }
 
         public bool CanMoveTowards(int x, int y, out CustomPath path)
@@ -103,6 +115,12 @@ namespace Mordred.Entities
             }
         }
 
+        public virtual void Eat(WorldItem edible, int amount)
+        {
+            if (!edible.Edible) return;
+            Hunger += (int)Math.Round(amount * edible.EdibleWorth);
+        }
+
         /// <summary>
         /// This method is called every game tick, use this to execute actor logic that should be tick based
         /// </summary>
@@ -117,6 +135,12 @@ namespace Mordred.Entities
                     Hunger--;
                 else
                     TakeDamage(2);
+
+                if (Hunger <= 20 && (CurrentAction != null && CurrentAction.GetType() != typeof(EatAction)) && 
+                    !_actorActionsQueue.Any(a => a.GetType() == typeof(EatAction)))
+                {
+                    AddAction(new EatAction(), true);
+                }
             }
             _hungerTicks++;
         }

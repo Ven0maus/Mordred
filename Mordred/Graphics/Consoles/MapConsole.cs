@@ -15,6 +15,7 @@ namespace Mordred.Graphics.Consoles
         {
             World = new World(Width, Height);
             World.GenerateLands();
+            World.GenerateWildLife();
             World.GenerateVillages();
             World.Render(true, true);
         }
