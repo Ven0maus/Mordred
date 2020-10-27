@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace Mordred.Entities.Actions.Implementations
 {
-    public class WoodcuttingAction : IAction
+    public class WoodcuttingAction : BaseAction
     {
-        public event EventHandler<ActionCompletedArgs> ActionCompleted;
+        public override event EventHandler<ActionArgs> ActionCompleted;
 
         private readonly IEnumerable<Coord> _selectedTrees = null;
         private Queue<Coord> _selectedTreesOrdered = null;
@@ -99,12 +99,28 @@ namespace Mordred.Entities.Actions.Implementations
             return true;
         }
 
-        public bool Execute(Actor actor)
+        public override bool Execute(Actor actor)
         {
+            // Check for canceled state
+            if (base.Execute(actor))
+            {
+                if (_deliveringWood)
+                {
+                    // Drop wood item on the current standing tile
+                    var wood = actor.Inventory.Take(0, 10);
+                    wood.Position = actor.Position;
+
+                    // Insert under the actor
+                    var mapConsole = Game.Container.GetConsole<MapConsole>();
+                    mapConsole.Children.Insert(0, wood);
+                }
+                return true;
+            }
+
             // If this action is not executed by a tribeman we finish the task instantly
             if (!(actor is Tribeman tribeman))
             {
-                ActionCompleted?.Invoke(this, new ActionCompletedArgs { Actor = actor });
+                ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
                 return true;
             }
 
@@ -118,7 +134,7 @@ namespace Mordred.Entities.Actions.Implementations
 
                     if (_taskDone)
                     {
-                        ActionCompleted?.Invoke(this, new ActionCompletedArgs { Actor = actor });
+                        ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
                         return true;
                     }
 
@@ -134,7 +150,7 @@ namespace Mordred.Entities.Actions.Implementations
                 CurrentTree = GetClosestTree(actor.Position, tribeman);
                 if (CurrentTree == null)
                 {
-                    ActionCompleted?.Invoke(this, new ActionCompletedArgs { Actor = actor });
+                    ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
                     return true;
                 }
             }
@@ -144,7 +160,7 @@ namespace Mordred.Entities.Actions.Implementations
             {
                 CurrentTree = null;
                 if (_taskDone) 
-                    ActionCompleted?.Invoke(this, new ActionCompletedArgs { Actor = actor });
+                    ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
                 return _taskDone;
             }
 

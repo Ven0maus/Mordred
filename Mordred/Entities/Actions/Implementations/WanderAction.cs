@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace Mordred.Entities.Actions.Implementations
 {
-    public class WanderAction : IAction
+    public class WanderAction : BaseAction
     {
         private Coord? _destination;
 
-        public event EventHandler<ActionCompletedArgs> ActionCompleted;
+        public override event EventHandler<ActionArgs> ActionCompleted;
 
         public Coord? GetWanderingPosition(Tribeman tribeman)
         {
@@ -39,8 +39,11 @@ namespace Mordred.Entities.Actions.Implementations
             return true;
         }
 
-        public bool Execute(Actor actor)
+        public override bool Execute(Actor actor)
         {
+            // Check for canceled state
+            if (base.Execute(actor)) return true;
+
             if (actor is Tribeman tribeman)
             {
                 if (_destination == null)
@@ -52,11 +55,11 @@ namespace Mordred.Entities.Actions.Implementations
                 var result = Wander(tribeman);
                 if (result)
                 {
-                    ActionCompleted?.Invoke(this, new ActionCompletedArgs() { Actor = actor });
+                    ActionCompleted?.Invoke(this, new ActionArgs() { Actor = actor });
                 }
                 return result;
             }
-            ActionCompleted?.Invoke(this, new ActionCompletedArgs() { Actor = actor });
+            ActionCompleted?.Invoke(this, new ActionArgs() { Actor = actor });
             return true;
         }
     }

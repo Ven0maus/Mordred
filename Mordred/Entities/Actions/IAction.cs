@@ -5,10 +5,12 @@ namespace Mordred.Entities.Actions
     public interface IAction
     {
         bool Execute(Actor actor);
-        event EventHandler<ActionCompletedArgs> ActionCompleted;
+        void Cancel();
+        event EventHandler<ActionArgs> ActionCompleted;
+        event EventHandler<ActionArgs> ActionCanceled;
     }
 
-    public class ActionCompletedArgs : EventArgs
+    public class ActionArgs : EventArgs
     {
         public Actor Actor;
     }
