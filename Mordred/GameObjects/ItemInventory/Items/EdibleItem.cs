@@ -6,7 +6,7 @@ namespace Mordred.GameObjects.ItemInventory.Items
     {
         public double EdibleWorth { get; private set; }
 
-        public EdibleItem(int id, double edibleWorth , Color foreground, Color background, int glyph, int? amount = null, int[] droppedBy = null) : 
+        public EdibleItem(int id, double edibleWorth , Color foreground, Color background, int glyph, int? amount = null, string[] droppedBy = null) : 
             base(id, foreground, background, glyph, amount, droppedBy)
         {
             EdibleWorth = edibleWorth;

@@ -62,7 +62,8 @@ namespace Mordred.Entities.Actions.Implementations
                 if (actor is Tribeman)
                 {
                     // Add action to collect item from hut
-                    actor.AddAction(new CollectAction(closestEdible.Value.Value, Constants.ActionSettings.DefaultTotalGather));
+                    var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache.First(a => a.Key == closestEdible.Value.Value).Value as EdibleItem).EdibleWorth);
+                    actor.AddAction(new CollectAction(closestEdible.Value.Value, amount));
                 }
                 actor.AddAction(new EatAction());
             }
@@ -74,13 +75,13 @@ namespace Mordred.Entities.Actions.Implementations
         private List<KeyValuePair<Coord, int>?> GetEdibleCells()
         {
             var cellIds = Inventory.ItemCache.Where(a => a.Value is EdibleItem edible && edible.DroppedBy != null)
-                .Select(a => new { a.Value.DroppedBy, EdibleId = a.Value.Id })
+                .Select(a => new { a.Value, EdibleId = a.Value.Id })
                 .ToList();
             var kvps = new List<KeyValuePair<Coord, int>?>();
             
             foreach (var id in cellIds)
             {
-                var coords = MapConsole.World.GetCellCoords(a => id.DroppedBy.Contains(a.CellId));
+                var coords = MapConsole.World.GetCellCoords(a => id.Value.IsDroppedBy(a.CellId));
                 kvps.AddRange(coords.Select(a => new KeyValuePair<Coord, int>?(new KeyValuePair<Coord, int>(a, id.EdibleId))));
             }
             return kvps;

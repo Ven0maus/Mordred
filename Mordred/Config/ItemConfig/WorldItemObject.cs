@@ -12,7 +12,7 @@ namespace Mordred.Config.ItemConfig
         public string background;
         public bool edible;
         public double edibleWorth;
-        public int[] droppedBy;
+        public string[] droppedBy;
     }
 
     [Serializable]

@@ -185,7 +185,7 @@ namespace Mordred.WorldGen
         /// <returns></returns>
         public List<int> GetItemIdDropsByCellId(int cellId)
         {
-            var items = Inventory.ItemCache.Where(a => a.Value.DroppedBy != null && a.Value.DroppedBy.Any(b => b == cellId))
+            var items = Inventory.ItemCache.Where(a => a.Value.DroppedBy != null && a.Value.IsDroppedBy(cellId))
                 .Select(a => a.Key)
                 .ToList();
             return items;
@@ -199,7 +199,7 @@ namespace Mordred.WorldGen
         public List<int> GetItemIdDropsByCellId(Coord coord)
         {
             var cellId = GetCell(coord.X, coord.Y).CellId;
-            var items = Inventory.ItemCache.Where(a => a.Value.DroppedBy != null && a.Value.DroppedBy.Any(b => b == cellId))
+            var items = Inventory.ItemCache.Where(a => a.Value.DroppedBy != null && a.Value.IsDroppedBy(cellId))
                 .Select(a => a.Key)
                 .ToList();
             return items;
@@ -212,7 +212,7 @@ namespace Mordred.WorldGen
         /// <returns></returns>
         public List<int> GetCellIdDropsByItemId(int itemId)
         {
-            return Inventory.ItemCache[itemId].DroppedBy.ToList();
+            return Inventory.ItemCache[itemId].GetCellDropIds();
         }
 
         public void SetCell(int x, int y, WorldCell cell)

@@ -16,19 +16,22 @@ namespace Mordred.Entities.Actions.Implementations
         private int _amount;
         private bool _taskDone = false;
         private bool _deliveringItem = false;
+        private readonly int _gatherTickRate;
         private int _gatherCounter = 0;
         private List<Coord> _gatherables;
 
-        public GatheringAction(int cellId, int amount = 1)
+        public GatheringAction(int cellId, int amount = 1, int? gatherTickRate = null)
         {
             _cellsToGather = new[] { cellId };
             _amount = amount;
+            _gatherTickRate = gatherTickRate != null ? gatherTickRate.Value : Constants.ActionSettings.DefaultGatherTickRate;
         }
 
-        public GatheringAction(IEnumerable<Coord> gatherables)
+        public GatheringAction(IEnumerable<Coord> gatherables, int? gatherTickRate = null)
         {
             _gatherables = gatherables.ToList();
             _amount = _gatherables.Count;
+            _gatherTickRate = gatherTickRate != null ? gatherTickRate.Value : Constants.ActionSettings.DefaultGatherTickRate;
             _cellsToGather = _gatherables
                 .Select(a => MapConsole.World.GetCell(a.X, a.Y).CellId)
                 .Distinct()
@@ -92,10 +95,11 @@ namespace Mordred.Entities.Actions.Implementations
         }
 
         private List<int> _currentItemsGathered;
+        private int? _currentCellGathered;
         private bool GatherItem(Actor actor)
         {
             // Require x amount of ticks to gather the item
-            if (_gatherCounter < Constants.ActionSettings.DefaultGatherTickRate)
+            if (_gatherCounter < _gatherTickRate)
             {
                 _gatherCounter++;
                 return false;
@@ -104,6 +108,7 @@ namespace Mordred.Entities.Actions.Implementations
 
             // Get correct items
             _currentItemsGathered = MapConsole.World.GetItemIdDropsByCellId(CurrentGatherable.Value);
+            _currentCellGathered = MapConsole.World.GetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y).CellId;
 
             // Replace gatherable by the underlying terrain
             var terrainCell = MapConsole.World.GetTerrain(CurrentGatherable.Value.X, CurrentGatherable.Value.Y);
@@ -113,7 +118,9 @@ namespace Mordred.Entities.Actions.Implementations
             // Add x of the gatherable item to actor inventory
             foreach (var itemId in _currentItemsGathered)
             {
-                actor.Inventory.Add(itemId, Constants.ActionSettings.DefaultTotalGather);
+                var dropRate = Inventory.ItemCache[itemId].GetDropRateForCellId(_currentCellGathered.Value);
+                if (dropRate == null) continue;
+                actor.Inventory.Add(itemId, Game.Random.Next(dropRate.Value.Key, dropRate.Value.Value));
             }
             _amount--;
             return true;
@@ -130,7 +137,9 @@ namespace Mordred.Entities.Actions.Implementations
                     // Drop item(s) on the current standing tile
                     foreach (var itemId in _currentItemsGathered)
                     {
-                        var item = actor.Inventory.Take(itemId, Constants.ActionSettings.DefaultTotalGather);
+                        var dropRate = Inventory.ItemCache[itemId].GetDropRateForCellId(_currentCellGathered.Value);
+                        if (dropRate == null) continue;
+                        var item = actor.Inventory.Take(itemId, Game.Random.Next(dropRate.Value.Key, dropRate.Value.Value));
                         item.Position = actor.Position;
 
                         // Insert under the actor
@@ -161,6 +170,7 @@ namespace Mordred.Entities.Actions.Implementations
                     }
 
                     _currentItemsGathered = null;
+                    _currentCellGathered = null;
                     CurrentGatherable = null;
                     _deliveringItem = false;
                 }

@@ -25,8 +25,6 @@
         public static class ActionSettings
         {
             public const int DefaultGatherTickRate = 8;
-            public const int DefaultWoodcuttingTickRate = 8;
-            public const int DefaultTotalGather = 10;
         }
 
         public static class VillageSettings
