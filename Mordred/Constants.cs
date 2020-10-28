@@ -20,6 +20,7 @@
         {
             public const int DefaultHungerTickRate = 10;
             public const int DefaultMaxHunger = 75;
+            public const int TicksBeforeCorpseRots = 100;
         }
 
         public static class ActionSettings

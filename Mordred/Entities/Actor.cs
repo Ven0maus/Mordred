@@ -25,6 +25,7 @@ namespace Mordred.Entities
         #region Actor stats
         public virtual int Health { get; private set; }
         public virtual int Hunger { get; private set; }
+        public bool Alive { get { return Health > 0; } }
 
         public int HungerTickRate = Constants.ActorSettings.DefaultHungerTickRate;
         private int _hungerTicks = 0;
@@ -44,6 +45,7 @@ namespace Mordred.Entities
 
         public void AddAction(IAction action, bool prioritize = false)
         {
+            if (!Alive) return;
             if (prioritize)
             {
                 var l = _actorActionsQueue.ToList();
@@ -58,13 +60,15 @@ namespace Mordred.Entities
 
         public bool CanMoveTowards(int x, int y, out CustomPath path)
         {
+            path = null;
+            if (!Alive) return false;
             path = MapConsole.World.Pathfinder.ShortestPath(Position, new Coord(x, y))?.ToCustomPath();
             return path != null;
         }
 
         public bool MoveTowards(CustomPath path)
         {
-            if (path == null) return false;
+            if (path == null || !Alive) return false;
 
             var nextStep = path.TakeStep(0);
             if (MapConsole.World.GetCell(nextStep.X, nextStep.Y).Walkable)
@@ -77,6 +81,7 @@ namespace Mordred.Entities
 
         public bool MoveTowards(int x, int y)
         {
+            if (!Alive) return false;
             var movementPath = MapConsole.World.Pathfinder.ShortestPath(Position, new Coord(x, y)).ToCustomPath();
             return MoveTowards(movementPath);
         }
@@ -103,12 +108,14 @@ namespace Mordred.Entities
 
         public virtual void DealDamage(int damage, Actor attacker)
         {
+            if (!Alive) return;
             Health -= damage;
 
             // Actor died
             if (Health <= 0)
             {
                 // Unset actions
+                Hunger = 0;
                 _actorActionsQueue.Clear();
                 CurrentAction = null;
 
@@ -116,15 +123,58 @@ namespace Mordred.Entities
                 Game.GameTick -= GameTick;
                 Game.GameTick -= HandleActions;
 
-                // Destroy the entity from the collection
-                EntitySpawner.Destroy(this);
+                // Start decay process
+                Game.GameTick += StartActorDecayProcess;
 
+                // Trigger death event
                 OnActorDeath?.Invoke(this, attacker);
             }
         }
 
+        private int _rottingCounter = 0;
+        private bool _corpseRotting = false;
+        private bool _skeletonDecaying = false;
+        private void StartActorDecayProcess(object sender, EventArgs args)
+        {
+            // Initial freshness of the corpse
+            int ticksToRot = _skeletonDecaying ? (Constants.ActorSettings.TicksBeforeCorpseRots * 2) : Constants.ActorSettings.TicksBeforeCorpseRots;
+            if (_rottingCounter < ticksToRot)
+            {
+                _rottingCounter++;
+                return;
+            }
+
+            if (!_corpseRotting)
+            {
+                // Turn corpse red for another half the amount of ticks
+                Name += "(rotting)";
+                Animation[0].Foreground = Color.Lerp(Animation[0].Foreground, Color.Red, 0.7f);
+
+                _rottingCounter = Constants.ActorSettings.TicksBeforeCorpseRots / 2;
+                _corpseRotting = true;
+                return;
+            }
+
+            if (!_skeletonDecaying)
+            {
+                // Change this actor to a skeleton
+                Name = Name.Replace("(rotting)", "(skeleton)");
+                Animation[0].Foreground = Color.Lerp(Color.GhostWhite, Color.Black, 0.2f);
+
+                _rottingCounter = 0;
+                _skeletonDecaying = true;
+            }
+
+            // Unset tick event
+            Game.GameTick -= StartActorDecayProcess;
+
+            // Destroy the skeleton corpse
+            EntitySpawner.Destroy(this);
+        }
+
         public virtual void Eat(EdibleItem edible, int amount)
         {
+            if (!Alive) return;
             Hunger += (int)Math.Round(amount * edible.EdibleWorth);
             Debug.WriteLine("[" + GetType().Name + "] just ate ["+ edible.Name +"] for: " + (int)Math.Round(amount * edible.EdibleWorth) + " hunger value.");
         }
