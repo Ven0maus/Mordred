@@ -4,8 +4,8 @@
     {
         public static class GameSettings
         {
-            public const int GameWindowWidth = 100;
-            public const int GameWindowHeight = 40;
+            public const int GameWindowWidth = 140;
+            public const int GameWindowHeight = 50;
             public const float TimePerTickInSeconds = 0.25f;
         }
 
