@@ -153,7 +153,7 @@ namespace Mordred.Entities
             _hungerTicks++;
         }
 
-        private bool HasActionOfType<T>() where T : BaseAction
+        private bool HasActionOfType<T>() where T : IAction
         {
             if (_actorActionsQueue.Any(a => a.GetType() == typeof(T))) return true;
             if (CurrentAction != null && CurrentAction.GetType() == typeof(T)) return true;
