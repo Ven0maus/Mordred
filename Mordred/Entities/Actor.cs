@@ -140,7 +140,8 @@ namespace Mordred.Entities
             Name += "(corpse)";
 
             // Initial freshness of the corpse
-            int ticksToRot = _skeletonDecaying ? (Constants.ActorSettings.TicksBeforeCorpseRots * 2) : Constants.ActorSettings.TicksBeforeCorpseRots;
+            int tickRate = (int)Math.Round(1f / Constants.GameSettings.TimePerTickInSeconds);
+            int ticksToRot = _skeletonDecaying ? (Constants.ActorSettings.SecondsBeforeCorpsRots * tickRate) : (Constants.ActorSettings.SecondsBeforeCorpsRots * tickRate);
             if (_rottingCounter < ticksToRot)
             {
                 _rottingCounter++;
