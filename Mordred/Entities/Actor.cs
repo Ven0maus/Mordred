@@ -122,7 +122,7 @@ namespace Mordred.Entities
         public virtual void Eat(EdibleItem edible, int amount)
         {
             Hunger += (int)Math.Round(amount * edible.EdibleWorth);
-            Debug.WriteLine("Deer just ate for: " + (int)Math.Round(amount * edible.EdibleWorth));
+            Debug.WriteLine("[" + GetType().Name + "] just ate ["+ edible.Name +"] for: " + (int)Math.Round(amount * edible.EdibleWorth) + " hunger value.");
         }
 
         /// <summary>
