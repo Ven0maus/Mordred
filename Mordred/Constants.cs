@@ -6,7 +6,7 @@
         {
             public const int GameWindowWidth = 100;
             public const int GameWindowHeight = 40;
-            public const float TimePerTickInSeconds = 0.35f;
+            public const float TimePerTickInSeconds = 0.25f;
         }
 
         public static class WorldSettings
