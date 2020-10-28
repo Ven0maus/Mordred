@@ -112,7 +112,9 @@ namespace Mordred.Entities
                 // Remove from the map and unsubscribe from events
                 Game.GameTick -= GameTick;
                 Game.GameTick -= HandleActions;
-                Game.Container.GetConsole<MapConsole>().Children.Remove(this);
+
+                // Destroy the entity from the collection
+                EntitySpawner.Destroy(this);
             }
         }
 

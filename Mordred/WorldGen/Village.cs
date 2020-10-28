@@ -77,6 +77,7 @@ namespace Mordred.WorldGen
                 cell.Foreground = Color;
                 world.SetCell(hutPosition.X, hutPosition.Y, cell);
 
+                // TODO: [REMOVE] this is for testing purposes
                 // Draw circle area around hut
                 var circlePositions = hutPosition
                     .GetCirclePositions(3)
@@ -115,7 +116,6 @@ namespace Mordred.WorldGen
                 circlePositions.Remove(pos);
                 hutPositions.Remove(hutPos);
 
-                // TODO: Make some kind of entity spawner class to handle this?
                 var tribeman = new Tribeman(this, hutPos, pos, Color);
                 EntitySpawner.Spawn(tribeman);
                 Tribemen.Add(tribeman);
