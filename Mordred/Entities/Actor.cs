@@ -41,9 +41,6 @@ namespace Mordred.Entities
             // Subscribe to the game tick event
             Game.GameTick += GameTick;
             Game.GameTick += HandleActions;
-
-            // Insta kill!
-            DealDamage(Health, this);
         }
 
         public void AddAction(IAction action, bool prioritize = false)
