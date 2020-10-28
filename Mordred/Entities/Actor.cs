@@ -41,6 +41,9 @@ namespace Mordred.Entities
             // Subscribe to the game tick event
             Game.GameTick += GameTick;
             Game.GameTick += HandleActions;
+
+            // Insta kill!
+            DealDamage(Health, this);
         }
 
         public void AddAction(IAction action, bool prioritize = false)
@@ -136,6 +139,9 @@ namespace Mordred.Entities
         private bool _skeletonDecaying = false;
         private void StartActorDecayProcess(object sender, EventArgs args)
         {
+            // Add corpse to the name, to make it more clear
+            Name += "(corpse)";
+
             // Initial freshness of the corpse
             int ticksToRot = _skeletonDecaying ? (Constants.ActorSettings.TicksBeforeCorpseRots * 2) : Constants.ActorSettings.TicksBeforeCorpseRots;
             if (_rottingCounter < ticksToRot)
@@ -146,23 +152,26 @@ namespace Mordred.Entities
 
             if (!_corpseRotting)
             {
-                // Turn corpse red for another half the amount of ticks
-                Name += "(rotting)";
+                // Turn corpse to rotting for the same amount of ticks as the freshness
+                Name = Name.Replace("(corpse)", "(rotting)");
                 Animation[0].Foreground = Color.Lerp(Animation[0].Foreground, Color.Red, 0.7f);
+                Animation.IsDirty = true;
 
-                _rottingCounter = Constants.ActorSettings.TicksBeforeCorpseRots / 2;
+                _rottingCounter = 0;
                 _corpseRotting = true;
                 return;
             }
 
             if (!_skeletonDecaying)
             {
-                // Change this actor to a skeleton
+                // Turn corpse to skeleton and start decay process which is 2x as long
                 Name = Name.Replace("(rotting)", "(skeleton)");
                 Animation[0].Foreground = Color.Lerp(Color.GhostWhite, Color.Black, 0.2f);
+                Animation.IsDirty = true;
 
                 _rottingCounter = 0;
                 _skeletonDecaying = true;
+                return;
             }
 
             // Unset tick event
