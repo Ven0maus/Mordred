@@ -47,6 +47,7 @@ namespace Mordred.WorldGen
             // Basic item resources
             Inventory.Add(0, 75); // Wood
             Inventory.Add(1, 35); // Stone
+            Inventory.Add(2, 50); // Berries
 
             // Build the village
             Build(world, 1);
