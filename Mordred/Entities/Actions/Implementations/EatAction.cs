@@ -21,14 +21,14 @@ namespace Mordred.Entities.Actions.Implementations
             var items = actor.Inventory.Peek()
                 .Where(a => edibles.Contains(a.Key))
                 .OrderByDescending(a => a.Value)
-                .Select(a => new { EdibleId = a.Key, EdibleAmount = a.Value })
+                .Select(a => new { EdibleId = a.Key })
                 .ToList();
 
             // Add action to eat edibles if the actor has some in his inventory
             var edible = items.FirstOrDefault();
             if (edible != null)
             {
-                var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (double)edible.EdibleAmount);
+                var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache[edible.EdibleId] as EdibleItem).EdibleWorth);
                 EatEdibles(actor, edible.EdibleId, amount);
                 return true;
             }
@@ -39,7 +39,7 @@ namespace Mordred.Entities.Actions.Implementations
                 items = tribeman.Village.Inventory.Peek()
                     .Where(a => edibles.Contains(a.Key))
                     .OrderByDescending(a => a.Value)
-                    .Select(a => new { EdibleId = a.Key, EdibleAmount = a.Value })
+                    .Select(a => new { EdibleId = a.Key })
                     .ToList();
                 edible = items.FirstOrDefault();
                 if (edible != null)

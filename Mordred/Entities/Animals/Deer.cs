@@ -10,7 +10,7 @@ namespace Mordred.Entities.Animals
         public Deer(Coord position) : base(Color.SaddleBrown, 'D') 
         {
             Position = position;
-            HungerTickRate = 8;
+            HungerTickRate = 2;
         }
 
         protected override void GameTick(object sender, EventArgs args)

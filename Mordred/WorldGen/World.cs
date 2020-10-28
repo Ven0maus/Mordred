@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Mordred.Config;
 using Mordred.Entities;
 using Mordred.Entities.Animals;
+using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
 using System;
 using System.Collections.Generic;
@@ -177,6 +178,42 @@ namespace Mordred.WorldGen
             }
         }
 
+        /// <summary>
+        /// Returns a list of all the WorldItem Id's that the given WorldCell drops
+        /// </summary>
+        /// <param name="cellId"></param>
+        /// <returns></returns>
+        public List<int> GetItemIdDropsByCellId(int cellId)
+        {
+            var items = Inventory.ItemCache.Where(a => a.Value.DroppedBy != null && a.Value.DroppedBy.Any(b => b == cellId))
+                .Select(a => a.Key)
+                .ToList();
+            return items;
+        }
+
+        /// <summary>
+        /// Returns a list of all the WorldItem Id's that the given WorldCell drops
+        /// </summary>
+        /// <param name="coord"></param>
+        /// <returns></returns>
+        public List<int> GetItemIdDropsByCellId(Coord coord)
+        {
+            var cellId = GetCell(coord.X, coord.Y).CellId;
+            var items = Inventory.ItemCache.Where(a => a.Value.DroppedBy != null && a.Value.DroppedBy.Any(b => b == cellId))
+                .Select(a => a.Key)
+                .ToList();
+            return items;
+        }
+
+        /// <summary>
+        /// Returns a list of all the WorldCell Id's that drop the given item id
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <returns></returns>
+        public List<int> GetCellIdDropsByItemId(int itemId)
+        {
+            return Inventory.ItemCache[itemId].DroppedBy.ToList();
+        }
 
         public void SetCell(int x, int y, WorldCell cell)
         {

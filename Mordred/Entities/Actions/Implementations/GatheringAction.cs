@@ -91,6 +91,7 @@ namespace Mordred.Entities.Actions.Implementations
             return false;
         }
 
+        private List<int> _currentItemsGathered;
         private bool GatherItem(Actor actor)
         {
             // Require x amount of ticks to gather the item
@@ -101,26 +102,21 @@ namespace Mordred.Entities.Actions.Implementations
             }
             _gatherCounter = 0;
 
+            // Get correct items
+            _currentItemsGathered = MapConsole.World.GetItemIdDropsByCellId(CurrentGatherable.Value);
+
             // Replace gatherable by the underlying terrain
             var terrainCell = MapConsole.World.GetTerrain(CurrentGatherable.Value.X, CurrentGatherable.Value.Y);
             MapConsole.World.SetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y, terrainCell);
             MapConsole.World.Render(true, false);
 
-            // Add 5 of the gatherable item to actor inventory
-            foreach (var itemId in GetItemsFromGatherable())
+            // Add x of the gatherable item to actor inventory
+            foreach (var itemId in _currentItemsGathered)
             {
                 actor.Inventory.Add(itemId, Constants.ActionSettings.DefaultTotalGather);
             }
             _amount--;
             return true;
-        }
-
-        private List<int> GetItemsFromGatherable()
-        {
-            var items = Inventory.ItemCache.Where(a => a.Value.DroppedBy != null && a.Value.DroppedBy.Any(b => _cellsToGather.Contains(b)))
-                .Select(a => a.Key)
-                .ToList();
-            return items;
         }
 
         public override bool Execute(Actor actor)
@@ -132,7 +128,7 @@ namespace Mordred.Entities.Actions.Implementations
                 {
                     var mapConsole = Game.Container.GetConsole<MapConsole>();
                     // Drop item(s) on the current standing tile
-                    foreach (var itemId in GetItemsFromGatherable())
+                    foreach (var itemId in _currentItemsGathered)
                     {
                         var item = actor.Inventory.Take(itemId, Constants.ActionSettings.DefaultTotalGather);
                         item.Position = actor.Position;
@@ -153,7 +149,7 @@ namespace Mordred.Entities.Actions.Implementations
                     !tribeman.MoveTowards(movPath))
                 {
                     // Add gatherables to village resource collection
-                    foreach (var itemId in GetItemsFromGatherable())
+                    foreach (var itemId in _currentItemsGathered)
                     {
                         tribeman.Village.Inventory.Add(itemId, actor.Inventory.Take(itemId).Amount);
                     }
@@ -164,6 +160,7 @@ namespace Mordred.Entities.Actions.Implementations
                         return true;
                     }
 
+                    _currentItemsGathered = null;
                     CurrentGatherable = null;
                     _deliveringItem = false;
                 }

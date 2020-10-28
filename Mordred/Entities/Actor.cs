@@ -8,6 +8,7 @@ using Mordred.Graphics.Consoles;
 using SadConsole.Entities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Mordred.Entities
@@ -118,6 +119,7 @@ namespace Mordred.Entities
         public virtual void Eat(EdibleItem edible, int amount)
         {
             Hunger += (int)Math.Round(amount * edible.EdibleWorth);
+            Debug.WriteLine("Deer just ate for: " + (int)Math.Round(amount * edible.EdibleWorth));
         }
 
         /// <summary>
@@ -135,9 +137,11 @@ namespace Mordred.Entities
                 else
                     TakeDamage(2);
 
-                if (Hunger <= 20 && (CurrentAction != null && CurrentAction.GetType() != typeof(EatAction)) && 
+                if (Hunger <= 40 && (CurrentAction != null && CurrentAction.GetType() != typeof(EatAction)) && 
                     !_actorActionsQueue.Any(a => a.GetType() == typeof(EatAction)))
                 {
+                    if (CurrentAction is WanderAction wAction)
+                        wAction.Cancel();
                     AddAction(new EatAction(), true);
                 }
             }
