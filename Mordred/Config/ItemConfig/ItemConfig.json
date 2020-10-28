@@ -6,7 +6,6 @@
       "name" : "Wood",
 	  "foreground" : "Brown",
       "background" : "Black",
-      "edible" : false,
       "droppedBy" : ["2|10:20"]
     },
     {
@@ -15,7 +14,6 @@
       "name" : "Stone",
 	  "foreground" : "DarkGray",
       "background" : "Black",
-      "edible" : false,
       "droppedBy" : ["3|10:15"]
     },
     {
