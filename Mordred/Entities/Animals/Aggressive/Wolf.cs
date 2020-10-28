@@ -5,12 +5,12 @@ using System;
 
 namespace Mordred.Entities.Animals
 {
-    public class Deer : Animal
+    public class Wolf : PredatorAnimal
     {
-        public Deer(Coord position) : base(Color.SaddleBrown, 'D') 
+        public Wolf(Coord position) : base(Color.LightSlateGray, 'w')
         {
             Position = position;
-            HungerTickRate = 5;
+            HungerTickRate = 4;
         }
 
         protected override void GameTick(object sender, EventArgs args)
