@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Mordred.Entities.Actions;
 using Mordred.Entities.Actions.Implementations;
+using Mordred.Entities.Animals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.Graphics.Consoles;
@@ -139,15 +140,24 @@ namespace Mordred.Entities
                 else
                     TakeDamage(2);
 
-                if (Hunger <= 40 && (CurrentAction != null && CurrentAction.GetType() != typeof(EatAction)) && 
-                    !_actorActionsQueue.Any(a => a.GetType() == typeof(EatAction)))
+                if (Hunger <= 40 && !HasActionOfType<EatAction>() && !HasActionOfType<PredatorAction>())
                 {
                     if (CurrentAction is WanderAction wAction)
                         wAction.Cancel();
-                    AddAction(new EatAction(), true);
+                    if (this is PredatorAnimal)
+                        AddAction(new PredatorAction(), true);
+                    else
+                        AddAction(new EatAction(), true);
                 }
             }
             _hungerTicks++;
+        }
+
+        private bool HasActionOfType<T>() where T : BaseAction
+        {
+            if (_actorActionsQueue.Any(a => a.GetType() == typeof(T))) return true;
+            if (CurrentAction != null && CurrentAction.GetType() == typeof(T)) return true;
+            return false;
         }
     }
 }

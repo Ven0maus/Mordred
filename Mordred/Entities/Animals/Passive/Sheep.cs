@@ -10,7 +10,7 @@ namespace Mordred.Entities.Animals
         public Sheep(Coord position) : base(Color.PapayaWhip, 'S')
         {
             Position = position;
-            HungerTickRate = 5;
+            HungerTickRate = 6;
         }
 
         protected override void GameTick(object sender, EventArgs args)

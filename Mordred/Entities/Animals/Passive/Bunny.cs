@@ -10,7 +10,7 @@ namespace Mordred.Entities.Animals
         public Bunny(Coord position) : base(Color.FloralWhite, 'B')
         {
             Position = position;
-            HungerTickRate = 5;
+            HungerTickRate = 7;
         }
 
         protected override void GameTick(object sender, EventArgs args)

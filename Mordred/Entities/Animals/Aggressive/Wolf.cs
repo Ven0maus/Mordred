@@ -10,7 +10,7 @@ namespace Mordred.Entities.Animals
         public Wolf(Coord position) : base(Color.LightSlateGray, 'w')
         {
             Position = position;
-            HungerTickRate = 4;
+            HungerTickRate = 3;
         }
 
         protected override void GameTick(object sender, EventArgs args)
