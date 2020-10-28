@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Mordred.Config.ItemConfig;
 using Mordred.Config.WorldGenConfig;
-using Mordred.GameObjects;
+using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.WorldGen;
 using Newtonsoft.Json;
 using System;
@@ -52,7 +52,16 @@ namespace Mordred.Config
             {
                 var foregroundColor = GetColorByString(item.foreground);
                 var backgroundColor = GetColorByString(item.background);
-                dictionary.Add(item.id, new WorldItem(item.id, foregroundColor, backgroundColor, item.glyph[0], item.edible, item.edibleWorth, 0, item.droppedBy));
+                WorldItem itemToAdd;
+                if (item.edible)
+                {
+                    itemToAdd = new EdibleItem(item.id, item.edibleWorth, foregroundColor, backgroundColor, item.glyph[0], 0, item.droppedBy);
+                }
+                else
+                {
+                    itemToAdd = new WorldItem(item.id, foregroundColor, backgroundColor, item.glyph[0], 0, item.droppedBy);
+                }
+                dictionary.Add(item.id, itemToAdd);
             }
             return dictionary;
         }

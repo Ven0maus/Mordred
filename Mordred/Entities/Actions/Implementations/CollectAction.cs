@@ -24,6 +24,8 @@ namespace Mordred.Entities.Actions.Implementations
                 return true;
             }
 
+            tribeman = actor as Tribeman;
+
             // Go to the hut that belongs to this tribeman
             if (!tribeman.CanMoveTowards(tribeman.HutPosition.X, tribeman.HutPosition.Y, out CustomPath path))
             {

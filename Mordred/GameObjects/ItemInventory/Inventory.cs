@@ -1,8 +1,9 @@
 ﻿using Mordred.Config;
+using Mordred.GameObjects.ItemInventory.Items;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Mordred.GameObjects
+namespace Mordred.GameObjects.ItemInventory
 {
     public class Inventory
     {

@@ -1,6 +1,6 @@
 ﻿using GoRogue;
 using Mordred.Entities.Tribals;
-using Mordred.GameObjects;
+using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
 using System;
 using System.Collections.Generic;

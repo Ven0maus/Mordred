@@ -2,12 +2,12 @@
 using Microsoft.Xna.Framework;
 using Mordred.Entities.Actions;
 using Mordred.Entities.Actions.Implementations;
-using Mordred.GameObjects;
+using Mordred.GameObjects.ItemInventory;
+using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.Graphics.Consoles;
 using SadConsole.Entities;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Mordred.Entities
@@ -115,9 +115,8 @@ namespace Mordred.Entities
             }
         }
 
-        public virtual void Eat(WorldItem edible, int amount)
+        public virtual void Eat(EdibleItem edible, int amount)
         {
-            if (!edible.Edible) return;
             Hunger += (int)Math.Round(amount * edible.EdibleWorth);
         }
 

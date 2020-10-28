@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Mordred.Entities;
 using Mordred.Entities.Tribals;
-using Mordred.GameObjects;
+using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
 using System.Collections.Generic;
 using System.Linq;

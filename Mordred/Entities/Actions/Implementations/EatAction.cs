@@ -1,6 +1,7 @@
 ﻿using GoRogue;
 using Mordred.Entities.Tribals;
-using Mordred.GameObjects;
+using Mordred.GameObjects.ItemInventory;
+using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.Graphics.Consoles;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace Mordred.Entities.Actions.Implementations
         {
             if (base.Execute(actor)) return true;
 
-            var edibles = Inventory.ItemCache.Where(a => a.Value.Edible).Select(a => (int?)a.Key).ToList();
+            var edibles = Inventory.ItemCache.Where(a => a.Value is EdibleItem).Select(a => (int?)a.Key).ToList();
             var items = actor.Inventory.Peek()
                 .Where(a => edibles.Contains(a.Key))
                 .OrderByDescending(a => a.Value)
@@ -27,7 +28,8 @@ namespace Mordred.Entities.Actions.Implementations
             var edible = items.FirstOrDefault();
             if (edible != null)
             {
-                EatEdibles(actor, edible.EdibleId, edible.EdibleAmount);
+                var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (double)edible.EdibleAmount);
+                EatEdibles(actor, edible.EdibleId, amount);
                 return true;
             }
 
@@ -43,7 +45,7 @@ namespace Mordred.Entities.Actions.Implementations
                 if (edible != null)
                 {
                     // Add action to collect item from hut
-                    var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / Inventory.ItemCache.First(a => a.Key == edible.EdibleId).Value.EdibleWorth);
+                    var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache.First(a => a.Key == edible.EdibleId).Value as EdibleItem).EdibleWorth);
                     actor.AddAction(new CollectAction(edible.EdibleId, amount));
 
                     // Add another eat task after this task
@@ -71,7 +73,7 @@ namespace Mordred.Entities.Actions.Implementations
 
         private List<KeyValuePair<Coord, int>?> GetEdibleCells()
         {
-            var cellIds = Inventory.ItemCache.Where(a => a.Value.Edible && a.Value.DroppedBy != null)
+            var cellIds = Inventory.ItemCache.Where(a => a.Value is EdibleItem edible && edible.DroppedBy != null)
                 .Select(a => new { a.Value.DroppedBy, EdibleId = a.Value.Id })
                 .ToList();
             var kvps = new List<KeyValuePair<Coord, int>?>();
@@ -86,7 +88,7 @@ namespace Mordred.Entities.Actions.Implementations
 
         private void EatEdibles(Actor actor, int edibleId, int amount)
         {
-            var item = actor.Inventory.Take(edibleId, amount);
+            var item = actor.Inventory.Take(edibleId, amount) as EdibleItem;
             actor.Eat(item, item.Amount);
         }
     }
