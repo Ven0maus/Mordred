@@ -6,12 +6,7 @@ namespace Mordred.Entities.Actions
     {
         bool Execute(Actor actor);
         void Cancel();
-        event EventHandler<ActionArgs> ActionCompleted;
-        event EventHandler<ActionArgs> ActionCanceled;
-    }
-
-    public class ActionArgs : EventArgs
-    {
-        public Actor Actor;
+        event EventHandler<Actor> ActionCompleted;
+        event EventHandler<Actor> ActionCanceled;
     }
 }

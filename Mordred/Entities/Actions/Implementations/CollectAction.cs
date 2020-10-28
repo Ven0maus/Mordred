@@ -5,7 +5,7 @@ namespace Mordred.Entities.Actions.Implementations
 {
     public class CollectAction : BaseAction
     {
-        public override event EventHandler<ActionArgs> ActionCompleted;
+        public override event EventHandler<Actor> ActionCompleted;
         private readonly int _itemId, _amount;
 
         public CollectAction(int itemId, int amount)
@@ -20,7 +20,7 @@ namespace Mordred.Entities.Actions.Implementations
 
             if (!(actor is Tribeman tribeman) || !tribeman.Village.Inventory.HasItem(_itemId))
             {
-                ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
+                ActionCompleted?.Invoke(this, actor);
                 return true;
             }
 
@@ -29,7 +29,7 @@ namespace Mordred.Entities.Actions.Implementations
             // Go to the hut that belongs to this tribeman
             if (!tribeman.CanMoveTowards(tribeman.HutPosition.X, tribeman.HutPosition.Y, out CustomPath path))
             {
-                ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
+                ActionCompleted?.Invoke(this, actor);
                 return true;
             }
 

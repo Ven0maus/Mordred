@@ -20,6 +20,8 @@ namespace Mordred.Entities
         public IAction CurrentAction { get; private set; }
         private Queue<IAction> _actorActionsQueue;
 
+        public event EventHandler<Actor> OnActorDeath;
+
         #region Actor stats
         public virtual int Health { get; private set; }
         public virtual int Hunger { get; private set; }
@@ -99,7 +101,7 @@ namespace Mordred.Entities
             }
         }
 
-        public virtual void TakeDamage(int damage)
+        public virtual void DealDamage(int damage, Actor attacker)
         {
             Health -= damage;
 
@@ -116,6 +118,8 @@ namespace Mordred.Entities
 
                 // Destroy the entity from the collection
                 EntitySpawner.Destroy(this);
+
+                OnActorDeath?.Invoke(this, attacker);
             }
         }
 
@@ -138,7 +142,7 @@ namespace Mordred.Entities
                 if (Hunger > 0)
                     Hunger--;
                 else
-                    TakeDamage(2);
+                    DealDamage(2, this);
 
                 if (Hunger <= 40 && !HasActionOfType<EatAction>() && !HasActionOfType<PredatorAction>())
                 {

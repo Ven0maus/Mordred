@@ -12,7 +12,7 @@ namespace Mordred.Entities.Actions.Implementations
         private Coord? _destination;
         private CustomPath _path;
 
-        public override event EventHandler<ActionArgs> ActionCompleted;
+        public override event EventHandler<Actor> ActionCompleted;
 
         public Coord? GetWanderingPosition(Actor actor)
         {
@@ -65,14 +65,14 @@ namespace Mordred.Entities.Actions.Implementations
                 _destination = coord.Value;
                 if (!actor.CanMoveTowards(_destination.Value.X, _destination.Value.Y, out _path))
                 {
-                    ActionCompleted?.Invoke(this, new ActionArgs() { Actor = actor });
+                    ActionCompleted?.Invoke(this, actor);
                     return true;
                 }
             }
             var result = Wander(actor);
             if (result)
             {
-                ActionCompleted?.Invoke(this, new ActionArgs() { Actor = actor });
+                ActionCompleted?.Invoke(this, actor);
             }
             return result;
         }

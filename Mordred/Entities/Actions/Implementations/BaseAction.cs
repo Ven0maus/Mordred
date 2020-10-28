@@ -6,8 +6,8 @@ namespace Mordred.Entities.Actions.Implementations
     {
         protected bool Canceled { get; private set; }
 
-        public abstract event EventHandler<ActionArgs> ActionCompleted;
-        public virtual event EventHandler<ActionArgs> ActionCanceled;
+        public abstract event EventHandler<Actor> ActionCompleted;
+        public virtual event EventHandler<Actor> ActionCanceled;
 
         public virtual void Cancel()
         {
@@ -18,7 +18,7 @@ namespace Mordred.Entities.Actions.Implementations
         {
             if (Canceled)
             {
-                ActionCanceled?.Invoke(this, new ActionArgs { Actor = actor });
+                ActionCanceled?.Invoke(this, actor);
                 return true;
             }
             return false;

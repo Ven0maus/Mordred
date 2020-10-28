@@ -11,7 +11,7 @@ namespace Mordred.Entities.Actions.Implementations
 {
     public class EatAction : BaseAction
     {
-        public override event EventHandler<ActionArgs> ActionCompleted;
+        public override event EventHandler<Actor> ActionCompleted;
 
         public override bool Execute(Actor actor)
         {
@@ -68,7 +68,7 @@ namespace Mordred.Entities.Actions.Implementations
                 actor.AddAction(new EatAction());
             }
 
-            ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
+            ActionCompleted?.Invoke(this, actor);
             return true;
         }
 

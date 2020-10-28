@@ -11,7 +11,7 @@ namespace Mordred.Entities.Actions.Implementations
     public class GatheringAction : BaseAction
     {
         public Coord? CurrentGatherable;
-        public override event EventHandler<ActionArgs> ActionCompleted;
+        public override event EventHandler<Actor> ActionCompleted;
         private readonly int[] _cellsToGather;
         private int _amount;
         private bool _taskDone = false;
@@ -165,7 +165,7 @@ namespace Mordred.Entities.Actions.Implementations
 
                     if (_taskDone)
                     {
-                        ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
+                        ActionCompleted?.Invoke(this, actor);
                         return true;
                     }
 
@@ -179,7 +179,7 @@ namespace Mordred.Entities.Actions.Implementations
 
             if (CurrentGatherable == null && _taskDone)
             {
-                ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
+                ActionCompleted?.Invoke(this, actor);
                 return true;
             }
 
@@ -188,7 +188,7 @@ namespace Mordred.Entities.Actions.Implementations
                 CurrentGatherable = GetClosestGatherable(actor);
                 if (CurrentGatherable == null)
                 {
-                    ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
+                    ActionCompleted?.Invoke(this, actor);
                     return true;
                 }
             }
@@ -198,7 +198,7 @@ namespace Mordred.Entities.Actions.Implementations
             {
                 CurrentGatherable = null;
                 if (_taskDone)
-                    ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
+                    ActionCompleted?.Invoke(this, actor);
                 return _taskDone;
             }
 

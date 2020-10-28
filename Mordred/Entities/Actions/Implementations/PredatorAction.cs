@@ -8,7 +8,7 @@ namespace Mordred.Entities.Actions.Implementations
     /// </summary>
     public class PredatorAction : BaseAction
     {
-        public override event EventHandler<ActionArgs> ActionCompleted;
+        public override event EventHandler<Actor> ActionCompleted;
 
         public override bool Execute(Actor actor)
         {
@@ -27,7 +27,10 @@ namespace Mordred.Entities.Actions.Implementations
             // No passive animal found?: then find the nearest predator animal
             // No predator animal found?: find nearest tribeman
 
-            ActionCompleted?.Invoke(this, new ActionArgs { Actor = actor });
+            // Assign attack order on the entity
+            // If the entity is dead eat the carcass
+
+            ActionCompleted?.Invoke(this, actor);
             return true;
         }
     }
