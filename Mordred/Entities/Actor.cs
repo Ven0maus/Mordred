@@ -27,6 +27,9 @@ namespace Mordred.Entities
         public virtual int Hunger { get; private set; }
         public bool Alive { get { return Health > 0; } }
 
+        public bool Rotting { get; private set; } = false;
+        public bool SkeletonDecaying { get; private set; } = false;
+
         public int HungerTickRate = Constants.ActorSettings.DefaultHungerTickRate;
         private int _hungerTicks = 0;
         #endregion
@@ -136,8 +139,6 @@ namespace Mordred.Entities
         }
 
         private int _rottingCounter = 0;
-        private bool _corpseRotting = false;
-        private bool _skeletonDecaying = false;
         private void StartActorDecayProcess(object sender, EventArgs args)
         {
             // Add corpse to the name, to make it more clear
@@ -145,14 +146,14 @@ namespace Mordred.Entities
 
             // Initial freshness of the corpse
             float ticksPerSecond = 1f / Constants.GameSettings.TimePerTickInSeconds;
-            int ticksToRot = _skeletonDecaying ? ((int)Math.Round((Constants.ActorSettings.SecondsBeforeCorpsRots * 2) * ticksPerSecond)) : ((int)Math.Round(Constants.ActorSettings.SecondsBeforeCorpsRots * ticksPerSecond));
+            int ticksToRot = SkeletonDecaying ? ((int)Math.Round((Constants.ActorSettings.SecondsBeforeCorpsRots * 2) * ticksPerSecond)) : ((int)Math.Round(Constants.ActorSettings.SecondsBeforeCorpsRots * ticksPerSecond));
             if (_rottingCounter < ticksToRot)
             {
                 _rottingCounter++;
                 return;
             }
 
-            if (!_corpseRotting)
+            if (!Rotting && !SkeletonDecaying)
             {
                 // Turn corpse to rotting for the same amount of ticks as the freshness
                 Name = Name.Replace("(corpse)", "(rotting)");
@@ -161,12 +162,12 @@ namespace Mordred.Entities
                 IsDirty = true;
 
                 _rottingCounter = 0;
-                _corpseRotting = true;
+                Rotting = true;
                 Debug.WriteLine("[" + Name + "] just started rotting.");
                 return;
             }
 
-            if (!_skeletonDecaying)
+            if (!SkeletonDecaying)
             {
                 // Turn corpse to skeleton and start decay process which is 2x as long
                 Name = Name.Replace("(rotting)", "(skeleton)");
@@ -175,7 +176,8 @@ namespace Mordred.Entities
                 IsDirty = true;
 
                 _rottingCounter = 0;
-                _skeletonDecaying = true;
+                SkeletonDecaying = true;
+                Rotting = false;
                 Debug.WriteLine("[" + Name + "] just started bone decaying.");
                 return;
             }
