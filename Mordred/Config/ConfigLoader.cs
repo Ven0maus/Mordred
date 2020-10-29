@@ -55,11 +55,11 @@ namespace Mordred.Config
                 WorldItem itemToAdd;
                 if (item.edible)
                 {
-                    itemToAdd = new EdibleItem(item.id, item.edibleWorth, foregroundColor, backgroundColor, item.glyph[0], 0, item.droppedBy);
+                    itemToAdd = new EdibleItem(item.id, item.name, item.edibleWorth, foregroundColor, backgroundColor, item.glyph[0], 0, item.droppedBy);
                 }
                 else
                 {
-                    itemToAdd = new WorldItem(item.id, foregroundColor, backgroundColor, item.glyph[0], 0, item.droppedBy);
+                    itemToAdd = new WorldItem(item.id, item.name, foregroundColor, backgroundColor, item.glyph[0], 0, item.droppedBy);
                 }
                 dictionary.Add(item.id, itemToAdd);
             }

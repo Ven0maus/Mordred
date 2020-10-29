@@ -33,6 +33,7 @@ namespace Mordred.Entities
 
         public Actor(Color foreground, Color background, int glyph, int health = 100) : base(foreground, background, glyph)
         {
+            Name = GetType().Name;
             Hunger = Constants.ActorSettings.DefaultMaxHunger;
             Health = health;
             _actorActionsQueue = new Queue<IAction>();
@@ -128,6 +129,9 @@ namespace Mordred.Entities
 
                 // Trigger death event
                 OnActorDeath?.Invoke(this, attacker);
+
+                // Debugging
+                Debug.WriteLine(Name + " has died from: " + (attacker.Equals(this) ? "self" : attacker.Name));
             }
         }
 
@@ -154,9 +158,11 @@ namespace Mordred.Entities
                 Name = Name.Replace("(corpse)", "(rotting)");
                 Animation[0].Foreground = Color.Lerp(Animation[0].Foreground, Color.Red, 0.7f);
                 Animation.IsDirty = true;
+                IsDirty = true;
 
                 _rottingCounter = 0;
                 _corpseRotting = true;
+                Debug.WriteLine("[" + Name + "] just started rotting.");
                 return;
             }
 
@@ -166,9 +172,11 @@ namespace Mordred.Entities
                 Name = Name.Replace("(rotting)", "(skeleton)");
                 Animation[0].Foreground = Color.Lerp(Color.GhostWhite, Color.Black, 0.2f);
                 Animation.IsDirty = true;
+                IsDirty = true;
 
                 _rottingCounter = 0;
                 _skeletonDecaying = true;
+                Debug.WriteLine("[" + Name + "] just started bone decaying.");
                 return;
             }
 
@@ -183,7 +191,7 @@ namespace Mordred.Entities
         {
             if (!Alive) return;
             Hunger += (int)Math.Round(amount * edible.EdibleWorth);
-            Debug.WriteLine("[" + GetType().Name + "] just ate ["+ edible.Name +"] for: " + (int)Math.Round(amount * edible.EdibleWorth) + " hunger value.");
+            Debug.WriteLine("[" + Name + "] just ate ["+ edible.Name +"] for: " + (int)Math.Round(amount * edible.EdibleWorth) + " hunger value.");
         }
 
         /// <summary>
@@ -206,15 +214,21 @@ namespace Mordred.Entities
                     if (CurrentAction is WanderAction wAction)
                         wAction.Cancel();
                     if (this is PredatorAnimal)
+                    {
                         AddAction(new PredatorAction(), true);
+                        //Debug.WriteLine("Added PredatorAction for: " + Name);
+                    }
                     else
+                    {
                         AddAction(new EatAction(), true);
+                        Debug.WriteLine("Added EatAction for: " + Name);
+                    }
                 }
             }
             _hungerTicks++;
         }
 
-        private bool HasActionOfType<T>() where T : IAction
+        protected bool HasActionOfType<T>() where T : IAction
         {
             if (_actorActionsQueue.Any(a => a.GetType() == typeof(T))) return true;
             if (CurrentAction != null && CurrentAction.GetType() == typeof(T)) return true;

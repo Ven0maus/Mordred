@@ -18,7 +18,7 @@ namespace Mordred.Entities.Animals
             base.GameTick(sender, args);
 
             if (Health <= 0) return;
-            if (CurrentAction == null)
+            if (CurrentAction == null && !HasActionOfType<WanderAction>())
             {
                 AddAction(new WanderAction());
             }

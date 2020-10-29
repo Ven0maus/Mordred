@@ -68,7 +68,7 @@
     },
     {
       "id" : 7,
-      "glyph" : "b",
+      "glyph" : "+",
       "additionalGlyphs" : null,
       "name" : "BerryBush",
 	  "foreground" : "Pink",

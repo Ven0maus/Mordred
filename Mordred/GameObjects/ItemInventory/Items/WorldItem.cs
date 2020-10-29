@@ -12,8 +12,9 @@ namespace Mordred.GameObjects.ItemInventory.Items
         public readonly string[] DroppedBy;
 
         public int Amount;
-        public WorldItem(int id, Color foreground, Color background, int glyph, int? amount = null, string[] droppedBy = null) : base(foreground, background, glyph)
+        public WorldItem(int id, string name, Color foreground, Color background, int glyph, int? amount = null, string[] droppedBy = null) : base(foreground, background, glyph)
         {
+            Name = name;
             Id = id;
             Amount = amount ?? 1;
             DroppedBy = droppedBy;

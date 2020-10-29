@@ -1,5 +1,6 @@
 ﻿using GoRogue;
 using Microsoft.Xna.Framework;
+using Mordred.Entities.Actions;
 using Mordred.Entities.Actions.Implementations;
 using Mordred.WorldGen;
 using System;
@@ -44,10 +45,19 @@ namespace Mordred.Entities.Tribals
             if (CurrentAction == null && CurrentState == State.Idle)
             {
                 var wa = new WanderAction();
-                wa.ActionCompleted += (sender, args) => { CurrentState = State.Idle; };
+                wa.ActionCompleted += ResetStateOnCompletionOrCanceled;
+                wa.ActionCanceled += ResetStateOnCompletionOrCanceled;
                 AddAction(wa);
                 CurrentState = State.Wandering;
             }
+        }
+
+        private void ResetStateOnCompletionOrCanceled(object sender, Actor arg)
+        {
+            var action = (IAction)sender;
+            action.ActionCanceled -= ResetStateOnCompletionOrCanceled;
+            action.ActionCompleted -= ResetStateOnCompletionOrCanceled;
+            CurrentState = State.Idle;
         }
     }
 }
