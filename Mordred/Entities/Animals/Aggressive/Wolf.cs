@@ -3,12 +3,15 @@ using Microsoft.Xna.Framework;
 using Mordred.Entities.Actions.Implementations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Mordred.Entities.Animals
 {
     public class Wolf : PredatorAnimal, IPackAnimal<Wolf>
     {
         public List<Wolf> PackMates { get; set; }
+
+        List<Animal> IPackAnimal.PackMates => PackMates.OfType<Animal>().ToList();
 
         public Wolf(Coord position) : base(Color.LightSlateGray, 'w')
         {

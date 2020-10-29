@@ -3,12 +3,15 @@ using Microsoft.Xna.Framework;
 using Mordred.Entities.Actions.Implementations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Mordred.Entities.Animals
 {
     public class Sheep : PassiveAnimal, IPackAnimal<Sheep>
     {
         public List<Sheep> PackMates { get; set; }
+
+        List<Animal> IPackAnimal.PackMates => PackMates.OfType<Animal>().ToList();
 
         public Sheep(Coord position) : base(Color.PapayaWhip, 'S')
         {

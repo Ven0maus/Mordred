@@ -2,8 +2,13 @@
 
 namespace Mordred.Entities.Animals
 {
-    public interface IPackAnimal<T> where T : Animal
+    public interface IPackAnimal<T> : IPackAnimal where T : Animal
     {
-        List<T> PackMates { get; set; }
+        new List<T> PackMates { get; set; }
+    }
+
+    public interface IPackAnimal 
+    { 
+        List<Animal> PackMates { get; }
     }
 }
