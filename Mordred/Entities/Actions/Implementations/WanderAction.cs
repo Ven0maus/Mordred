@@ -28,7 +28,7 @@ namespace Mordred.Entities.Actions.Implementations
 
             _destination = center.GetRandomCoordinateWithinSquareRadius(5);
             int whileLoopCheck = 0;
-            while (!MapConsole.World.CellWalkable(_destination.Value.X, _destination.Value.Y))
+            while (!MapConsole.World.CellWalkable(_destination.Value.X, _destination.Value.Y) || _destination.Value == center)
             {
                 if (whileLoopCheck >= _whileLoopCheck)
                 {
