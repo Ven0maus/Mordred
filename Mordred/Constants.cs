@@ -11,9 +11,8 @@
 
         public static class WorldSettings
         {
-            public const int MinWildLife = 4;
-            public const int MaxWildLife = 16;
-            public const int MaxAnimalPackSize = 4;
+            public const int MinWildLife = 10;
+            public const int MaxWildLife = 18;
         }
 
         public static class ActorSettings

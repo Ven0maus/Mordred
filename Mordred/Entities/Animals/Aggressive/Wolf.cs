@@ -13,7 +13,7 @@ namespace Mordred.Entities.Animals
 
         List<Animal> IPackAnimal.PackMates => PackMates.OfType<Animal>().ToList();
 
-        public Wolf(Coord position) : base(Color.LightSlateGray, 'w')
+        public Wolf(Coord position, Gender gender) : base(Color.LightSlateGray, 'w', gender)
         {
             PackMates = new List<Wolf>();
             Position = position;

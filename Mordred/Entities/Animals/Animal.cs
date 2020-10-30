@@ -2,8 +2,15 @@
 
 namespace Mordred.Entities.Animals
 {
+    public enum Gender
+    {
+        Male,
+        Female
+    }
+
     public abstract class Animal : Actor
     {
-        public Animal(Color foreground, int glyph) : base(foreground, Color.Black, glyph) { }
+        public readonly Gender Gender;
+        public Animal(Color foreground, int glyph, Gender gender) : base(foreground, Color.Black, glyph) => Gender = gender;
     }
 }

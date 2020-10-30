@@ -91,31 +91,30 @@ namespace Mordred.WorldGen
         {
             var wildLifeCount = Game.Random.Next(Constants.WorldSettings.MinWildLife, Constants.WorldSettings.MaxWildLife + 1);
             var spawnPositions = GetCellCoords(a => a.Walkable).ToList();
-            var animalAmount = new Dictionary<Type, int>();
 
-            // Get all classes that inherit from Animal
-            var animalTypes = ReflectiveEnumerator.GetEnumerableOfType<Animal>().ToList();
+            // Get all classes that inherit from PassiveAnimal
+            var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
+            var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().ToList();
 
-            // Automatic selection of all animals
-            for (int i=0; i < wildLifeCount; i++)
+            int predators = (int)Math.Round((double)wildLifeCount / 100 * 20);
+
+            // Automatic selection of all predators
+            for (int i = 0; i < predators; i++)
             {
-                var animal = animalTypes.TakeRandom();
+                var animal = predatorAnimals.TakeRandom();
+                var pos = spawnPositions.TakeRandom();
+                spawnPositions.Remove(pos);
+                EntitySpawner.Spawn(animal, pos, Game.Random.Next(0,2) == 1 ? Gender.Male : Gender.Female);
+            }
 
-                // Max animal packs
-                if (!animalAmount.TryGetValue(animal, out int amount))
-                {
-                    animalAmount.Add(animal, 0);
-                }
-
-                if (amount < Constants.WorldSettings.MaxAnimalPackSize)
-                {
-                    var pos = spawnPositions.TakeRandom();
-                    spawnPositions.Remove(pos);
-                    EntitySpawner.Spawn(animal, pos);
-
-                    // Increase counter
-                    animalAmount[animal]++;
-                }
+            int nonPredators = wildLifeCount - predators;
+            // Automatic selection of passive animals
+            for (int i=0; i < nonPredators; i++)
+            {
+                var animal = passiveAnimals.TakeRandom();
+                var pos = spawnPositions.TakeRandom();
+                spawnPositions.Remove(pos);
+                EntitySpawner.Spawn(animal, pos, Game.Random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
             }
         }
 

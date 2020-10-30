@@ -3,14 +3,14 @@ using Microsoft.Xna.Framework;
 using Mordred.Entities.Actions.Implementations;
 using System;
 
-namespace Mordred.Entities.Animals
+namespace Mordred.Entities.Animals.Passive
 {
-    public class Deer : PassiveAnimal
+    public class Boar : PassiveAnimal
     {
-        public Deer(Coord position, Gender gender) : base(Color.SaddleBrown, 'D', gender) 
+        public Boar(Coord position, Gender gender) : base(Color.DarkOrchid, 'b', gender)
         {
             Position = position;
-            HungerTickRate = 6;
+            HungerTickRate = 8;
         }
 
         protected override void GameTick(object sender, EventArgs args)

@@ -7,7 +7,7 @@ namespace Mordred.Entities.Animals
 {
     public class Bunny : PassiveAnimal
     {
-        public Bunny(Coord position) : base(Color.FloralWhite, 'B')
+        public Bunny(Coord position, Gender gender) : base(Color.FloralWhite, 'B', gender)
         {
             Position = position;
             HungerTickRate = 7;

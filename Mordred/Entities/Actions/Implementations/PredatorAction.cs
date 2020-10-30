@@ -26,12 +26,23 @@ namespace Mordred.Entities.Actions.Implementations
             // No body found?: then find the nearest passive animal
             // No passive animal found?: then find the nearest predator animal
             // No predator animal found?: find nearest tribeman
+            var prey = FindPreyTarget(predator);
+            if (prey == null)
+            {
+                ActionCompleted?.Invoke(this, actor);
+                return true;
+            }
 
             // Assign attack order on the entity
             // If the entity is dead eat the carcass
 
             ActionCompleted?.Invoke(this, actor);
             return true;
+        }
+
+        public Actor FindPreyTarget(PredatorAnimal predator)
+        {
+            return null;
         }
     }
 }
