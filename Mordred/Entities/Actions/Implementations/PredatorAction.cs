@@ -1,5 +1,10 @@
-﻿using Mordred.Entities.Animals;
+﻿using GoRogue;
+using Mordred.Entities.Animals;
+using Mordred.Entities.Tribals;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Mordred.Entities.Actions.Implementations
 {
@@ -9,6 +14,28 @@ namespace Mordred.Entities.Actions.Implementations
     public class PredatorAction : BaseAction
     {
         public override event EventHandler<Actor> ActionCompleted;
+
+        private Actor _currentPrey;
+        private readonly List<Actor> _badPrey; // Cannot reach path
+
+        private readonly int _ticksBetweenPredatorAttacks;
+        private int _ticksBetweenLastAttack;
+
+        public PredatorAction(int timeBetweenPredatorAttacks, bool inSeconds = true)
+        {
+            if (inSeconds)
+            {
+                float ticksPerSecond = 1f / Constants.GameSettings.TimePerTickInSeconds;
+                _ticksBetweenPredatorAttacks = (int)Math.Round(ticksPerSecond * timeBetweenPredatorAttacks);
+            }
+            else
+            {
+                _ticksBetweenPredatorAttacks = timeBetweenPredatorAttacks;
+            }
+
+            _ticksBetweenLastAttack = _ticksBetweenPredatorAttacks;
+            _badPrey = new List<Actor>();
+        }
 
         public override bool Execute(Actor actor)
         {
@@ -21,28 +48,150 @@ namespace Mordred.Entities.Actions.Implementations
                 return false;
             }
 
-            // TODO list
-            // Find a body in the world that is dead but not rotten
-            // No body found?: then find the nearest passive animal
-            // No passive animal found?: then find the nearest predator animal
-            // No predator animal found?: find nearest tribeman
-            var prey = FindPreyTarget(predator);
-            if (prey == null)
+            // Find a suitable prey
+            if (_currentPrey == null)
             {
-                ActionCompleted?.Invoke(this, actor);
-                return true;
+                _currentPrey = FindPreyTarget(predator);
+                if (_currentPrey == null)
+                {
+                    ActionCompleted?.Invoke(this, actor);
+                    return true;
+                }
             }
 
-            // Assign attack order on the entity
-            // If the entity is dead eat the carcass
+            // Locate and move towards the current prey carcass
+            if (!_currentPrey.Alive && !_currentPrey.Rotting && !_currentPrey.SkeletonDecaying)
+            {
+                // Move towards prey carcass
+                if (!MoveTowardsPrey(predator, out bool validPath))
+                {
+                    if (!validPath)
+                    {
+                        _badPrey.Add(_currentPrey);
+                        _currentPrey = null;
+                    }
+                    return false;
+                }
+
+                // We have reached the entity, eat it's carcass
+                predator.Eat(_currentPrey);
+
+                ActionCompleted?.Invoke(this, predator);
+                return true;
+            }
+            else if (_currentPrey.Alive)
+            {
+                // Move towards prey carcass
+                if (!MoveTowardsPrey(predator, out bool validPath))
+                {
+                    if (!validPath)
+                    {
+                        _badPrey.Add(_currentPrey);
+                        _currentPrey = null;
+                    }
+                    return false;
+                }
+
+                if (_ticksBetweenLastAttack < _ticksBetweenPredatorAttacks)
+                {
+                    _ticksBetweenLastAttack++;
+                    return false;
+                }
+                _ticksBetweenLastAttack = 0;
+
+                // We have reached the entity, attack the entity
+                _currentPrey.DealDamage(predator.AttackDamage, predator);
+                Debug.WriteLine($"{predator.Name} just attacked {_currentPrey.Name} for {predator.AttackDamage}");
+
+                // Stun the prey by 1 second
+                if (_currentPrey.Alive)
+                {
+                    bool preyIsStunned = false;
+                    if (_currentPrey.CurrentAction != null)
+                    {
+                        if (!(_currentPrey.CurrentAction is StunAction))
+                            _currentPrey.CurrentAction.Cancel();
+                        else
+                            preyIsStunned = true;
+                    }
+
+                    // Add stun action
+                    if (!preyIsStunned)
+                        _currentPrey.AddAction(new StunAction(1), true);
+                }
+                return false;
+            }
+            else if (_currentPrey.Rotting || _currentPrey.SkeletonDecaying)
+            {
+                // Current prey has/is decayed
+                _currentPrey = null;
+                return false;
+            }
 
             ActionCompleted?.Invoke(this, actor);
             return true;
         }
 
+        private bool MoveTowardsPrey(PredatorAnimal predator, out bool validPath)
+        {
+            // Go to the hut that belongs to this tribeman
+            if (!predator.CanMoveTowards(_currentPrey.Position.X, _currentPrey.Position.Y, out CustomPath path))
+            {
+                validPath = false;
+                return false;
+            }
+
+            if (predator.Position == _currentPrey.Position || !predator.MoveTowards(path))
+            {
+                validPath = true;
+                return true;
+            }
+            else if (((Coord)predator.Position).SquaredDistance(_currentPrey.Position) < 2)
+            {
+                validPath = true;
+                return true;
+            }
+            validPath = true;
+            return false;
+        }
+
         public Actor FindPreyTarget(PredatorAnimal predator)
         {
-            return null;
+            // Find a body in the world that is dead but not rotten
+            var actors = EntitySpawner.Entities.OfType<Actor>();
+            var actor = actors
+                .Where(a => !a.Alive && !a.Rotting && !a.SkeletonDecaying && !_badPrey.Contains(a))
+                .OrderBy(a => ((Coord)a.Position)
+                    .SquaredDistance(predator.Position))
+                .FirstOrDefault();
+            if (actor != null) return actor;
+
+            // No body found?: then find the nearest passive animal
+            actor = actors
+                .Where(a => a.Alive && a is PassiveAnimal && !_badPrey.Contains(a))
+                .OrderBy(a => ((Coord)a.Position)
+                    .SquaredDistance(predator.Position))
+                .FirstOrDefault();
+            if (actor != null) return actor;
+
+            // No passive animal found?: 
+            // Find the nearest predator that isn't of this predator's type
+            // And that is weaker or same strength as the current predator
+            var predatorType = predator.GetType();
+            actor = actors
+                .Where(a => a.Alive && a is PredatorAnimal && a.GetType() != predatorType && a.Health <= predator.Health && !_badPrey.Contains(a))
+                .OrderBy(a => ((Coord)a.Position)
+                    .SquaredDistance(predator.Position))
+                .FirstOrDefault();
+            if (actor != null) return actor;
+
+            // No predator animal found?: find nearest tribeman
+            actor = actors
+                .Where(a => a is Tribeman)
+                .OrderBy(a => ((Coord)a.Position)
+                    .SquaredDistance(predator.Position))
+                .FirstOrDefault();
+            return actor;
         }
     }
 }

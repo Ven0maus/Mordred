@@ -46,7 +46,7 @@ namespace Mordred.Entities.Actions.Implementations
                 {
                     // Add action to collect item from hut
                     var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache.First(a => a.Key == edible.EdibleId).Value as EdibleItem).EdibleWorth);
-                    actor.AddAction(new CollectAction(edible.EdibleId, amount));
+                    actor.AddAction(new CollectFromVillageAction(edible.EdibleId, amount));
 
                     // Add another eat task after this task
                     actor.AddAction(new EatAction());
@@ -63,7 +63,7 @@ namespace Mordred.Entities.Actions.Implementations
                 {
                     // Add action to collect item from hut
                     var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache.First(a => a.Key == closestEdible.Value.Value).Value as EdibleItem).EdibleWorth);
-                    actor.AddAction(new CollectAction(closestEdible.Value.Value, amount));
+                    actor.AddAction(new CollectFromVillageAction(closestEdible.Value.Value, amount));
                 }
                 actor.AddAction(new EatAction());
             }

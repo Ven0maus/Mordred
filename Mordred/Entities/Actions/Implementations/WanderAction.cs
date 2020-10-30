@@ -26,7 +26,7 @@ namespace Mordred.Entities.Actions.Implementations
                 center = actor.Position;
             }
 
-            _destination = center.GetRandomCoordinateWithinSquareRadius(5);
+            _destination = center.GetRandomCoordinateWithinSquareRadius(10);
             int whileLoopCheck = 0;
             while (!MapConsole.World.CellWalkable(_destination.Value.X, _destination.Value.Y) || _destination.Value == center)
             {
@@ -36,7 +36,7 @@ namespace Mordred.Entities.Actions.Implementations
                     break;
                 }
                 whileLoopCheck++;
-                _destination = center.GetRandomCoordinateWithinSquareRadius(5);
+                _destination = center.GetRandomCoordinateWithinSquareRadius(10);
             }
             return _destination;
         }

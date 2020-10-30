@@ -18,8 +18,14 @@
         public static class ActorSettings
         {
             public const int DefaultHungerTickRate = 10;
-            public const int DefaultMaxHunger = 75;
+            public const int DefaultHealthRegenerationTickRate = 30;
+            public const int DefaultPercentageHungerHealthRegen = 70;
+            public const int DefaultMaxHunger = 100;
             public const int SecondsBeforeCorpsRots = 180;
+            public const int BleedChanceFromAttack = 35;
+            public const float DefaultSecondsPerBleeding = 1.5f;
+            public const int BleedingDamage = 4;
+            public const int StopBleedingAfterSeconds = 15;
         }
 
         public static class ActionSettings

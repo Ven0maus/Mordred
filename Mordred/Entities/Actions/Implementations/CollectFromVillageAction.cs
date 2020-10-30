@@ -3,12 +3,12 @@ using System;
 
 namespace Mordred.Entities.Actions.Implementations
 {
-    public class CollectAction : BaseAction
+    public class CollectFromVillageAction : BaseAction
     {
         public override event EventHandler<Actor> ActionCompleted;
         private readonly int _itemId, _amount;
 
-        public CollectAction(int itemId, int amount)
+        public CollectFromVillageAction(int itemId, int amount)
         {
             _itemId = itemId;
             _amount = amount;

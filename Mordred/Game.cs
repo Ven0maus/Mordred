@@ -12,6 +12,8 @@ namespace Mordred
 
         public static event EventHandler GameTick;
 
+        public static int TicksPerSecond { get; private set; }
+
         private static float _timeSinceLastTick;
 
         static void Main()
@@ -45,6 +47,8 @@ namespace Mordred
         {
             // Initialize random with (TODO: seed)
             Random = new Random();
+
+            TicksPerSecond = (int)Math.Round(1f / Constants.GameSettings.TimePerTickInSeconds);
 
             // Create a container console, that contains all the game consoles
             Container = new Container(Constants.GameSettings.GameWindowWidth, Constants.GameSettings.GameWindowHeight);

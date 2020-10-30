@@ -23,22 +23,34 @@ namespace Mordred.Entities
         public event EventHandler<Actor> OnActorDeath;
 
         #region Actor stats
+        public virtual int MaxHealth { get; private set; }
         public virtual int Health { get; private set; }
-        public virtual int Hunger { get; private set; }
+
+        public readonly int MaxHunger;
+        public int Hunger { get; protected set; }
         public bool Alive { get { return Health > 0; } }
+        public bool Bleeding { get; protected set; }
 
         public bool Rotting { get; private set; } = false;
         public bool SkeletonDecaying { get; private set; } = false;
 
         public int HungerTickRate = Constants.ActorSettings.DefaultHungerTickRate;
-        private int _hungerTicks = 0;
+        public int HealthRegenerationTickRate = Constants.ActorSettings.DefaultHealthRegenerationTickRate;
+        private int _hungerTicks = 0, _healthRegenTicks = 0, _bleedingCounterTicks = 0, _bleedingForTicks = 0;
+
+        public int CarcassFoodPercentage = 100;
         #endregion
 
         public Actor(Color foreground, Color background, int glyph, int health = 100) : base(foreground, background, glyph)
         {
             Name = GetType().Name;
-            Hunger = Constants.ActorSettings.DefaultMaxHunger;
+
+            MaxHunger = Constants.ActorSettings.DefaultMaxHunger;
+            Hunger = MaxHunger;
+
+            MaxHealth = health;
             Health = health;
+
             _actorActionsQueue = new Queue<IAction>();
             Inventory = new Inventory();
 
@@ -115,11 +127,13 @@ namespace Mordred.Entities
             if (!Alive) return;
             Health -= damage;
 
+            if (!Bleeding && !attacker.Equals(this))
+                Bleeding = Game.Random.Next(0, 100) < Constants.ActorSettings.BleedChanceFromAttack;
+
             // Actor died
             if (Health <= 0)
             {
                 // Unset actions
-                Hunger = 0;
                 _actorActionsQueue.Clear();
                 CurrentAction = null;
 
@@ -138,6 +152,12 @@ namespace Mordred.Entities
             }
         }
 
+        public void DestroyCarcass()
+        {
+            Game.GameTick -= StartActorDecayProcess;
+            EntitySpawner.Destroy(this);
+        }
+
         private int _rottingCounter = 0;
         private void StartActorDecayProcess(object sender, EventArgs args)
         {
@@ -145,8 +165,7 @@ namespace Mordred.Entities
             Name += "(corpse)";
 
             // Initial freshness of the corpse
-            float ticksPerSecond = 1f / Constants.GameSettings.TimePerTickInSeconds;
-            int ticksToRot = SkeletonDecaying ? ((int)Math.Round((Constants.ActorSettings.SecondsBeforeCorpsRots * 2) * ticksPerSecond)) : ((int)Math.Round(Constants.ActorSettings.SecondsBeforeCorpsRots * ticksPerSecond));
+            int ticksToRot = SkeletonDecaying ? (Constants.ActorSettings.SecondsBeforeCorpsRots * 2 * Game.TicksPerSecond) : (Constants.ActorSettings.SecondsBeforeCorpsRots * Game.TicksPerSecond);
             if (_rottingCounter < ticksToRot)
             {
                 _rottingCounter++;
@@ -162,6 +181,7 @@ namespace Mordred.Entities
                 IsDirty = true;
 
                 _rottingCounter = 0;
+                CarcassFoodPercentage = 0;
                 Rotting = true;
                 Debug.WriteLine("[" + Name + "] just started rotting.");
                 return;
@@ -211,14 +231,22 @@ namespace Mordred.Entities
                 else
                     DealDamage(2, this);
 
-                if (Hunger <= 40 && !HasActionOfType<EatAction>() && !HasActionOfType<PredatorAction>())
+                // Health regeneration rate
+                if (_healthRegenTicks >= HealthRegenerationTickRate)
+                {
+                    _healthRegenTicks = 0;
+                    if (Hunger >= (MaxHunger / 100 * Constants.ActorSettings.DefaultPercentageHungerHealthRegen) && Health < MaxHealth)
+                        Health++;
+                }
+
+                if (Hunger <= (MaxHunger / 100 * 35) && !HasActionOfType<EatAction>() && !HasActionOfType<PredatorAction>())
                 {
                     if (CurrentAction is WanderAction wAction)
                         wAction.Cancel();
-                    if (this is PredatorAnimal)
+                    if (this is PredatorAnimal predator)
                     {
-                        AddAction(new PredatorAction(), true);
-                        //Debug.WriteLine("Added PredatorAction for: " + Name);
+                        AddAction(new PredatorAction(predator.TimeBetweenAttacksInTicks), true);
+                        Debug.WriteLine("Added PredatorAction for: " + Name);
                     }
                     else
                     {
@@ -227,7 +255,29 @@ namespace Mordred.Entities
                     }
                 }
             }
+
+            if (Bleeding && Alive)
+            {
+                // TODO: Add blood trail that disipates automatically after x seconds
+                _bleedingForTicks++;
+                if (_bleedingForTicks >= Constants.ActorSettings.StopBleedingAfterSeconds * Game.TicksPerSecond)
+                {
+                    Bleeding = false;
+                    return;
+                }
+
+                if (_bleedingCounterTicks < Constants.ActorSettings.DefaultSecondsPerBleeding * Game.TicksPerSecond)
+                {
+                    _bleedingCounterTicks++;
+                    return;
+                }
+                Debug.WriteLine($"{Name}: just bled for {Constants.ActorSettings.BleedingDamage} damage. Only {Health} health remains.");
+                DealDamage(Constants.ActorSettings.BleedingDamage, this);
+                _bleedingCounterTicks = 0;
+            }
+
             _hungerTicks++;
+            _healthRegenTicks++;
         }
 
         protected bool HasActionOfType<T>() where T : IAction
