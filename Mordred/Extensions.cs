@@ -48,6 +48,20 @@ namespace Mordred
             }
         }
 
+        public static Coord GetRandomCoordinateWithinSquareRadius(this Coord center, int squareSize, bool matchXLength = true)
+        {
+            int halfSquareSize = squareSize / 2;
+            int x;
+            int y = Game.Random.Next(center.Y - halfSquareSize, center.Y + halfSquareSize);
+
+            if (matchXLength)
+                x = Game.Random.Next(center.X - squareSize, center.X + squareSize);
+            else
+                x = Game.Random.Next(center.X - halfSquareSize, center.X + halfSquareSize);
+
+            return new Coord(x, y);
+        } 
+
         public static IEnumerable<Coord> GetCirclePositions(this Coord center, int radius)
         {
             var coords = new List<Coord>(radius * radius);

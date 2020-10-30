@@ -2,8 +2,6 @@
 using Mordred.Entities.Tribals;
 using Mordred.Graphics.Consoles;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Mordred.Entities.Actions.Implementations
 {
@@ -11,35 +9,34 @@ namespace Mordred.Entities.Actions.Implementations
     {
         private Coord? _destination;
         private CustomPath _path;
+        private const int _whileLoopCheck = 500;
 
         public override event EventHandler<Actor> ActionCompleted;
 
         public Coord? GetWanderingPosition(Actor actor)
         {
             // Set random destination
-            List<Coord> positions;
+            Coord center;
             if (actor is Tribeman tribeman)
             {
-                positions = tribeman.HutPosition
-                    .GetCirclePositions(5)
-                    .Where(a => MapConsole.World.InBounds(a.X, a.Y))
-                    .ToList();
+                center = tribeman.HutPosition;
             }
             else
             {
-                positions = ((Coord)actor.Position)
-                    .GetCirclePositions(5)
-                    .Where(a => MapConsole.World.InBounds(a.X, a.Y))
-                    .ToList();
+                center = actor.Position;
             }
 
-            _destination = positions.TakeRandom();
-            positions.Remove(_destination.Value);
-            while (!MapConsole.World.GetCell(_destination.Value.X, _destination.Value.Y).Walkable)
+            _destination = center.GetRandomCoordinateWithinSquareRadius(5);
+            int whileLoopCheck = 0;
+            while (!MapConsole.World.CellWalkable(_destination.Value.X, _destination.Value.Y))
             {
-                if (positions.Count == 0) return null;
-                _destination = positions.TakeRandom();
-                positions.Remove(_destination.Value);
+                if (whileLoopCheck >= _whileLoopCheck)
+                {
+                    _destination = null;
+                    break;
+                }
+                whileLoopCheck++;
+                _destination = center.GetRandomCoordinateWithinSquareRadius(5);
             }
             return _destination;
         }

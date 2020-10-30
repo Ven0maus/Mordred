@@ -75,7 +75,7 @@ namespace Mordred.Entities
             if (path == null || !Alive) return false;
 
             var nextStep = path.TakeStep(0);
-            if (MapConsole.World.GetCell(nextStep.X, nextStep.Y).Walkable)
+            if (MapConsole.World.CellWalkable(nextStep.X, nextStep.Y))
             {
                 Position = nextStep;
                 return true;

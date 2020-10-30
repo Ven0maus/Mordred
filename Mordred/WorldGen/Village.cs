@@ -97,7 +97,7 @@ namespace Mordred.WorldGen
         {
             var circlePositions = Position
                 .GetCirclePositions(Radius)
-                .Where(a => MapConsole.World.InBounds(a.X, a.Y) && MapConsole.World.GetCell(a.X, a.Y).Walkable)
+                .Where(a => MapConsole.World.CellWalkable(a.X, a.Y))
                 .ToList();
             var hutPositions = new List<Coord>();
             foreach (var hut in HutPositions)
@@ -111,7 +111,7 @@ namespace Mordred.WorldGen
                 var hutPos = hutPositions.TakeRandom();
                 var pos = hutPos
                     .GetCirclePositions(3)
-                    .Where(a => MapConsole.World.InBounds(a.X, a.Y) && MapConsole.World.GetCell(a.X, a.Y).Walkable)
+                    .Where(a => MapConsole.World.CellWalkable(a.X, a.Y))
                     .TakeRandom();
                 circlePositions.Remove(pos);
                 hutPositions.Remove(hutPos);

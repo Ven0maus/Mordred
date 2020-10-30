@@ -153,6 +153,12 @@ namespace Mordred.WorldGen
             return Cells[y * Width + x].Clone();
         }
 
+        public bool CellWalkable(int x, int y)
+        {
+            if (!InBounds(x, y)) return false;
+            return Cells[y * Width + x].Walkable;
+        }
+
         public IEnumerable<WorldCell> GetCells(Func<WorldCell, bool> criteria)
         {
             for (int y=0; y < Height; y++)
