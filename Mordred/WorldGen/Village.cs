@@ -73,32 +73,14 @@ namespace Mordred.WorldGen
             foreach (var hutPosition in hutPositions)
             {
                 HutPositions.Add(hutPosition);
-                var cell = World.WorldCells[6].TakeRandom().Clone();
+                var cell = World.WorldCells[6].TakeRandom();
                 cell.Foreground = Color;
                 world.SetCell(hutPosition.X, hutPosition.Y, cell);
-
-                // TODO: [REMOVE] this is for testing purposes
-                // Draw circle area around hut
-                var circlePositions = hutPosition
-                    .GetCirclePositions(3)
-                    .Where(a => MapConsole.World.InBounds(a.X, a.Y))
-                    .ToList();
-                foreach (var pos in circlePositions)
-                {
-                    var worldCell = world.GetCell(pos.X, pos.Y);
-                    if (worldCell == null) continue;
-                    worldCell.Background = Color.Lerp(Color, Color.Black, 0.96f);
-                    world.SetCell(pos.X, pos.Y, worldCell);
-                }
             }
         }
 
         private void SpawnVillagers(int amount)
         {
-            var circlePositions = Position
-                .GetCirclePositions(Radius)
-                .Where(a => MapConsole.World.CellWalkable(a.X, a.Y))
-                .ToList();
             var hutPositions = new List<Coord>();
             foreach (var hut in HutPositions)
             {
@@ -111,9 +93,8 @@ namespace Mordred.WorldGen
                 var hutPos = hutPositions.TakeRandom();
                 var pos = hutPos
                     .GetCirclePositions(3)
-                    .Where(a => MapConsole.World.CellWalkable(a.X, a.Y))
+                    .Where(a => MapConsole.World.CellWalkable(a.X, a.Y) && a != hutPos)
                     .TakeRandom();
-                circlePositions.Remove(pos);
                 hutPositions.Remove(hutPos);
 
                 var tribeman = new Tribeman(this, hutPos, pos, Color);
