@@ -15,12 +15,30 @@ namespace Mordred.Entities.Actions.Implementations
     {
         public override event EventHandler<Actor> ActionCompleted;
 
+        private readonly bool _isPartOfPack = false;
         private Actor _currentPrey;
         private readonly List<Actor> _badPrey; // Cannot reach path
 
         private readonly int _ticksBetweenPredatorAttacks;
         private int _ticksBetweenLastAttack;
 
+        /// <summary>
+        /// Use this for pack hunting, they will not eat the carcass, but let the one who triggered the action eat the carcass
+        /// </summary>
+        /// <param name="prey"></param>
+        /// <param name="timeBetweenPredatorAttacks"></param>
+        /// <param name="inSeconds"></param>
+        protected PredatorAction(Actor prey, int timeBetweenPredatorAttacks, bool inSeconds = true) : this(timeBetweenPredatorAttacks, inSeconds)
+        {
+            _currentPrey = prey;
+            _isPartOfPack = true;
+        }
+
+        /// <summary>
+        /// Trigger this by the main animal, pack animal's will follow
+        /// </summary>
+        /// <param name="timeBetweenPredatorAttacks"></param>
+        /// <param name="inSeconds"></param>
         public PredatorAction(int timeBetweenPredatorAttacks, bool inSeconds = true)
         {
             if (inSeconds)
@@ -51,11 +69,27 @@ namespace Mordred.Entities.Actions.Implementations
             // Find a suitable prey
             if (_currentPrey == null)
             {
+                if (_isPartOfPack)
+                {
+                    ActionCompleted?.Invoke(this, actor);
+                    return true;
+                }
+
                 _currentPrey = FindPreyTarget(predator);
                 if (_currentPrey == null)
                 {
                     ActionCompleted?.Invoke(this, actor);
                     return true;
+                }
+
+                // Make pack animals hunt the same target together
+                if (predator is IPackAnimal packAnimal)
+                {
+                    foreach (var animal in packAnimal.PackMates.OfType<Animal>())
+                    {
+                        animal.AddAction(new PredatorAction(_currentPrey, predator.TimeBetweenAttacksInTicks), true, true);
+                        Debug.WriteLine("Added pack PredatorAction for: " + animal.Name);
+                    }
                 }
             }
 
@@ -73,8 +107,12 @@ namespace Mordred.Entities.Actions.Implementations
                     return false;
                 }
 
-                // We have reached the entity, eat it's carcass
-                predator.Eat(_currentPrey);
+                // Only the animal that triggered the hunt can eat the carcass
+                if (!_isPartOfPack)
+                {
+                    // We have reached the entity, eat it's carcass
+                    predator.Eat(_currentPrey);
+                }
 
                 ActionCompleted?.Invoke(this, predator);
                 return true;
@@ -117,7 +155,7 @@ namespace Mordred.Entities.Actions.Implementations
 
                     // Add stun action
                     if (!preyIsStunned)
-                        _currentPrey.AddAction(new StunAction(1), true);
+                        _currentPrey.AddAction(new StunAction(1), true, false);
                 }
                 return false;
             }

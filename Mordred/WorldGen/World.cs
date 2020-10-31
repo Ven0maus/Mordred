@@ -94,17 +94,28 @@ namespace Mordred.WorldGen
 
             // Get all classes that inherit from PassiveAnimal
             var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
-            var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().ToList();
+            var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().Except(new[] { typeof(Entities.Animals.Aggressive.Leopard) }).ToList();
 
             int predators = (int)Math.Round((double)wildLifeCount / 100 * 20);
 
+            var packAnimals = new Dictionary<Type, List<IPackAnimal>>();
             // Automatic selection of all predators
             for (int i = 0; i < predators; i++)
             {
                 var animal = predatorAnimals.TakeRandom();
                 var pos = spawnPositions.TakeRandom();
                 spawnPositions.Remove(pos);
-                EntitySpawner.Spawn(animal, pos, Game.Random.Next(0,2) == 1 ? Gender.Male : Gender.Female);
+                var entity = EntitySpawner.Spawn(animal, pos, Game.Random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
+
+                if (typeof(IPackAnimal).IsAssignableFrom(animal))
+                {
+                    if (!packAnimals.TryGetValue(animal, out List<IPackAnimal> pAnimals))
+                    {
+                        pAnimals = new List<IPackAnimal>();
+                        packAnimals.Add(animal, pAnimals);
+                    }
+                    pAnimals.Add(entity as IPackAnimal);
+                }
             }
 
             int nonPredators = wildLifeCount - predators;
@@ -114,7 +125,28 @@ namespace Mordred.WorldGen
                 var animal = passiveAnimals.TakeRandom();
                 var pos = spawnPositions.TakeRandom();
                 spawnPositions.Remove(pos);
-                EntitySpawner.Spawn(animal, pos, Game.Random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
+                var entity = EntitySpawner.Spawn(animal, pos, Game.Random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
+
+                if (typeof(IPackAnimal).IsAssignableFrom(animal))
+                {
+                    if (!packAnimals.TryGetValue(animal, out List<IPackAnimal> pAnimals))
+                    {
+                        pAnimals = new List<IPackAnimal>();
+                        packAnimals.Add(animal, pAnimals);
+                    }
+                    pAnimals.Add(entity as IPackAnimal);
+                }
+            }
+
+            // Link pack animals together
+            foreach (var type in packAnimals)
+            {
+                foreach (var animal in type.Value)
+                {
+                    var list = animal.PackMates ?? new List<IPackAnimal>();
+                    list.AddRange(type.Value.Where(a => !a.Equals(animal)));
+                    animal.PackMates = list;
+                }
             }
         }
 

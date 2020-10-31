@@ -11,7 +11,18 @@ namespace Mordred.Entities.Animals
     {
         public List<Sheep> PackMates { get; set; }
 
-        List<Animal> IPackAnimal.PackMates => PackMates.OfType<Animal>().ToList();
+        List<IPackAnimal> IPackAnimal.PackMates
+        {
+            get
+            {
+                return PackMates?.OfType<IPackAnimal>().ToList();
+            }
+            set
+            {
+                PackMates = new List<Sheep>();
+                PackMates.AddRange(value.Select(a => (Sheep)a));
+            }
+        }
 
         public Sheep(Coord position, Gender gender) : base(Color.PapayaWhip, 'S', gender)
         {

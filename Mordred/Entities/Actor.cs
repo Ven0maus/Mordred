@@ -59,9 +59,10 @@ namespace Mordred.Entities
             Game.GameTick += HandleActions;
         }
 
-        public void AddAction(IAction action, bool prioritize = false)
+        public void AddAction(IAction action, bool prioritize = false, bool addDuplicateTask = true)
         {
             if (!Alive) return;
+            if (!addDuplicateTask && _actorActionsQueue.Any(a => a.GetType() == action.GetType())) return;
             if (prioritize)
             {
                 var l = _actorActionsQueue.ToList();
@@ -128,7 +129,9 @@ namespace Mordred.Entities
             Health -= damage;
 
             if (!Bleeding && !attacker.Equals(this))
+            {
                 Bleeding = Game.Random.Next(0, 100) < Constants.ActorSettings.BleedChanceFromAttack;
+            }
 
             // Actor died
             if (Health <= 0)
@@ -143,6 +146,9 @@ namespace Mordred.Entities
 
                 // Start decay process
                 Game.GameTick += StartActorDecayProcess;
+
+                // Add corpse to the name, to make it more clear
+                Name += "(corpse)";
 
                 // Trigger death event
                 OnActorDeath?.Invoke(this, attacker);
@@ -161,9 +167,6 @@ namespace Mordred.Entities
         private int _rottingCounter = 0;
         private void StartActorDecayProcess(object sender, EventArgs args)
         {
-            // Add corpse to the name, to make it more clear
-            Name += "(corpse)";
-
             // Initial freshness of the corpse
             int ticksToRot = SkeletonDecaying ? (Constants.ActorSettings.SecondsBeforeCorpsRots * 2 * Game.TicksPerSecond) : (Constants.ActorSettings.SecondsBeforeCorpsRots * Game.TicksPerSecond);
             if (_rottingCounter < ticksToRot)
