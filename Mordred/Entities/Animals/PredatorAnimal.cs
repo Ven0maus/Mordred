@@ -29,7 +29,7 @@ namespace Mordred.Entities.Animals
             }
 
             // We use the prey's hunger (feeded) value to determine how much it is worth
-            float foodWorth = (prey.Hunger / 100f) * 2.85f;
+            float foodWorth = (((prey.Hunger / 100f) * 75) / 100f) + ((prey.MaxHealth / 100f) * 2.85f);
             int percentageToFood = (int)Math.Round(prey.CarcassFoodPercentage * foodWorth);
             int foodRequirement = MaxHunger - Hunger;
             int totalEaten = Hunger;
