@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Mordred
 {
@@ -22,17 +23,21 @@ namespace Mordred
 
         public static T TakeRandom<T>(this IList<T> enumerable)
         {
+            if (enumerable.Count == 0) return default;
             return enumerable[Game.Random.Next(0, enumerable.Count)];
         }
 
         public static T TakeRandom<T>(this T[] enumerable)
         {
+            if (enumerable.Length == 0) return default;
             return enumerable[Game.Random.Next(0, enumerable.Length)];
         }
 
         public static T TakeRandom<T>(this IEnumerable<T> enumerable)
         {
-            return enumerable.ElementAt(Game.Random.Next(0, enumerable.Count()));
+            int count = enumerable.Count();
+            if (count == 0) return default;
+            return enumerable.ElementAt(Game.Random.Next(0, count));
         }
 
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> enumerable, int amount)

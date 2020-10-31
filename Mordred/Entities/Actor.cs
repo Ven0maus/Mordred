@@ -144,6 +144,9 @@ namespace Mordred.Entities
                 Game.GameTick -= GameTick;
                 Game.GameTick -= HandleActions;
 
+                // Make sure we re-assign the leader
+                ReAssignPackLeader();
+
                 // Start decay process
                 Game.GameTick += StartActorDecayProcess;
 
@@ -155,6 +158,19 @@ namespace Mordred.Entities
 
                 // Debugging
                 Debug.WriteLine(Name + " has died from: " + (attacker.Equals(this) ? "self" : attacker.Name));
+            }
+        }
+
+        private void ReAssignPackLeader()
+        {
+            if (Alive) return;
+            if (this is IPackAnimal packAnimal && packAnimal.Leader.Equals(this))
+            {
+                var newLeader = packAnimal.PackMates.TakeRandom();
+                foreach (var packMate in packAnimal.PackMates)
+                {
+                    packMate.Leader = newLeader;
+                }
             }
         }
 
@@ -244,8 +260,8 @@ namespace Mordred.Entities
 
                 if (Hunger <= (MaxHunger / 100 * 35) && !HasActionOfType<EatAction>() && !HasActionOfType<PredatorAction>())
                 {
-                    if (CurrentAction is WanderAction wAction)
-                        wAction.Cancel();
+                    if (CurrentAction is WanderAction || CurrentAction is FollowPackLeaderAction)
+                        CurrentAction.Cancel();
                     if (this is PredatorAnimal predator)
                     {
                         AddAction(new PredatorAction(predator.TimeBetweenAttacksInTicks), true);

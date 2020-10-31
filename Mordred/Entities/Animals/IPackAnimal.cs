@@ -10,5 +10,6 @@ namespace Mordred.Entities.Animals
     public interface IPackAnimal
     { 
         List<IPackAnimal> PackMates { get; set; }
+        IPackAnimal Leader { get; set; }
     }
 }

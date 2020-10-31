@@ -24,6 +24,8 @@ namespace Mordred.Entities.Animals
             }
         }
 
+        public IPackAnimal Leader { get; set; }
+
         public Sheep(Coord position, Gender gender) : base(Color.PapayaWhip, 'S', gender)
         {
             PackMates = new List<Sheep>();
@@ -36,9 +38,22 @@ namespace Mordred.Entities.Animals
             base.GameTick(sender, args);
 
             if (Health <= 0) return;
-            if (CurrentAction == null && !HasActionOfType<WanderAction>())
+            if (CurrentAction == null)
             {
-                AddAction(new WanderAction());
+                if (!Leader.Equals(this))
+                {
+                    if (!HasActionOfType<FollowPackLeaderAction>())
+                    {
+                        AddAction(new FollowPackLeaderAction(), false, false);
+                    }
+                }
+                else
+                {
+                    if (!HasActionOfType<WanderAction>())
+                    {
+                        AddAction(new WanderAction(), false, false);
+                    }
+                }
             }
         }
     }

@@ -20,7 +20,7 @@ namespace Mordred.Entities.Animals.Passive
             if (Health <= 0) return;
             if (CurrentAction == null && !HasActionOfType<WanderAction>())
             {
-                AddAction(new WanderAction());
+                AddAction(new WanderAction(), false, false);
             }
         }
     }

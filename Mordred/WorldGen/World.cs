@@ -139,13 +139,35 @@ namespace Mordred.WorldGen
             }
 
             // Link pack animals together
+            const int whileLoopLimit = 500;
             foreach (var type in packAnimals)
             {
+                var leader = type.Value.TakeRandom();
+                var centerPoint = (Coord)(leader as Animal).Position;
                 foreach (var animal in type.Value)
                 {
                     var list = animal.PackMates ?? new List<IPackAnimal>();
                     list.AddRange(type.Value.Where(a => !a.Equals(animal)));
                     animal.PackMates = list;
+                    animal.Leader = leader;
+
+                    if (animal.Equals(leader)) continue;
+
+                    int whileLoopLimiter = 0;
+
+                    var newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(6);
+                    while (!MapConsole.World.CellWalkable(newPos.X, newPos.Y))
+                    {
+                        if (whileLoopLimiter >= whileLoopLimit)
+                        {
+                            newPos = spawnPositions.TakeRandom();
+                            break;
+                        }
+                        newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(6);
+                        whileLoopLimiter++;
+                    }
+
+                    (animal as Animal).Position = newPos;
                 }
             }
         }
