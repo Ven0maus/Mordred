@@ -39,6 +39,8 @@ namespace Mordred.Entities
         private int _hungerTicks = 0, _healthRegenTicks = 0, _bleedingCounterTicks = 0, _bleedingForTicks = 0;
 
         public int CarcassFoodPercentage = 100;
+
+        public Actor LastAttacker { get; protected set; }
         #endregion
 
         public Actor(Color foreground, Color background, int glyph, int health = 100) : base(foreground, background, glyph)
@@ -127,6 +129,11 @@ namespace Mordred.Entities
         {
             if (!Alive) return;
             Health -= damage;
+
+            if (!attacker.Equals(this))
+            {
+                LastAttacker = attacker;
+            }
 
             if (!Bleeding && !attacker.Equals(this))
             {
@@ -277,11 +284,13 @@ namespace Mordred.Entities
 
             if (Bleeding && Alive)
             {
-                // TODO: Add blood trail that disipates automatically after x seconds
+                // TODO: Add blood trail that discipates automatically after x seconds
                 _bleedingForTicks++;
                 if (_bleedingForTicks >= Constants.ActorSettings.StopBleedingAfterSeconds * Game.TicksPerSecond)
                 {
                     Bleeding = false;
+                    _bleedingForTicks = 0;
+                    _bleedingCounterTicks = 0;
                     return;
                 }
 
@@ -290,8 +299,9 @@ namespace Mordred.Entities
                     _bleedingCounterTicks++;
                     return;
                 }
-                Debug.WriteLine($"{Name}: just bled for {Constants.ActorSettings.BleedingDamage} damage. Only {Health} health remains.");
-                DealDamage(Constants.ActorSettings.BleedingDamage, this);
+                int bleedDamage = (int)Math.Ceiling((double)Health / 100 * 10);
+                Debug.WriteLine($"{Name}: just bled for {bleedDamage} damage. Only {Health} health remains.");
+                DealDamage(bleedDamage, this);
                 _bleedingCounterTicks = 0;
             }
 

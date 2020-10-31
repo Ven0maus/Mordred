@@ -24,7 +24,6 @@
             public const int SecondsBeforeCorpsRots = 180;
             public const int BleedChanceFromAttack = 35;
             public const float DefaultSecondsPerBleeding = 1.5f;
-            public const int BleedingDamage = 4;
             public const int StopBleedingAfterSeconds = 15;
         }
 

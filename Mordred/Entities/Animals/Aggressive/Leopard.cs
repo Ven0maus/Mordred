@@ -9,6 +9,7 @@ namespace Mordred.Entities.Animals.Aggressive
         {
             Position = position;
             HungerTickRate = 10;
+            AttackDamage = 40;
         }
     }
 }

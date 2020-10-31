@@ -28,7 +28,11 @@ namespace Mordred.Entities.Animals
         {
             PackMates = new List<Wolf>();
             Position = position;
+
+            // Wolf stats
             HungerTickRate = 7;
+            AttackDamage = 10;
+            TimeBetweenAttacksInTicks = Game.TicksPerSecond; // 1 second between attacks for wolfs
         }
     }
 }
