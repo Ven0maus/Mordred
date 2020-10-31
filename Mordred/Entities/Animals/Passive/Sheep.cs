@@ -1,7 +1,5 @@
 ﻿using GoRogue;
 using Microsoft.Xna.Framework;
-using Mordred.Entities.Actions.Implementations;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -31,30 +29,6 @@ namespace Mordred.Entities.Animals
             PackMates = new List<Sheep>();
             Position = position;
             HungerTickRate = 6;
-        }
-
-        protected override void GameTick(object sender, EventArgs args)
-        {
-            base.GameTick(sender, args);
-
-            if (Health <= 0) return;
-            if (CurrentAction == null)
-            {
-                if (!Leader.Equals(this))
-                {
-                    if (!HasActionOfType<FollowPackLeaderAction>())
-                    {
-                        AddAction(new FollowPackLeaderAction(), false, false);
-                    }
-                }
-                else
-                {
-                    if (!HasActionOfType<WanderAction>())
-                    {
-                        AddAction(new WanderAction(), false, false);
-                    }
-                }
-            }
         }
     }
 }

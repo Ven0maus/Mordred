@@ -58,7 +58,11 @@ namespace Mordred.Entities.Actions.Implementations
             if (_destination == null)
             {
                 var coord = GetWanderingPosition(actor);
-                if (coord == null) return true;
+                if (coord == null)
+                {
+                    Cancel();
+                    return false;
+                }
                 _destination = coord.Value;
                 if (!actor.CanMoveTowards(_destination.Value.X, _destination.Value.Y, out _path))
                 {
