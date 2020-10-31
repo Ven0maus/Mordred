@@ -6,7 +6,7 @@ namespace Mordred.Entities.Animals
 {
     public abstract class PassiveAnimal : Animal
     {
-        public PassiveAnimal(Color foreground, int glyph, Gender gender) : base(foreground, glyph, gender) { }
+        public PassiveAnimal(Color foreground, int glyph, Gender gender, int health = 100) : base(foreground, glyph, gender, health) { }
 
         private int _lastWanderTickCounter = 0;
         private bool _canWander = true;

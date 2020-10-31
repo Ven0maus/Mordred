@@ -14,7 +14,7 @@ namespace Mordred.Entities.Animals
         /// </summary>
         public int TimeBetweenAttacksInTicks;
 
-        public PredatorAnimal(Color foreground, int glyph, Gender gender) : base(foreground, glyph, gender) 
+        public PredatorAnimal(Color foreground, int glyph, Gender gender, int health = 100) : base(foreground, glyph, gender, health) 
         {
             int ticksPerSecond = (int)Math.Round(1f / Constants.GameSettings.TimePerTickInSeconds);
             TimeBetweenAttacksInTicks = 2 * ticksPerSecond;

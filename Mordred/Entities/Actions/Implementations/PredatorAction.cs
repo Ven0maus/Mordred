@@ -204,26 +204,16 @@ namespace Mordred.Entities.Actions.Implementations
                 .FirstOrDefault();
             if (actor != null) return actor;
 
-            // No body found?: then find the nearest passive animal
-            actor = actors
-                .Where(a => a.Alive && a is PassiveAnimal && !_badPrey.Contains(a))
-                .OrderBy(a => ((Coord)a.Position)
-                    .SquaredDistance(predator.Position))
-                .FirstOrDefault();
-            if (actor != null) return actor;
-
-            // No passive animal found?: 
-            // Find the nearest predator that isn't of this predator's type
-            // And that is weaker or same strength as the current predator
+            // No body found?: then find the animal with lower or equal health than the predator
             var predatorType = predator.GetType();
             actor = actors
-                .Where(a => a.Alive && a is PredatorAnimal && a.GetType() != predatorType && a.Health <= predator.Health && !_badPrey.Contains(a))
+                .Where(a => a.Alive && a is Animal && a.GetType() != predatorType && a.Health <= predator.Health && !_badPrey.Contains(a))
                 .OrderBy(a => ((Coord)a.Position)
                     .SquaredDistance(predator.Position))
                 .FirstOrDefault();
             if (actor != null) return actor;
 
-            // No predator animal found?: find nearest tribeman
+            // No animal found?: find nearest tribeman
             actor = actors
                 .Where(a => a is Tribeman)
                 .OrderBy(a => ((Coord)a.Position)

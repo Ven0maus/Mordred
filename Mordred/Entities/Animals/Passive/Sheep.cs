@@ -24,7 +24,7 @@ namespace Mordred.Entities.Animals
 
         public IPackAnimal Leader { get; set; }
 
-        public Sheep(Coord position, Gender gender) : base(Color.PapayaWhip, 'S', gender)
+        public Sheep(Coord position, Gender gender) : base(Color.PapayaWhip, 'S', gender, 65)
         {
             PackMates = new List<Sheep>();
             Position = position;

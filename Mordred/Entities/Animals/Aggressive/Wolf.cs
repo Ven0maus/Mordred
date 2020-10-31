@@ -24,11 +24,11 @@ namespace Mordred.Entities.Animals
 
         public IPackAnimal Leader { get; set; }
 
-        public Wolf(Coord position, Gender gender) : base(Color.LightSlateGray, 'w', gender)
+        public Wolf(Coord position, Gender gender) : base(Color.LightSlateGray, 'w', gender, 65)
         {
             PackMates = new List<Wolf>();
             Position = position;
-            HungerTickRate = 3;
+            HungerTickRate = 7;
         }
     }
 }

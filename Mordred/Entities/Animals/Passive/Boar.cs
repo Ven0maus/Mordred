@@ -5,7 +5,7 @@ namespace Mordred.Entities.Animals.Passive
 {
     public class Boar : PassiveAnimal
     {
-        public Boar(Coord position, Gender gender) : base(Color.DarkOrchid, 'b', gender)
+        public Boar(Coord position, Gender gender) : base(Color.DarkOrchid, 'b', gender, 75)
         {
             Position = position;
             HungerTickRate = 8;
