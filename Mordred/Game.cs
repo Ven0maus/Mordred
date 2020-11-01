@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Mordred.Graphics;
 using System;
-using System.Diagnostics;
 
 namespace Mordred
 {

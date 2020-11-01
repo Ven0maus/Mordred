@@ -155,7 +155,7 @@ namespace Mordred.Entities.Actions.Implementations
 
                     // Add stun action
                     if (!preyIsStunned)
-                        _currentPrey.AddAction(new StunAction(1), true, false);
+                        _currentPrey.AddAction(new StunAction(Game.Random.Next(3, 8), false), true, false);
                 }
                 return false;
             }
