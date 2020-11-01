@@ -27,6 +27,11 @@ namespace Mordred.Entities.Actions.Implementations
             }
         }
 
+        public override void Cancel()
+        {
+            // Stun action is not cancelable
+        }
+
         public override bool Execute(Actor actor)
         {
             if (base.Execute(actor)) return true;

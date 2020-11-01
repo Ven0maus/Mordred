@@ -4,7 +4,7 @@ namespace Mordred.Entities.Actions.Implementations
 {
     public abstract class BaseAction : IAction
     {
-        protected bool Canceled { get; private set; }
+        protected bool Canceled { get; set; }
 
         public abstract event EventHandler<Actor> ActionCompleted;
         public virtual event EventHandler<Actor> ActionCanceled;
