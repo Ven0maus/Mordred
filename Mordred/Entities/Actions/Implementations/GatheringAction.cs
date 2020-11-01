@@ -152,7 +152,7 @@ namespace Mordred.Entities.Actions.Implementations
             // We are now delivering the gatherable back to our hut
             if (_deliveringItem)
             {
-                var tribeman = actor as Tribeman;
+                var tribeman = actor as Tribal;
                 if (tribeman.Position == tribeman.HutPosition ||
                     !tribeman.CanMoveTowards(tribeman.HutPosition.X, tribeman.HutPosition.Y, out CustomPath movPath) ||
                     !tribeman.MoveTowards(movPath))
@@ -206,7 +206,7 @@ namespace Mordred.Entities.Actions.Implementations
             {
                 if (GatherItem(actor))
                 {
-                    if (actor is Tribeman)
+                    if (actor is Tribal)
                     {
                         _deliveringItem = true;
                         return false;

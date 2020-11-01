@@ -8,7 +8,7 @@ using System;
 
 namespace Mordred.Entities.Tribals
 {
-    public class Tribeman : Actor
+    public class Tribal : Actor
     {
         public Coord HutPosition { get; private set; }
 
@@ -31,7 +31,7 @@ namespace Mordred.Entities.Tribals
 
         public readonly Gender Gender;
 
-        public Tribeman(Village village, Coord hutPosition, Coord actorPosition, Color color, Gender gender, int health = 100) : base(color, Color.Black, 'T', health)
+        public Tribal(Village village, Coord hutPosition, Coord actorPosition, Color color, Gender gender, int health = 100) : base(color, Color.Black, 'T', health)
         {
             HutPosition = hutPosition;
             Position = actorPosition;

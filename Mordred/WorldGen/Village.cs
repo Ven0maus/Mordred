@@ -30,7 +30,7 @@ namespace Mordred.WorldGen
         public readonly Inventory Inventory;
 
         public readonly List<Coord> HutPositions;
-        public readonly List<Tribeman> Tribemen;
+        public readonly List<Tribal> Tribemen;
 
         public Village(Coord position, int radius, Color color)
         {
@@ -40,7 +40,7 @@ namespace Mordred.WorldGen
 
             Inventory = new Inventory();
             HutPositions = new List<Coord>();
-            Tribemen = new List<Tribeman>();
+            Tribemen = new List<Tribal>();
         }
 
         internal void Initialize(World world)
@@ -105,7 +105,7 @@ namespace Mordred.WorldGen
                 else if (females < amount / 2)
                     gender = Gender.Female;
 
-                var tribeman = new Tribeman(this, hutPos, pos, Color, gender);
+                var tribeman = new Tribal(this, hutPos, pos, Color, gender);
                 EntitySpawner.Spawn(tribeman);
                 Tribemen.Add(tribeman);
             }

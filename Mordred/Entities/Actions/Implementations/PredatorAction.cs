@@ -214,7 +214,7 @@ namespace Mordred.Entities.Actions.Implementations
 
             // No animal found?: find nearest tribeman
             actor = actors
-                .Where(a => a is Tribeman)
+                .Where(a => a is Tribal)
                 .OrderBy(a => ((Coord)a.Position)
                     .SquaredDistance(predator.Position))
                 .FirstOrDefault();

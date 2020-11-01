@@ -17,7 +17,7 @@ namespace Mordred.Entities.Actions.Implementations
         {
             // Set random destination
             Coord center;
-            if (actor is Tribeman tribeman)
+            if (actor is Tribal tribeman)
             {
                 center = tribeman.HutPosition;
             }

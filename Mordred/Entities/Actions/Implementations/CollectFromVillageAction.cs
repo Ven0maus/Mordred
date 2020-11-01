@@ -18,13 +18,13 @@ namespace Mordred.Entities.Actions.Implementations
         {
             if (base.Execute(actor)) return true;
 
-            if (!(actor is Tribeman tribeman) || !tribeman.Village.Inventory.HasItem(_itemId))
+            if (!(actor is Tribal tribeman) || !tribeman.Village.Inventory.HasItem(_itemId))
             {
                 ActionCompleted?.Invoke(this, actor);
                 return true;
             }
 
-            tribeman = actor as Tribeman;
+            tribeman = actor as Tribal;
 
             // Go to the hut that belongs to this tribeman
             if (!tribeman.CanMoveTowards(tribeman.HutPosition.X, tribeman.HutPosition.Y, out CustomPath path))

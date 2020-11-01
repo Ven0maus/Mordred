@@ -34,7 +34,7 @@ namespace Mordred.Entities.Actions.Implementations
             }
 
             // Add action to collect from the hut if it contains edibles
-            if (actor is Tribeman tribeman)
+            if (actor is Tribal tribeman)
             {
                 items = tribeman.Village.Inventory.Peek()
                     .Where(a => edibles.Contains(a.Key))
@@ -59,7 +59,7 @@ namespace Mordred.Entities.Actions.Implementations
             if (closestEdible != null)
             {
                 actor.AddAction(new GatheringAction(new Coord[] { closestEdible.Value.Key }));
-                if (actor is Tribeman)
+                if (actor is Tribal)
                 {
                     // Add action to collect item from hut
                     var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache.First(a => a.Key == closestEdible.Value.Value).Value as EdibleItem).EdibleWorth);
