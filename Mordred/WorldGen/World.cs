@@ -94,7 +94,7 @@ namespace Mordred.WorldGen
 
             // Get all classes that inherit from PassiveAnimal
             var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
-            var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().Except(new[] { typeof(Entities.Animals.Aggressive.Leopard) }).ToList();
+            var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().ToList();
 
             int predators = (int)Math.Round((double)wildLifeCount / 100 * 20);
 

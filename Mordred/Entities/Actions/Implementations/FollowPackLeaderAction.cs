@@ -70,7 +70,6 @@ namespace Mordred.Entities.Actions.Implementations
 
         private bool MoveTowardsPackLeader(Actor actor, out bool validPath)
         {
-            // Go to the hut that belongs to this tribeman
             if (!actor.CanMoveTowards(_randomCoordinate.X, _randomCoordinate.Y, out CustomPath path))
             {
                 validPath = false;

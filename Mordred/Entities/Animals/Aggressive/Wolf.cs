@@ -31,7 +31,7 @@ namespace Mordred.Entities.Animals
 
             // Wolf stats
             HungerTickRate = 7;
-            AttackDamage = 10;
+            AttackDamage = 8;
             TimeBetweenAttacksInTicks = Game.TicksPerSecond; // 1 second between attacks for wolfs
         }
     }

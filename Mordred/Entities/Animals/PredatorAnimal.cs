@@ -2,11 +2,13 @@
 using Mordred.Entities.Actions.Implementations;
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Mordred.Entities.Animals
 {
     public abstract class PredatorAnimal : Animal
     {
+        public Actor CurrentlyAttacking;
         public int AttackDamage = 15;
 
         /// <summary>
@@ -18,6 +20,33 @@ namespace Mordred.Entities.Animals
         {
             int ticksPerSecond = (int)Math.Round(1f / Constants.GameSettings.TimePerTickInSeconds);
             TimeBetweenAttacksInTicks = 2 * ticksPerSecond;
+        }
+
+        protected override void OnAttacked(int damage, Actor attacker)
+        {
+            if (!Alive) return;
+            if (!HasActionOfType<PredatorAction>() && !HasActionOfType<DefendAction>())
+            {
+                if (CurrentAction != null)
+                    CurrentAction.Cancel();
+                AddAction(new DefendAction(), true, false);
+                Debug.WriteLine($"Assigned a DefendAction to {Name} to defend from {attacker.Name}");
+
+                // Let pack know who to attack
+                if (this is IPackAnimal packAnimal)
+                {
+                    foreach (var packMate in packAnimal.PackMates.OfType<PredatorAnimal>())
+                    {
+                        if (!packMate.HasActionOfType<DefendAction>())
+                        {
+                            if (packMate.CurrentAction != null)
+                                packMate.CurrentAction.Cancel();
+                            packMate.AddAction(new DefendAction(this), true, false);
+                            Debug.WriteLine($"Assigned a pack DefendAction to {packMate.Name} to defend from {attacker.Name}");
+                        }
+                    }
+                }
+            }
         }
 
         public void Eat(Actor prey)

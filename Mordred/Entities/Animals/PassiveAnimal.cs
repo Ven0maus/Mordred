@@ -1,12 +1,41 @@
 ﻿using Microsoft.Xna.Framework;
 using Mordred.Entities.Actions.Implementations;
 using System;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Mordred.Entities.Animals
 {
     public abstract class PassiveAnimal : Animal
     {
         public PassiveAnimal(Color foreground, int glyph, Gender gender, int health = 100) : base(foreground, glyph, gender, health) { }
+
+        protected override void OnAttacked(int damage, Actor attacker)
+        {
+            if (!Alive) return;
+            if (Game.Random.Next(0, 100) < 15 && !HasActionOfType<DefendAction>())
+            {
+                if (CurrentAction != null)
+                    CurrentAction.Cancel();
+                AddAction(new DefendAction(), true, false);
+                Debug.WriteLine($"Assigned a DefendAction to {Name} to defend from {attacker.Name}");
+
+                // Let pack know who to attack
+                if (this is IPackAnimal packAnimal)
+                {
+                    foreach (var packMate in packAnimal.PackMates.OfType<PassiveAnimal>())
+                    {
+                        if (!packMate.HasActionOfType<DefendAction>())
+                        {
+                            if (packMate.CurrentAction != null)
+                                packMate.CurrentAction.Cancel();
+                            packMate.AddAction(new DefendAction(this), true, false);
+                            Debug.WriteLine($"Assigned a pack DefendAction to {packMate.Name} to defend from {attacker.Name}");
+                        }
+                    }
+                }
+            }
+        }
 
         private int _lastWanderTickCounter = 0;
         private bool _canWander = true;

@@ -40,7 +40,7 @@ namespace Mordred.Entities
 
         public int CarcassFoodPercentage = 100;
 
-        public Actor LastAttacker { get; protected set; }
+        public Actor CurrentAttacker { get; set; }
         #endregion
 
         public Actor(Color foreground, Color background, int glyph, int health = 100) : base(foreground, background, glyph)
@@ -125,16 +125,32 @@ namespace Mordred.Entities
             }
         }
 
+        protected virtual void OnAttacked(int damage, Actor attacker)
+        { }
+
         public virtual void DealDamage(int damage, Actor attacker)
         {
             if (!Alive) return;
             Health -= damage;
 
+            // Handle attacker assignment
             if (!attacker.Equals(this))
             {
-                LastAttacker = attacker;
+                if (Alive)
+                    CurrentAttacker = attacker;
+                else
+                    CurrentAttacker = null;
+
+                if (attacker is PredatorAnimal predator)
+                {
+                    if (Alive)
+                        predator.CurrentlyAttacking = this;
+                    else
+                        predator.CurrentlyAttacking = null;
+                }
             }
 
+            // Handle bleeding effect
             if (!Bleeding && !attacker.Equals(this))
             {
                 Bleeding = Game.Random.Next(0, 100) < Constants.ActorSettings.BleedChanceFromAttack;
@@ -166,6 +182,9 @@ namespace Mordred.Entities
                 // Debugging
                 Debug.WriteLine(Name + " has died from: " + (attacker.Equals(this) ? "self" : attacker.Name));
             }
+
+            // Call virtual method
+            OnAttacked(damage, attacker);
         }
 
         private void ReAssignPackLeader()

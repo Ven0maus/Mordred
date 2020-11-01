@@ -172,7 +172,6 @@ namespace Mordred.Entities.Actions.Implementations
 
         private bool MoveTowardsPrey(PredatorAnimal predator, out bool validPath)
         {
-            // Go to the hut that belongs to this tribeman
             if (!predator.CanMoveTowards(_currentPrey.Position.X, _currentPrey.Position.Y, out CustomPath path))
             {
                 validPath = false;
