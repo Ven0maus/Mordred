@@ -11,8 +11,8 @@
 
         public static class WorldSettings
         {
-            public const int MinWildLife = 10;
-            public const int MaxWildLife = 18;
+            public const int MinWildLife = 15;
+            public const int MaxWildLife = 25;
         }
 
         public static class ActorSettings
@@ -25,6 +25,7 @@
             public const int BleedChanceFromAttack = 35;
             public const float DefaultSecondsPerBleeding = 1.5f;
             public const int StopBleedingAfterSeconds = 15;
+            public const int MaxPackSize = 3;
         }
 
         public static class ActionSettings

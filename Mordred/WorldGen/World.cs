@@ -96,7 +96,7 @@ namespace Mordred.WorldGen
             var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
             var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().ToList();
 
-            int predators = (int)Math.Round((double)wildLifeCount / 100 * 20);
+            int predators = (int)Math.Round((double)wildLifeCount / 100 * 25);
 
             var packAnimals = new Dictionary<Type, List<IPackAnimal>>();
             // Automatic selection of all predators
@@ -142,32 +142,41 @@ namespace Mordred.WorldGen
             const int whileLoopLimit = 500;
             foreach (var type in packAnimals)
             {
-                var leader = type.Value.TakeRandom();
-                var centerPoint = (Coord)(leader as Animal).Position;
-                foreach (var animal in type.Value)
+                var splits = (int)Math.Ceiling((double)type.Value.Count / Constants.ActorSettings.MaxPackSize);
+                for (int i = 0; i < splits; i++)
                 {
-                    var list = animal.PackMates ?? new List<IPackAnimal>();
-                    list.AddRange(type.Value.Where(a => !a.Equals(animal)));
-                    animal.PackMates = list;
-                    animal.Leader = leader;
-
-                    if (animal.Equals(leader)) continue;
-
-                    int whileLoopLimiter = 0;
-
-                    var newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(6);
-                    while (!MapConsole.World.CellWalkable(newPos.X, newPos.Y))
+                    var animals = type.Value.Take(Constants.ActorSettings.MaxPackSize).ToList();
+                    var leader = animals.TakeRandom();
+                    var centerPoint = (Coord)(leader as Animal).Position;
+                    foreach (var animal in animals)
                     {
-                        if (whileLoopLimiter >= whileLoopLimit)
-                        {
-                            newPos = spawnPositions.TakeRandom();
-                            break;
-                        }
-                        newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(6);
-                        whileLoopLimiter++;
-                    }
+                        var list = animal.PackMates ?? new List<IPackAnimal>();
+                        list.AddRange(type.Value.Where(a => !a.Equals(animal)));
+                        animal.PackMates = list;
+                        animal.Leader = leader;
 
-                    (animal as Animal).Position = newPos;
+                        // Remove from list
+                        type.Value.Remove(animal);
+
+                        if (animal.Equals(leader)) continue;
+
+                        int whileLoopLimiter = 0;
+
+                        var newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(6);
+                        while (!MapConsole.World.CellWalkable(newPos.X, newPos.Y))
+                        {
+                            if (whileLoopLimiter >= whileLoopLimit)
+                            {
+                                newPos = spawnPositions.TakeRandom();
+                                break;
+                            }
+                            newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(6);
+                            whileLoopLimiter++;
+                        }
+
+                        (animal as Animal).Position = newPos;
+                    }
+                    
                 }
             }
         }
