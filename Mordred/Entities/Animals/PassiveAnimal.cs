@@ -12,7 +12,7 @@ namespace Mordred.Entities.Animals
 
         protected override void OnAttacked(int damage, Actor attacker)
         {
-            if (!Alive) return;
+            if (!Alive || attacker.Equals(this)) return;
             if (Game.Random.Next(0, 100) < 15 && !HasActionOfType<DefendAction>())
             {
                 if (CurrentAction != null)

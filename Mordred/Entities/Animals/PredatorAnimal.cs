@@ -24,7 +24,7 @@ namespace Mordred.Entities.Animals
 
         protected override void OnAttacked(int damage, Actor attacker)
         {
-            if (!Alive) return;
+            if (!Alive || attacker.Equals(this)) return;
             if (!HasActionOfType<PredatorAction>() && !HasActionOfType<DefendAction>())
             {
                 if (CurrentAction != null)
