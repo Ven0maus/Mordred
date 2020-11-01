@@ -58,7 +58,7 @@ namespace Mordred.Entities.Actions.Implementations
 
             // Deal damage to the attacker
             int damage = actor is PredatorAnimal pA ? pA.AttackDamage : Game.Random.Next(5, 13);
-            var name = actor.CurrentAttacker.Name;
+            var name = _defendee.CurrentAttacker.Name;
             _defendee.CurrentAttacker.DealDamage(damage, actor);
             Debug.WriteLine($"{actor.Name} retaliated against {name} for: {damage} damage.");
 
