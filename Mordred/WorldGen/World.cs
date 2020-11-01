@@ -96,7 +96,8 @@ namespace Mordred.WorldGen
             var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
             var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().ToList();
 
-            int predators = (int)Math.Round((double)wildLifeCount / 100 * 25);
+            // 20% Predators 80% Passive
+            int predators = (int)Math.Round((double)wildLifeCount / 100 * 20);
 
             var packAnimals = new Dictionary<Type, List<IPackAnimal>>();
             // Automatic selection of all predators
