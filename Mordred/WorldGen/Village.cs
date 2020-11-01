@@ -1,6 +1,7 @@
 ﻿using GoRogue;
 using Microsoft.Xna.Framework;
 using Mordred.Entities;
+using Mordred.Entities.Animals;
 using Mordred.Entities.Tribals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
@@ -87,7 +88,7 @@ namespace Mordred.WorldGen
                 for (int i = 0; i < Constants.VillageSettings.TribemenPerHut; i++)
                     hutPositions.Add(hut);
             }
-
+            int males = 0, females = 0;
             for (int i=0; i < amount; i++)
             {
                 var hutPos = hutPositions.TakeRandom();
@@ -97,7 +98,14 @@ namespace Mordred.WorldGen
                     .TakeRandom();
                 hutPositions.Remove(hutPos);
 
-                var tribeman = new Tribeman(this, hutPos, pos, Color);
+                // Get equal amount of genders if possible
+                Gender gender = Gender.Female;
+                if (males < amount / 2)
+                    gender = Gender.Male;
+                else if (females < amount / 2)
+                    gender = Gender.Female;
+
+                var tribeman = new Tribeman(this, hutPos, pos, Color, gender);
                 EntitySpawner.Spawn(tribeman);
                 Tribemen.Add(tribeman);
             }

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Mordred.Entities.Actions;
 using Mordred.Entities.Actions.Implementations;
+using Mordred.Entities.Animals;
 using Mordred.WorldGen;
 using System;
 
@@ -28,12 +29,16 @@ namespace Mordred.Entities.Tribals
 
         public readonly Village Village;
 
-        public Tribeman(Village village, Coord hutPosition, Coord actorPosition, Color color, int health = 100) : base(color, Color.Black, 'T', health)
+        public readonly Gender Gender;
+
+        public Tribeman(Village village, Coord hutPosition, Coord actorPosition, Color color, Gender gender, int health = 100) : base(color, Color.Black, 'T', health)
         {
             HutPosition = hutPosition;
             Position = actorPosition;
             Village = village;
             CurrentState = State.Idle;
+
+            Gender = gender;
         }
 
         protected override void GameTick(object sender, EventArgs args)
