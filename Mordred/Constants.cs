@@ -25,7 +25,7 @@
             public const int BleedChanceFromAttack = 35;
             public const float DefaultSecondsPerBleeding = 1.5f;
             public const int StopBleedingAfterSeconds = 15;
-            public const int MaxPackSize = 3;
+            public const int MaxPackSize = 4;
         }
 
         public static class ActionSettings
