@@ -5,6 +5,7 @@ using Mordred.Entities.Actions.Implementations;
 using Mordred.Entities.Animals;
 using Mordred.WorldGen;
 using System;
+using System.Diagnostics;
 
 namespace Mordred.Entities.Tribals
 {
@@ -54,6 +55,29 @@ namespace Mordred.Entities.Tribals
                 wa.ActionCanceled += ResetStateOnCompletionOrCanceled;
                 AddAction(wa);
                 CurrentState = State.Wandering;
+            }
+        }
+
+        protected override void OnAttacked(int damage, Actor attacker)
+        {
+            if (!HasActionOfType<DefendAction>())
+            {
+                if (CurrentAction != null)
+                    CurrentAction.Cancel();
+                AddAction(new DefendAction(), true, false);
+                Debug.WriteLine($"Assigned a DefendAction to {Name} to defend from {attacker.Name}");
+
+                // Let tribals know who to attack
+                foreach (var tribal in Village.Tribemen)
+                {
+                    if (!tribal.HasActionOfType<DefendAction>())
+                    {
+                        if (tribal.CurrentAction != null)
+                            tribal.CurrentAction.Cancel();
+                        tribal.AddAction(new DefendAction(this), true, false);
+                        Debug.WriteLine($"Assigned a tribe DefendAction to {tribal.Name} to defend from {attacker.Name}");
+                    }
+                }
             }
         }
 
