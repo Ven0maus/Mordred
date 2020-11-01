@@ -1,5 +1,6 @@
 ﻿using GoRogue;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace Mordred.Entities.Animals.Aggressive
 {
@@ -9,7 +10,8 @@ namespace Mordred.Entities.Animals.Aggressive
         {
             Position = position;
             HungerTickRate = 13;
-            AttackDamage = 15;
+            AttackDamage = 8;
+            TimeBetweenAttacksInTicks = (int)Math.Ceiling(Game.TicksPerSecond / 2f);
         }
     }
 }
