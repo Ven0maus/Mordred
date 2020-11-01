@@ -48,7 +48,7 @@ namespace Mordred.Entities
             Name = GetType().Name;
 
             MaxHunger = Constants.ActorSettings.DefaultMaxHunger;
-            Hunger = MaxHunger;
+            Hunger = Game.Random.Next(65, MaxHunger + 1);
 
             MaxHealth = health;
             Health = health;
