@@ -65,6 +65,8 @@ namespace Mordred.Entities.Actions.Implementations
             // Chance for attacker to lose interest when
             if (_defendee.CurrentAttacker.Health <= ((_defendee.CurrentAttacker.MaxHealth / 100f) * 25) && Game.Random.Next(0, 100) < 25)
             {
+                if (_defendee.CurrentAttacker.CurrentAction != null)
+                    _defendee.CurrentAttacker.CurrentAction.Cancel();
                 if (_defendee.CurrentAttacker is PredatorAnimal predator)
                     predator.CurrentlyAttacking = null;
                 _defendee.CurrentAttacker = null;

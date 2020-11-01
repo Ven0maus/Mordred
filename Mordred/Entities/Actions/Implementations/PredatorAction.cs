@@ -206,7 +206,7 @@ namespace Mordred.Entities.Actions.Implementations
             // No body found?: then find the animal with lower or equal health than the predator
             var predatorType = predator.GetType();
             actor = actors
-                .Where(a => a.Alive && a is Animal && a.GetType() != predatorType && a.Health <= predator.Health && !_badPrey.Contains(a))
+                .Where(a => a.Alive && a is Animal && a.GetType() != predatorType && a.Health <= predator.MaxHealth && !_badPrey.Contains(a))
                 .OrderBy(a => ((Coord)a.Position)
                     .SquaredDistance(predator.Position))
                 .FirstOrDefault();
