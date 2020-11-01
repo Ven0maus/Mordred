@@ -38,7 +38,7 @@ namespace Mordred.Entities.Actions.Implementations
             if (_positionCalculationCounter >= _recalculatePositionInAmountTicks)
             {
                 // Get a random coordinate within the leader's position 6 square radius
-                _randomCoordinate = ((Coord)packLeader.Position).GetRandomCoordinateWithinSquareRadius(6);
+                _randomCoordinate = ((Coord)packLeader.Position).GetRandomCoordinateWithinSquareRadius(5);
                 while (!MapConsole.World.CellWalkable(_randomCoordinate.X, _randomCoordinate.Y))
                 {
                     if (_whileLoopLimiter >= _whileLoopLimit)
@@ -46,7 +46,7 @@ namespace Mordred.Entities.Actions.Implementations
                         Cancel();
                         return false;
                     }
-                    _randomCoordinate = ((Coord)packLeader.Position).GetRandomCoordinateWithinSquareRadius(6);
+                    _randomCoordinate = ((Coord)packLeader.Position).GetRandomCoordinateWithinSquareRadius(5);
                     _whileLoopLimiter++;
                 }
             }

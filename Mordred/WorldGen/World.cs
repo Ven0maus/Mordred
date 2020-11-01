@@ -163,7 +163,7 @@ namespace Mordred.WorldGen
 
                         int whileLoopLimiter = 0;
 
-                        var newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(6);
+                        var newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5);
                         while (!MapConsole.World.CellWalkable(newPos.X, newPos.Y))
                         {
                             if (whileLoopLimiter >= whileLoopLimit)
@@ -171,7 +171,7 @@ namespace Mordred.WorldGen
                                 newPos = spawnPositions.TakeRandom();
                                 break;
                             }
-                            newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(6);
+                            newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5);
                             whileLoopLimiter++;
                         }
 
