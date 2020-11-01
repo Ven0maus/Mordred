@@ -18,6 +18,9 @@ namespace Mordred.Graphics.Consoles
             World.GenerateVillages();
             World.GenerateWildLife();
             World.Render(true, true);
+
+            // Apply world regrowth monitor
+            Game.GameTick += WorldRegrowth.CheckRegrowthStatus;
         }
     }
 }
