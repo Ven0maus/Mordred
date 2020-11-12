@@ -59,13 +59,27 @@ namespace Mordred.WorldGen
 
         public void GenerateLands()
         {
-            var map = new ArrayMap<bool>(Width, Height);
-            GoRogue.MapGeneration.Generators.CellularAutomataAreaGenerator.Generate(map, null, 33, 7, 4);
+            // Idk, need to rework..
+            var simplex1 = new OpenSimplex2F(Game.Random.Next(-500000, 500000));
+            var simplexNoise = new double[Width * Height];
             for (int y=0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    if (map[y * Width + x])
+                    double nx = (double)x / Width - 0.5d;
+                    double ny = (double)y / Height - 0.5d;
+                    simplexNoise[y * Width + x] = simplex1.Noise2(nx, ny);
+                }
+            }
+
+            // Normalize
+            simplexNoise = OpenSimplex2F.Normalize(simplexNoise);
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (simplexNoise[y * Width + x] >= 0.75f && simplexNoise[y * Width + x] <= 1f)
                     {
                         // Mountains
                         SetCell(x, y, WorldCells[3].TakeRandom());
@@ -184,11 +198,12 @@ namespace Mordred.WorldGen
 
         public void GenerateVillages()
         {
-            var village = new Village(new Coord(12, 6), 4, Color.Magenta);
+            var coords = GetCellCoords(a => a.Walkable).TakeRandom(2).ToList();
+            var village = new Village(coords.First(), 4, Color.Magenta);
             village.Initialize(this);
             Villages.Add(village);
 
-            village = new Village(new Coord(Constants.GameSettings.GameWindowWidth - 12, Constants.GameSettings.GameWindowHeight - 6), 4, Color.Orange);
+            village = new Village(coords.Last(), 4, Color.Orange);
             village.Initialize(this);
             Villages.Add(village);
         }
