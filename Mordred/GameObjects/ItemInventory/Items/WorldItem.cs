@@ -60,8 +60,7 @@ namespace Mordred.GameObjects.ItemInventory.Items
         public DropRate? GetDropRateForCellId(int cellId)
         {
             if (DroppedBy == null) return null;
-            if (!DroppedBy.TryGetValue(cellId, out DropRate dropRate))
-                return null;
+            DroppedBy.TryGetValue(cellId, out DropRate dropRate);
             return dropRate;
         }
 

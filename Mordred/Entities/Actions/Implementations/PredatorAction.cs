@@ -178,12 +178,12 @@ namespace Mordred.Entities.Actions.Implementations
                 return false;
             }
 
-            if (predator.Position == _currentPrey.Position || !predator.MoveTowards(path))
+            if (((Coord)predator.Position).SquaredDistance(_currentPrey.Position) < 2)
             {
                 validPath = true;
                 return true;
             }
-            else if (((Coord)predator.Position).SquaredDistance(_currentPrey.Position) < 2)
+            else if (predator.Position == _currentPrey.Position || !predator.MoveTowards(path))
             {
                 validPath = true;
                 return true;
