@@ -86,26 +86,13 @@ namespace Mordred
         public static IEnumerable<Coord> GetBorderCoords(this ICollection<Coord> coords,
             Func<Coord, bool> customCriteria = null)
         {
-            foreach (var coord in coords)
-            {
-                var neighbors = coord.Get4Neighbors();
-                foreach (var neighbor in neighbors)
-                {
-                    if (!coords.Contains(neighbor))
-                    {
-                        if (customCriteria != null && customCriteria.Invoke(coord))
-                        {
-                            yield return coord;
-                            break;
-                        }
-                        else if (customCriteria == null)
-                        {
-                            yield return coord;
-                            break;
-                        }
-                    }
-                }
-            }
+            var result = coords
+                .Select(a => (Coord: a, Neighbors: a.Get4Neighbors()))
+                .Where(a => a.Neighbors.Any(neighbor => !coords.Contains(neighbor)))
+                .Select(a => a.Coord);
+            if (customCriteria != null)
+                result = result.Where(a => customCriteria.Invoke(a));
+            return result;
         }
 
         public static IEnumerable<Coord> Get4Neighbors(this Coord coord)
