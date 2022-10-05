@@ -9,7 +9,7 @@ namespace Mordred.GameObjects.ItemInventory.Items
     {
         public int Id { get; private set; }
 
-        public readonly string[] DroppedBy;
+        public readonly Dictionary<int, DropRate> DroppedBy;
 
         public int Amount;
         public WorldItem(int id, string name, Color foreground, Color background, int glyph, int? amount = null, string[] droppedBy = null) : base(foreground, background, glyph)
@@ -17,43 +17,64 @@ namespace Mordred.GameObjects.ItemInventory.Items
             Name = name;
             Id = id;
             Amount = amount ?? 1;
-            DroppedBy = droppedBy;
-        }
 
-        public KeyValuePair<int, int>? GetDropRateForCellId(int cellId)
-        {
-            if (DroppedBy == null) return null;
-            foreach (var cell in DroppedBy)
+            if (droppedBy != null)
             {
-                var parts = cell.Split('|');
-                if (int.Parse(parts[0]) == cellId)
+                DroppedBy = droppedBy.Select(a =>
                 {
+                    var parts = a.Split('|');
+                    var cellId = int.Parse(parts[0]);
+
+                    // Min and Max
                     parts = parts[1].Split(':');
                     if (parts.Length == 1)
                     {
                         var droprate = int.Parse(parts[0]);
-                        return new KeyValuePair<int, int>(droprate, droprate);
+                        return (cellId, new DropRate(droprate, droprate));
                     }
                     else
                     {
-                        // Min and Max
-                        return new KeyValuePair<int, int>(int.Parse(parts[0]), int.Parse(parts[1]) + 1);
+                        return (cellId, new DropRate(int.Parse(parts[0]), int.Parse(parts[1]) + 1));
                     }
-                }
+                }).ToDictionary(a => a.cellId, a => a.Item2);
             }
-            return null;
+        }
+
+        public static string[] ConvertDropRatesToString(Dictionary<int, DropRate> dropRates)
+        {
+            return dropRates.Select(a => a.Key + "|" + a.Value.Min + ":" + a.Value.Max).ToArray();
+        }
+
+        public sealed class DropRate
+        {
+            public int Min { get; }
+            public int Max { get; }
+
+            public DropRate(int min, int max)
+            {
+                Min = min;
+                Max = max;
+            }
+        }
+
+        public DropRate? GetDropRateForCellId(int cellId)
+        {
+            if (DroppedBy == null) return null;
+            if (!DroppedBy.TryGetValue(cellId, out DropRate dropRate))
+                return null;
+            return dropRate;
         }
 
         public bool IsDroppedBy(int cellId)
         {
             if (DroppedBy == null) return false;
-            return DroppedBy.Any(a => int.Parse(a.Split('|')[0]) == cellId);
+            return DroppedBy.ContainsKey(cellId);
         }
 
-        public List<int> GetCellDropIds()
+        public IEnumerable<int> GetCellDropIds()
         {
-            if (DroppedBy == null) return new List<int>();
-            return DroppedBy.Select(a => int.Parse(a.Split('|')[0])).ToList();
+            if (DroppedBy == null) return Enumerable.Empty<int>();
+            return DroppedBy.Select(a => a.Key);
         }
 
         private WorldItem(WorldItem original) : base(original.Animation[0].Foreground, original.Animation[0].Background, original.Animation[0].Glyph)

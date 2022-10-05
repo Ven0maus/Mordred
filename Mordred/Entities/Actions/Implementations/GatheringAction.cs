@@ -122,7 +122,7 @@ namespace Mordred.Entities.Actions.Implementations
             {
                 var dropRate = Inventory.ItemCache[itemId].GetDropRateForCellId(_currentCellGathered.Value);
                 if (dropRate == null) continue;
-                actor.Inventory.Add(itemId, Game.Random.Next(dropRate.Value.Key, dropRate.Value.Value));
+                actor.Inventory.Add(itemId, Game.Random.Next(dropRate.Min, dropRate.Max));
             }
             _amount--;
             return true;
@@ -141,7 +141,7 @@ namespace Mordred.Entities.Actions.Implementations
                     {
                         var dropRate = Inventory.ItemCache[itemId].GetDropRateForCellId(_currentCellGathered.Value);
                         if (dropRate == null) continue;
-                        var item = actor.Inventory.Take(itemId, Game.Random.Next(dropRate.Value.Key, dropRate.Value.Value));
+                        var item = actor.Inventory.Take(itemId, Game.Random.Next(dropRate.Min, dropRate.Max));
                         item.Position = actor.Position;
 
                         // Insert under the actor

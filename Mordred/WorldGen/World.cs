@@ -294,7 +294,7 @@ namespace Mordred.WorldGen
         /// </summary>
         /// <param name="itemId"></param>
         /// <returns></returns>
-        public List<int> GetCellIdDropsByItemId(int itemId)
+        public IEnumerable<int> GetCellIdDropsByItemId(int itemId)
         {
             return Inventory.ItemCache[itemId].GetCellDropIds();
         }

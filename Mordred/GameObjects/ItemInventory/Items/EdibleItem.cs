@@ -12,7 +12,7 @@ namespace Mordred.GameObjects.ItemInventory.Items
             EdibleWorth = edibleWorth;
         }
 
-        private EdibleItem(EdibleItem original) : base(original.Id, original.Name, original.Animation[0].Foreground, original.Animation[0].Background, original.Animation[0].Glyph, original.Amount, original.DroppedBy)
+        private EdibleItem(EdibleItem original) : base(original.Id, original.Name, original.Animation[0].Foreground, original.Animation[0].Background, original.Animation[0].Glyph, original.Amount, ConvertDropRatesToString(original.DroppedBy))
         {
             EdibleWorth = original.EdibleWorth;
         }
