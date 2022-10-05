@@ -30,7 +30,13 @@ namespace Mordred.WorldGen
         public readonly FastAStar Pathfinder;
 
         protected readonly MapConsole MapConsole;
-        protected readonly List<Village> Villages;
+        protected readonly List<Village> _villages;
+        
+        public IReadOnlyList<Village> Villages
+        {
+            get { return _villages; }
+        }
+
         /// <summary>
         /// The visual cells that are displayed.
         /// </summary>
@@ -52,7 +58,7 @@ namespace Mordred.WorldGen
             // Initialize the arrays
             Cells = new WorldCell[Width * Height];
             Terrain = new int[Width * Height];
-            Villages = new List<Village>(Constants.VillageSettings.MaxVillages);
+            _villages = new List<Village>(Constants.VillageSettings.MaxVillages);
             Walkability = new ArrayMap<bool>(Width, Height);
             Pathfinder = new FastAStar(Walkability, Distance.MANHATTAN);
         }
@@ -201,11 +207,11 @@ namespace Mordred.WorldGen
             var coords = GetCellCoords(a => a.Walkable).TakeRandom(2).ToList();
             var village = new Village(coords.First(), 4, Color.Magenta);
             village.Initialize(this);
-            Villages.Add(village);
+            _villages.Add(village);
 
             village = new Village(coords.Last(), 4, Color.Orange);
             village.Initialize(this);
-            Villages.Add(village);
+            _villages.Add(village);
         }
 
         /// <summary>
@@ -311,19 +317,6 @@ namespace Mordred.WorldGen
             Walkability[y * Width + x] = cell.Walkable;
         }
 
-        public List<WorldCell> Get4Neighbors(int x, int y)
-        {
-            var cells = new List<WorldCell>();
-            if (!InBounds(x, y)) return cells;
-
-            if (InBounds(x + 1, y)) cells.Add(GetCell(x+1, y));
-            if (InBounds(x - 1, y)) cells.Add(GetCell(x-1, y));
-            if (InBounds(x, y + 1)) cells.Add(GetCell(x, y+1));
-            if (InBounds(x, y - 1)) cells.Add(GetCell(x, y-1));
-
-            return cells;
-        }
-
         public bool InBounds(int x, int y)
         {
             return x >= 0 && y >= 0 && x < Width && y < Height;
@@ -335,7 +328,10 @@ namespace Mordred.WorldGen
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    var cells = Get4Neighbors(x, y);
+                    var cells = new Coord(x, y)
+                        .Get4Neighbors()
+                        .Where(a => InBounds(a.X, a.Y))
+                        .Select(a => GetCell(a.X, a.Y));
                     if (cells.All(a => !a.Transparent))
                     {
                         Cells[y * Width + x].IsVisible = false;

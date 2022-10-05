@@ -1,11 +1,9 @@
 ﻿using GoRogue;
 using GoRogue.Pathing;
-using SharpDX.Direct2D1.Effects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Mordred
 {
@@ -82,6 +80,53 @@ namespace Mordred
             {
                 if (((coord.X - center.X) * (coord.X - center.X)) + ((coord.Y - center.Y) * (coord.Y - center.Y)) <= radius * radius)
                     yield return coord;
+            }
+        }
+
+        public static IEnumerable<Coord> GetBorderCoords(this ICollection<Coord> coords,
+            Func<Coord, bool> customCriteria = null)
+        {
+            foreach (var coord in coords)
+            {
+                var neighbors = coord.Get4Neighbors();
+                foreach (var neighbor in neighbors)
+                {
+                    if (!coords.Contains(neighbor))
+                    {
+                        if (customCriteria != null && customCriteria.Invoke(coord))
+                        {
+                            yield return coord;
+                            break;
+                        }
+                        else if (customCriteria == null)
+                        {
+                            yield return coord;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static IEnumerable<Coord> Get4Neighbors(this Coord coord)
+        {
+            for (int i = -1; i < 2; i++)
+            {
+                if (i == 0) continue;
+                yield return new Coord(coord.X + i, coord.Y);
+                yield return new Coord(coord.X, coord.Y + i);
+            }
+        }
+
+        public static IEnumerable<Coord> Get8Neighbors(this Coord coord)
+        {
+            for (int x = -1; x < 2; x++)
+            {
+                for (int y = -1; y < 2; y++)
+                {
+                    if (x == 0 && y == 0) continue; // Don't include own coord
+                    yield return new Coord(coord.X + x, coord.Y + y);
+                }
             }
         }
 

@@ -78,6 +78,37 @@ namespace Mordred.WorldGen
                 cell.Foreground = Color;
                 world.SetCell(housePosition.X, housePosition.Y, cell);
             }
+
+            if (Constants.GameSettings.DebugMode)
+            {
+                // Draw border around the village boundaries
+                var borderCells = positions
+                    .GetBorderCoords(CustomBorderCriteria);
+                _villageAreaCache = null;
+                foreach (var borderCell in borderCells)
+                {
+                    var cell = MapConsole.World.GetCell(borderCell.X, borderCell.Y);
+                    cell.Background = Color.LightYellow;
+                    world.SetCell(borderCell.X, borderCell.Y, cell);
+                }
+            }
+        }
+
+        private Coord[] _villageAreaCache;
+        private bool CustomBorderCriteria(Coord coord)
+        {
+            if (_villageAreaCache == null)
+            {
+                _villageAreaCache = MapConsole.World.Villages.Where(a => a != this)
+                .SelectMany(a => a.Position
+                    .GetCirclePositions(Radius)
+                    .Where(a => MapConsole.World.InBounds(a.X, a.Y)))
+                    .ToArray();
+            }
+
+            return (MapConsole.World.GetCell(coord.X, coord.Y).Walkable ||
+                    HousePositions.Contains(coord)) &&
+                    !_villageAreaCache.Any(a => a == coord);
         }
 
         private void SpawnVillagers(int amount)
@@ -88,7 +119,7 @@ namespace Mordred.WorldGen
                 for (int i = 0; i < Constants.VillageSettings.HumansPerHouse; i++)
                     housePositions.Add(house);
             }
-            int males = 0, females = 0;
+            int males = 0;
             for (int i=0; i < amount; i++)
             {
                 var housePos = housePositions.TakeRandom();
@@ -99,11 +130,9 @@ namespace Mordred.WorldGen
                 housePositions.Remove(housePos);
 
                 // Get equal amount of genders if possible
-                Gender gender = Gender.Female;
-                if (males < amount / 2)
-                    gender = Gender.Male;
-                else if (females < amount / 2)
-                    gender = Gender.Female;
+                Gender gender = males < amount / 2 ? Gender.Male : Gender.Female;
+                if (gender == Gender.Male)
+                    males++;
 
                 var human = new Human(this, housePos, pos, Color, gender);
                 EntitySpawner.Spawn(human);
