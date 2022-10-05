@@ -29,8 +29,8 @@ namespace Mordred.WorldGen
         /// </summary>
         public readonly Inventory Inventory;
 
-        public readonly List<Coord> HutPositions;
-        public readonly List<Tribal> Tribemen;
+        public readonly List<Coord> HousePositions;
+        public readonly List<Human> Humans;
 
         public Village(Coord position, int radius, Color color)
         {
@@ -39,8 +39,8 @@ namespace Mordred.WorldGen
             Radius = radius;
 
             Inventory = new Inventory();
-            HutPositions = new List<Coord>();
-            Tribemen = new List<Tribal>();
+            HousePositions = new List<Coord>();
+            Humans = new List<Human>();
         }
 
         internal void Initialize(World world)
@@ -57,7 +57,7 @@ namespace Mordred.WorldGen
             SpawnVillagers(2);
         }
 
-        private void Build(World world, int starterHuts)
+        private void Build(World world, int starterHouses)
         {
             // Clear out the village zone, make it all grass
             var positions = Position
@@ -69,34 +69,34 @@ namespace Mordred.WorldGen
                 world.SetCell(pos.X, pos.Y, World.WorldCells[1].TakeRandom());
             }
 
-            // Spawn the village hut(s)
-            var hutPositions = positions.TakeRandom(starterHuts);
-            foreach (var hutPosition in hutPositions)
+            // Spawn the village house(s)
+            var housePositions = positions.TakeRandom(starterHouses);
+            foreach (var housePosition in housePositions)
             {
-                HutPositions.Add(hutPosition);
+                HousePositions.Add(housePosition);
                 var cell = World.WorldCells[6].TakeRandom();
                 cell.Foreground = Color;
-                world.SetCell(hutPosition.X, hutPosition.Y, cell);
+                world.SetCell(housePosition.X, housePosition.Y, cell);
             }
         }
 
         private void SpawnVillagers(int amount)
         {
-            var hutPositions = new List<Coord>();
-            foreach (var hut in HutPositions)
+            var housePositions = new List<Coord>();
+            foreach (var house in HousePositions)
             {
-                for (int i = 0; i < Constants.VillageSettings.TribemenPerHut; i++)
-                    hutPositions.Add(hut);
+                for (int i = 0; i < Constants.VillageSettings.HumansPerHouse; i++)
+                    housePositions.Add(house);
             }
             int males = 0, females = 0;
             for (int i=0; i < amount; i++)
             {
-                var hutPos = hutPositions.TakeRandom();
-                var pos = hutPos
+                var housePos = housePositions.TakeRandom();
+                var pos = housePos
                     .GetCirclePositions(3)
-                    .Where(a => MapConsole.World.CellWalkable(a.X, a.Y) && a != hutPos)
+                    .Where(a => MapConsole.World.CellWalkable(a.X, a.Y) && a != housePos)
                     .TakeRandom();
-                hutPositions.Remove(hutPos);
+                housePositions.Remove(housePos);
 
                 // Get equal amount of genders if possible
                 Gender gender = Gender.Female;
@@ -105,9 +105,9 @@ namespace Mordred.WorldGen
                 else if (females < amount / 2)
                     gender = Gender.Female;
 
-                var tribeman = new Tribal(this, hutPos, pos, Color, gender);
-                EntitySpawner.Spawn(tribeman);
-                Tribemen.Add(tribeman);
+                var human = new Human(this, housePos, pos, Color, gender);
+                EntitySpawner.Spawn(human);
+                Humans.Add(human);
             }
         }
     }

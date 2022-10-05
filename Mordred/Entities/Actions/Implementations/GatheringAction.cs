@@ -25,7 +25,7 @@ namespace Mordred.Entities.Actions.Implementations
             _cellsToGather = new[] { cellId };
             _amount = amount;
             _gatherTickRate = gatherTickRate != null ? gatherTickRate.Value : Constants.ActionSettings.DefaultGatherTickRate;
-            TribalState = Tribal.State.Gathering;
+            TribalState = Human.State.Gathering;
         }
 
         public GatheringAction(IEnumerable<Coord> gatherables, int? gatherTickRate = null)
@@ -37,14 +37,14 @@ namespace Mordred.Entities.Actions.Implementations
                 .Select(a => MapConsole.World.GetCell(a.X, a.Y).CellId)
                 .Distinct()
                 .ToArray();
-            TribalState = Tribal.State.Gathering;
+            TribalState = Human.State.Gathering;
         }
 
         /// <summary>
         /// Get the next closest cell to gather from the actor's location
         /// </summary>
         /// <param name="actorPosition"></param>
-        /// <param name="tribeman"></param>
+        /// <param name="human"></param>
         /// <returns></returns>
         private Coord? GetClosestGatherable(Actor actor)
         {
@@ -80,7 +80,7 @@ namespace Mordred.Entities.Actions.Implementations
         /// Use this to validate if the selected tree is not already being cut by someone else
         /// </summary>
         /// <param name="coord"></param>
-        /// <param name="tribeman"></param>
+        /// <param name="human"></param>
         /// <returns></returns>
         private bool IsGatherableAlreadyBeingGatheredByOtherActor(Coord coord, Actor actor)
         {
@@ -151,18 +151,18 @@ namespace Mordred.Entities.Actions.Implementations
                 return true;
             }
 
-            // We are now delivering the gatherable back to our hut
+            // We are now delivering the gatherable back to our house
             if (_deliveringItem)
             {
-                var tribeman = actor as Tribal;
-                if (tribeman.Position == tribeman.HutPosition ||
-                    !tribeman.CanMoveTowards(tribeman.HutPosition.X, tribeman.HutPosition.Y, out CustomPath movPath) ||
-                    !tribeman.MoveTowards(movPath))
+                var human = actor as Human;
+                if (human.Position == human.HousePosition ||
+                    !human.CanMoveTowards(human.HousePosition.X, human.HousePosition.Y, out CustomPath movPath) ||
+                    !human.MoveTowards(movPath))
                 {
                     // Add gatherables to village resource collection
                     foreach (var itemId in _currentItemsGathered)
                     {
-                        tribeman.Village.Inventory.Add(itemId, actor.Inventory.Take(itemId).Amount);
+                        human.Village.Inventory.Add(itemId, actor.Inventory.Take(itemId).Amount);
                     }
 
                     if (_taskDone)
@@ -208,9 +208,9 @@ namespace Mordred.Entities.Actions.Implementations
             {
                 if (GatherItem(actor))
                 {
-                    if (actor is Tribal)
+                    if (actor is Human)
                     {
-                        TribalState = Tribal.State.Hauling;
+                        TribalState = Human.State.Hauling;
                         _deliveringItem = true;
                         return false;
                     }

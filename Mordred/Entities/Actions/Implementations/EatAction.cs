@@ -15,7 +15,7 @@ namespace Mordred.Entities.Actions.Implementations
 
         public EatAction()
         {
-            TribalState = Tribal.State.Eating;
+            TribalState = Human.State.Eating;
         }
 
         public override bool Execute(Actor actor)
@@ -38,10 +38,10 @@ namespace Mordred.Entities.Actions.Implementations
                 return true;
             }
 
-            // Add action to collect from the hut if it contains edibles
-            if (actor is Tribal tribeman)
+            // Add action to collect from the house if it contains edibles
+            if (actor is Human human)
             {
-                items = tribeman.Village.Inventory.Peek()
+                items = human.Village.Inventory.Peek()
                     .Where(a => edibles.Contains(a.Key))
                     .OrderByDescending(a => a.Value)
                     .Select(a => new { EdibleId = a.Key })
@@ -49,7 +49,7 @@ namespace Mordred.Entities.Actions.Implementations
                 edible = items.FirstOrDefault();
                 if (edible != null)
                 {
-                    // Add action to collect item from hut
+                    // Add action to collect item from house
                     var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache.First(a => a.Key == edible.EdibleId).Value as EdibleItem).EdibleWorth);
                     actor.AddAction(new VillageItemInteractionAction(edible.EdibleId, amount, VillageItemInteractionAction.Interaction.Take));
 
@@ -59,14 +59,14 @@ namespace Mordred.Entities.Actions.Implementations
                 }
             }
 
-            // TODO: Add action to gather edibles if hut doesn't contain edibles
+            // TODO: Add action to gather edibles if house doesn't contain edibles
             var closestEdible = GetEdibleCells().OrderBy(a => a.Value.Key.SquaredDistance(actor.Position)).FirstOrDefault();
             if (closestEdible != null)
             {
                 actor.AddAction(new GatheringAction(new Coord[] { closestEdible.Value.Key }));
-                if (actor is Tribal tribal)
+                if (actor is Human tribal)
                 {
-                    // Add action to collect item from hut
+                    // Add action to collect item from house
                     var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache.First(a => a.Key == closestEdible.Value.Value).Value as EdibleItem).EdibleWorth);
                     actor.AddAction(new VillageItemInteractionAction(closestEdible.Value.Value, amount, VillageItemInteractionAction.Interaction.Take));
                 }

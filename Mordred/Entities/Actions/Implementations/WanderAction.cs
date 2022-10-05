@@ -15,16 +15,16 @@ namespace Mordred.Entities.Actions.Implementations
 
         public WanderAction()
         {
-            TribalState = Tribal.State.Wandering;
+            TribalState = Human.State.Wandering;
         }
 
         public Coord? GetWanderingPosition(Actor actor)
         {
             // Set random destination
             Coord center;
-            if (actor is Tribal tribeman)
+            if (actor is Human human)
             {
-                center = tribeman.HutPosition;
+                center = human.HousePosition;
             }
             else
             {

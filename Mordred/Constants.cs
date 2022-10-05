@@ -37,7 +37,7 @@
         {
             public const int MaxVillages = 4;
             public const int MaxItemStack = 64;
-            public const int TribemenPerHut = 2;
+            public const int HumansPerHouse = 2;
         }
     }
 }

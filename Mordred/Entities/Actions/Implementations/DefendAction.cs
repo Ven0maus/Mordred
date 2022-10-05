@@ -23,7 +23,7 @@ namespace Mordred.Entities.Actions.Implementations
         public DefendAction(Actor defendee = null)
         {
             _defendee = defendee;
-            TribalState = Tribal.State.Combat;
+            TribalState = Human.State.Combat;
         }
 
         public override bool Execute(Actor actor)

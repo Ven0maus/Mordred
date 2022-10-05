@@ -5,7 +5,7 @@ namespace Mordred.Entities.Actions
 {
     public interface IAction
     {
-        Tribal.State TribalState { get; }
+        Human.State TribalState { get; }
         bool Execute(Actor actor);
         void Cancel();
         event EventHandler<Actor> ActionCompleted;

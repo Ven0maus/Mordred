@@ -220,9 +220,9 @@ namespace Mordred.Entities.Actions.Implementations
                 .FirstOrDefault();
             if (actor != null) return actor;
 
-            // No animal found?: find nearest tribeman
+            // No animal found?: find nearest human
             actor = actors
-                .Where(a => a is Tribal)
+                .Where(a => a is Human)
                 .OrderBy(a => ((Coord)a.Position)
                     .SquaredDistance(predator.Position))
                 .FirstOrDefault();

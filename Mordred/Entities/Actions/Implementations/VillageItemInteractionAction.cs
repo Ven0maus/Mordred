@@ -20,40 +20,40 @@ namespace Mordred.Entities.Actions.Implementations
             _itemId = itemId;
             _amount = amount;
             _interaction = interaction;
-            TribalState = Tribal.State.Hauling;
+            TribalState = Human.State.Hauling;
         }
 
         public override bool Execute(Actor actor)
         {
             if (base.Execute(actor)) return true;
 
-            if (!(actor is Tribal tribeman) || !tribeman.Village.Inventory.HasItem(_itemId))
+            if (!(actor is Human human) || !human.Village.Inventory.HasItem(_itemId))
             {
                 ActionCompleted?.Invoke(this, actor);
                 return true;
             }
 
-            tribeman = actor as Tribal;
+            human = actor as Human;
 
-            // Go to the hut that belongs to this tribeman
-            if (!tribeman.CanMoveTowards(tribeman.HutPosition.X, tribeman.HutPosition.Y, out CustomPath path))
+            // Go to the house that belongs to this human
+            if (!human.CanMoveTowards(human.HousePosition.X, human.HousePosition.Y, out CustomPath path))
             {
                 ActionCompleted?.Invoke(this, actor);
                 return true;
             }
 
-            // Interact with tribe hut
-            if (tribeman.Position == tribeman.HutPosition || !tribeman.MoveTowards(path))
+            // Interact with tribe house
+            if (human.Position == human.HousePosition || !human.MoveTowards(path))
             {
                 if (_interaction == Interaction.Take)
                 {
-                    var item = tribeman.Village.Inventory.Take(_itemId, _amount);
-                    tribeman.Inventory.Add(_itemId, item.Amount);
+                    var item = human.Village.Inventory.Take(_itemId, _amount);
+                    human.Inventory.Add(_itemId, item.Amount);
                 }
                 else
                 {
-                    tribeman.Village.Inventory.Add(_itemId, _amount);
-                    tribeman.Inventory.Take(_itemId, _amount);
+                    human.Village.Inventory.Add(_itemId, _amount);
+                    human.Inventory.Take(_itemId, _amount);
                 }
                 ActionCompleted?.Invoke(this, actor);
                 return true;

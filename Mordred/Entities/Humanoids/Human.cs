@@ -9,9 +9,9 @@ using System.Diagnostics;
 
 namespace Mordred.Entities.Tribals
 {
-    public class Tribal : Actor
+    public class Human : Actor
     {
-        public Coord HutPosition { get; private set; }
+        public Coord HousePosition { get; private set; }
 
         public enum State
         {
@@ -30,9 +30,9 @@ namespace Mordred.Entities.Tribals
 
         public readonly Gender Gender;
 
-        public Tribal(Village village, Coord hutPosition, Coord actorPosition, Color color, Gender gender, int health = 100) : base(color, Color.Black, 'T', health)
+        public Human(Village village, Coord housePosition, Coord actorPosition, Color color, Gender gender, int health = 100) : base(color, Color.Black, 'T', health)
         {
-            HutPosition = hutPosition;
+            HousePosition = housePosition;
             Position = actorPosition;
             Village = village;
             CurrentState = State.Idle;
@@ -75,7 +75,7 @@ namespace Mordred.Entities.Tribals
                 Debug.WriteLine($"Assigned a DefendAction to {Name} to defend from {attacker.Name}");
 
                 // Let tribals know who to attack
-                foreach (var tribal in Village.Tribemen)
+                foreach (var tribal in Village.Humans)
                 {
                     if (!tribal.HasActionOfType<DefendAction>())
                     {
@@ -96,7 +96,7 @@ namespace Mordred.Entities.Tribals
             var action = (IAction)sender;
             action.ActionCanceled -= ResetStateOnCompletionOrCanceled;
             action.ActionCompleted -= ResetStateOnCompletionOrCanceled;
-            if (arg is Tribal tribal)
+            if (arg is Human tribal)
                 tribal.CurrentState = State.Idle;
         }
     }

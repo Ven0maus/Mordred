@@ -26,7 +26,7 @@ namespace Mordred.Entities.Actions.Implementations
             {
                 _stunTime = stunTime;
             }
-            TribalState = Tribal.State.Combat;
+            TribalState = Human.State.Combat;
         }
 
         public override void Cancel()

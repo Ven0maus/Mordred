@@ -10,7 +10,7 @@ namespace Mordred.Entities.Actions.Implementations
         public abstract event EventHandler<Actor> ActionCompleted;
         public virtual event EventHandler<Actor> ActionCanceled;
 
-        public Tribal.State TribalState { get; protected set; }
+        public Human.State TribalState { get; protected set; }
 
         public virtual void Cancel()
         {
