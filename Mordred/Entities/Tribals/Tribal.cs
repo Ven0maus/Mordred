@@ -15,14 +15,12 @@ namespace Mordred.Entities.Tribals
 
         public enum State
         {
+            Nothing,
             Idle,
             Wandering,
             Gathering,
-            Farming,
-            Woodcutting,
-            Mining,
-            Building,
-            Hunting,
+            Hauling,
+            Eating,
             Combat
         }
 
@@ -54,7 +52,13 @@ namespace Mordred.Entities.Tribals
                 wa.ActionCompleted += ResetStateOnCompletionOrCanceled;
                 wa.ActionCanceled += ResetStateOnCompletionOrCanceled;
                 AddAction(wa);
-                CurrentState = State.Wandering;
+            }
+            else if (CurrentAction != null && 
+                CurrentAction.TribalState != State.Nothing &&
+                CurrentState != CurrentAction.TribalState)
+            {
+                // Keep tribal current state updated
+                CurrentState = CurrentAction.TribalState;
             }
         }
 
@@ -64,7 +68,10 @@ namespace Mordred.Entities.Tribals
             {
                 if (CurrentAction != null)
                     CurrentAction.Cancel();
-                AddAction(new DefendAction(), true, false);
+                var da = new DefendAction();
+                da.ActionCompleted += ResetStateOnCompletionOrCanceled;
+                da.ActionCanceled += ResetStateOnCompletionOrCanceled;
+                AddAction(da, true, false);
                 Debug.WriteLine($"Assigned a DefendAction to {Name} to defend from {attacker.Name}");
 
                 // Let tribals know who to attack
@@ -74,7 +81,10 @@ namespace Mordred.Entities.Tribals
                     {
                         if (tribal.CurrentAction != null)
                             tribal.CurrentAction.Cancel();
-                        tribal.AddAction(new DefendAction(this), true, false);
+                        var daTribe = new DefendAction(this);
+                        daTribe.ActionCompleted += ResetStateOnCompletionOrCanceled;
+                        daTribe.ActionCanceled += ResetStateOnCompletionOrCanceled;
+                        tribal.AddAction(daTribe, true, false);
                         Debug.WriteLine($"Assigned a tribe DefendAction to {tribal.Name} to defend from {attacker.Name}");
                     }
                 }
@@ -86,7 +96,8 @@ namespace Mordred.Entities.Tribals
             var action = (IAction)sender;
             action.ActionCanceled -= ResetStateOnCompletionOrCanceled;
             action.ActionCompleted -= ResetStateOnCompletionOrCanceled;
-            CurrentState = State.Idle;
+            if (arg is Tribal tribal)
+                tribal.CurrentState = State.Idle;
         }
     }
 }

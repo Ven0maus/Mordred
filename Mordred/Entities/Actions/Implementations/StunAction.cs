@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mordred.Entities.Tribals;
+using System;
 
 namespace Mordred.Entities.Actions.Implementations
 {
@@ -25,6 +26,7 @@ namespace Mordred.Entities.Actions.Implementations
             {
                 _stunTime = stunTime;
             }
+            TribalState = Tribal.State.Combat;
         }
 
         public override void Cancel()

@@ -13,6 +13,11 @@ namespace Mordred.Entities.Actions.Implementations
 
         public override event EventHandler<Actor> ActionCompleted;
 
+        public WanderAction()
+        {
+            TribalState = Tribal.State.Wandering;
+        }
+
         public Coord? GetWanderingPosition(Actor actor)
         {
             // Set random destination

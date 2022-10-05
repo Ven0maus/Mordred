@@ -25,6 +25,7 @@ namespace Mordred.Entities.Actions.Implementations
             _cellsToGather = new[] { cellId };
             _amount = amount;
             _gatherTickRate = gatherTickRate != null ? gatherTickRate.Value : Constants.ActionSettings.DefaultGatherTickRate;
+            TribalState = Tribal.State.Gathering;
         }
 
         public GatheringAction(IEnumerable<Coord> gatherables, int? gatherTickRate = null)
@@ -36,6 +37,7 @@ namespace Mordred.Entities.Actions.Implementations
                 .Select(a => MapConsole.World.GetCell(a.X, a.Y).CellId)
                 .Distinct()
                 .ToArray();
+            TribalState = Tribal.State.Gathering;
         }
 
         /// <summary>
@@ -208,6 +210,7 @@ namespace Mordred.Entities.Actions.Implementations
                 {
                     if (actor is Tribal)
                     {
+                        TribalState = Tribal.State.Hauling;
                         _deliveringItem = true;
                         return false;
                     }

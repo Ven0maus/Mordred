@@ -3,15 +3,24 @@ using System;
 
 namespace Mordred.Entities.Actions.Implementations
 {
-    public class CollectFromVillageAction : BaseAction
+    public class VillageItemInteractionAction : BaseAction
     {
         public override event EventHandler<Actor> ActionCompleted;
         private readonly int _itemId, _amount;
+        private readonly Interaction _interaction;
 
-        public CollectFromVillageAction(int itemId, int amount)
+        public enum Interaction
+        {
+            Take,
+            Give
+        }
+
+        public VillageItemInteractionAction(int itemId, int amount, Interaction interaction)
         {
             _itemId = itemId;
             _amount = amount;
+            _interaction = interaction;
+            TribalState = Tribal.State.Hauling;
         }
 
         public override bool Execute(Actor actor)
@@ -33,9 +42,20 @@ namespace Mordred.Entities.Actions.Implementations
                 return true;
             }
 
+            // Interact with tribe hut
             if (tribeman.Position == tribeman.HutPosition || !tribeman.MoveTowards(path))
             {
-                tribeman.Inventory.Add(_itemId, tribeman.Village.Inventory.Take(_itemId, _amount).Amount);
+                if (_interaction == Interaction.Take)
+                {
+                    var item = tribeman.Village.Inventory.Take(_itemId, _amount);
+                    tribeman.Inventory.Add(_itemId, item.Amount);
+                }
+                else
+                {
+                    tribeman.Village.Inventory.Add(_itemId, _amount);
+                    tribeman.Inventory.Take(_itemId, _amount);
+                }
+                ActionCompleted?.Invoke(this, actor);
                 return true;
             }
             return false;

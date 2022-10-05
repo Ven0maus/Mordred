@@ -1,5 +1,6 @@
 ﻿using GoRogue;
 using Mordred.Entities.Animals;
+using Mordred.Entities.Tribals;
 using System;
 using System.Diagnostics;
 
@@ -22,6 +23,7 @@ namespace Mordred.Entities.Actions.Implementations
         public DefendAction(Actor defendee = null)
         {
             _defendee = defendee;
+            TribalState = Tribal.State.Combat;
         }
 
         public override bool Execute(Actor actor)

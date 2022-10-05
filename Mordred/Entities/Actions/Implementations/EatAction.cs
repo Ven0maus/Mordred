@@ -13,6 +13,11 @@ namespace Mordred.Entities.Actions.Implementations
     {
         public override event EventHandler<Actor> ActionCompleted;
 
+        public EatAction()
+        {
+            TribalState = Tribal.State.Eating;
+        }
+
         public override bool Execute(Actor actor)
         {
             if (base.Execute(actor)) return true;
@@ -46,7 +51,7 @@ namespace Mordred.Entities.Actions.Implementations
                 {
                     // Add action to collect item from hut
                     var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache.First(a => a.Key == edible.EdibleId).Value as EdibleItem).EdibleWorth);
-                    actor.AddAction(new CollectFromVillageAction(edible.EdibleId, amount));
+                    actor.AddAction(new VillageItemInteractionAction(edible.EdibleId, amount, VillageItemInteractionAction.Interaction.Take));
 
                     // Add another eat task after this task
                     actor.AddAction(new EatAction());
@@ -59,11 +64,11 @@ namespace Mordred.Entities.Actions.Implementations
             if (closestEdible != null)
             {
                 actor.AddAction(new GatheringAction(new Coord[] { closestEdible.Value.Key }));
-                if (actor is Tribal)
+                if (actor is Tribal tribal)
                 {
                     // Add action to collect item from hut
                     var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache.First(a => a.Key == closestEdible.Value.Value).Value as EdibleItem).EdibleWorth);
-                    actor.AddAction(new CollectFromVillageAction(closestEdible.Value.Value, amount));
+                    actor.AddAction(new VillageItemInteractionAction(closestEdible.Value.Value, amount, VillageItemInteractionAction.Interaction.Take));
                 }
                 actor.AddAction(new EatAction());
             }
