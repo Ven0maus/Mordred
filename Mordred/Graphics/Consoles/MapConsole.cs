@@ -1,6 +1,7 @@
 ﻿using Mordred.WorldGen;
 using SadConsole;
 using SadConsole.Entities;
+using Venomaus.FlowVitae.Basics;
 
 namespace Mordred.Graphics.Consoles
 {
@@ -18,6 +19,11 @@ namespace Mordred.Graphics.Consoles
             EntityRenderer = new Renderer();
             SadComponents.Add(EntityRenderer);
             _instance = this;
+        }
+
+        public void OnCellUpdate(object sender, CellUpdateArgs<int, WorldCell> args)
+        {
+            Surface.SetGlyph(args.ScreenX, args.ScreenY, args.Cell);
         }
 
         public void InitializeWorld()

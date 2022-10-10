@@ -10,6 +10,8 @@ using SadRogue.Primitives.GridViews;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Venomaus.FlowVitae.Basics;
+using Venomaus.FlowVitae.Grids;
 
 namespace Mordred.WorldGen
 {
@@ -21,9 +23,8 @@ namespace Mordred.WorldGen
         ENTITIES
     }
 
-    public class World
+    public class World : GridBase<int, WorldCell>
     {
-        public readonly int Width, Height;
         public static readonly Dictionary<int, WorldCell[]> WorldCells = ConfigLoader.LoadWorldCells();
 
         public readonly FastAStar Pathfinder;
@@ -37,29 +38,34 @@ namespace Mordred.WorldGen
         }
 
         /// <summary>
-        /// The visual cells that are displayed.
-        /// </summary>
-        protected readonly WorldCell[] Cells;
-        /// <summary>
         /// The actual terrain values, which objects can overlap
         /// </summary>
-        protected readonly int[] Terrain;
+        protected readonly Grid<int, WorldCell> Terrain;
         protected readonly ArrayView<bool> Walkability;
 
-        public World(int width, int height)
+        public World(int width, int height) : base(width, height)
         {
-            Width = width;
-            Height = height;
-
             // Get map console reference
             MapConsole = Game.Container.GetConsole<MapConsole>();
+            OnCellUpdate += MapConsole.OnCellUpdate;
 
             // Initialize the arrays
-            Cells = new WorldCell[Width * Height];
-            Terrain = new int[Width * Height];
+            Terrain = new Grid<int, WorldCell>(width, height);
             _villages = new List<Village>(Constants.VillageSettings.MaxVillages);
             Walkability = new ArrayView<bool>(Width, Height);
             Pathfinder = new FastAStar(Walkability, Distance.Manhattan);
+        }
+
+        protected override WorldCell Convert(int x, int y, int cellType)
+        {
+            if (!WorldCells.TryGetValue(cellType, out var cells))
+                return base.Convert(x, y, cellType);
+
+            // Get custom cell
+            var cell = cells.TakeRandom().Clone(x, y);
+            cell.X = x;
+            cell.Y = y;
+            return cell;
         }
 
         public void GenerateLands()
@@ -87,20 +93,20 @@ namespace Mordred.WorldGen
                     if (simplexNoise[y * Width + x] >= 0.75f && simplexNoise[y * Width + x] <= 1f)
                     {
                         // Mountains
-                        SetCell(x, y, WorldCells[3].TakeRandom());
-                        Terrain[y * Width + x] = 3;
+                        SetCell(WorldCells[3].TakeRandom().Clone(x, y));
+                        Terrain.SetCell(x, y, 3);
                     }
                     else
                     {
                         // Tree, berrybush or grass
                         int chance = Game.Random.Next(0, 100);
                         if (chance <= 1)
-                            SetCell(x, y, WorldCells[7].TakeRandom());
+                            SetCell(WorldCells[7].TakeRandom().Clone(x, y));
                         else if (chance <= 7)
-                            SetCell(x, y, WorldCells[2].TakeRandom());
+                            SetCell(WorldCells[2].TakeRandom().Clone(x, y));
                         else
-                            SetCell(x, y, WorldCells[1].TakeRandom());
-                        Terrain[y * Width + x] = 1;
+                            SetCell(WorldCells[1].TakeRandom().Clone(x, y));
+                        Terrain.SetCell(x, y, 1);
                     }
                 }
             }
@@ -222,7 +228,7 @@ namespace Mordred.WorldGen
         public WorldCell GetTerrain(int x, int y)
         {
             if (!InBounds(x, y)) return null;
-            return WorldCells[Terrain[y * Width + x]].TakeRandom().Clone();
+            return WorldCells[Terrain.GetCellType(x, y)].TakeRandom().Clone(x, y);
         }
 
         /// <summary>
@@ -231,28 +237,17 @@ namespace Mordred.WorldGen
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public WorldCell GetCell(int x, int y)
+        public override WorldCell GetCell(int x, int y)
         {
-            if (!InBounds(x, y)) return null;
-            return Cells[y * Width + x].Clone();
+            var cell = base.GetCell(x, y);
+            if (cell == null) return null;
+            return cell.Clone();
         }
 
         public bool CellWalkable(int x, int y)
         {
             if (!InBounds(x, y)) return false;
-            return Cells[y * Width + x].Walkable;
-        }
-
-        public IEnumerable<WorldCell> GetCells(Func<WorldCell, bool> criteria)
-        {
-            for (int y=0; y < Height; y++)
-            {
-                for (int x=0; x < Width; x++)
-                {
-                    if (criteria.Invoke(Cells[y * Width + x]))
-                        yield return Cells[y * Width + x].Clone();
-                }
-            }
+            return GetCell(x, y).Walkable;
         }
 
         public IEnumerable<Point> GetCellCoords(Func<WorldCell, bool> criteria)
@@ -261,23 +256,10 @@ namespace Mordred.WorldGen
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    if (criteria.Invoke(Cells[y * Width + x]))
+                    if (criteria.Invoke(GetCell(x, y)))
                         yield return new Point(x, y);
                 }
             }
-        }
-
-        /// <summary>
-        /// Returns a list of all the WorldItem Id's that the given WorldCell drops
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
-        public List<int> GetItemIdDropsByCellId(int cellId)
-        {
-            var items = Inventory.ItemCache.Where(a => a.Value.DroppedBy != null && a.Value.IsDroppedBy(cellId))
-                .Select(a => a.Key)
-                .ToList();
-            return items;
         }
 
         /// <summary>
@@ -287,38 +269,18 @@ namespace Mordred.WorldGen
         /// <returns></returns>
         public List<int> GetItemIdDropsByCellId(Point coord)
         {
-            var cellId = GetCell(coord.X, coord.Y).CellId;
+            var cellId = GetCell(coord.X, coord.Y).CellType;
             var items = Inventory.ItemCache.Where(a => a.Value.DroppedBy != null && a.Value.IsDroppedBy(cellId))
                 .Select(a => a.Key)
                 .ToList();
             return items;
         }
 
-        /// <summary>
-        /// Returns a list of all the WorldCell Id's that drop the given item id
-        /// </summary>
-        /// <param name="itemId"></param>
-        /// <returns></returns>
-        public IEnumerable<int> GetCellIdDropsByItemId(int itemId)
+        public override void SetCell(WorldCell cell, bool storeState = true)
         {
-            return Inventory.ItemCache[itemId].GetCellDropIds();
-        }
-
-        public void SetCell(int x, int y, WorldCell cell)
-        {
-            if (!InBounds(x, y)) return;
-
-            if (Cells[y * Width + x] == null)
-                Cells[y * Width + x] = cell.Clone();
-            else
-                Cells[y * Width + x].CopyFrom(cell);
-
-            Walkability[y * Width + x] = cell.Walkable;
-        }
-
-        public bool InBounds(int x, int y)
-        {
-            return x >= 0 && y >= 0 && x < Width && y < Height;
+            if (!InBounds(cell.X, cell.Y)) return;
+            Walkability[cell.Y * Width + cell.X] = cell.Walkable;
+            base.SetCell(cell.Clone(), storeState);
         }
 
         private void HideObstructedCells()
@@ -331,13 +293,16 @@ namespace Mordred.WorldGen
                         .Get4Neighbors()
                         .Where(a => InBounds(a.X, a.Y))
                         .Select(a => GetCell(a.X, a.Y));
+                    var cell = GetCell(x, y);
                     if (cells.All(a => !a.Transparent))
                     {
-                        Cells[y * Width + x].IsVisible = false;
+                        cell.IsVisible = false;
+                        SetCell(cell);
                     }
                     else
                     {
-                        Cells[y * Width + x].IsVisible = true;
+                        cell.IsVisible = true;
+                        SetCell(cell);
                     }
                 }
             }
@@ -350,7 +315,7 @@ namespace Mordred.WorldGen
 
             if (setSurface)
             {
-                MapConsole.Surface = new CellSurface(Width, Height, Width, Height, Cells);
+                MapConsole.Surface = new CellSurface(Width, Height, Width, Height, GetViewPortCells().ToArray());
                 MapConsole.IsDirty = true;
             }
             else
