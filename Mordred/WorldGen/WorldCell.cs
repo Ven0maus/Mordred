@@ -1,12 +1,12 @@
-﻿using Microsoft.Xna.Framework;
-using SadConsole;
+﻿using SadConsole;
+using SadRogue.Primitives;
 
 namespace Mordred.WorldGen
 {
     /// <summary>
     /// Base class of a grid cell
     /// </summary>
-    public class WorldCell : Cell
+    public class WorldCell : ColoredGlyph
     {
         public int CellId { get; private set; }
         /// <summary>

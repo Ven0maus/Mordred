@@ -1,5 +1,4 @@
-﻿using GoRogue;
-using Microsoft.Xna.Framework;
+﻿using SadRogue.Primitives;
 using Mordred.Entities.Actions;
 using Mordred.Entities.Actions.Implementations;
 using Mordred.Entities.Animals;
@@ -43,8 +42,10 @@ namespace Mordred.Entities
         public Actor CurrentAttacker { get; set; }
         #endregion
 
-        public Actor(Color foreground, Color background, int glyph, int health = 100) : base(foreground, background, glyph)
+        public Actor(Color foreground, Color background, int glyph, int health = 100) : base(foreground, background, glyph, 1)
         {
+            MapConsole.Instance.EntityRenderer.Add(this);
+
             Name = GetType().Name;
 
             MaxHunger = Constants.ActorSettings.DefaultMaxHunger;
@@ -81,7 +82,7 @@ namespace Mordred.Entities
         {
             path = null;
             if (!Alive) return false;
-            path = MapConsole.World.Pathfinder.ShortestPath(Position, new Coord(x, y))?.ToCustomPath();
+            path = MapConsole.World.Pathfinder.ShortestPath(Position, new Point(x, y))?.ToCustomPath();
             return path != null;
         }
 
@@ -101,7 +102,7 @@ namespace Mordred.Entities
         public bool MoveTowards(int x, int y)
         {
             if (!Alive) return false;
-            var movementPath = MapConsole.World.Pathfinder.ShortestPath(Position, new Coord(x, y)).ToCustomPath();
+            var movementPath = MapConsole.World.Pathfinder.ShortestPath(Position, new Point(x, y)).ToCustomPath();
             return MoveTowards(movementPath);
         }
 
@@ -221,8 +222,7 @@ namespace Mordred.Entities
             {
                 // Turn corpse to rotting for the same amount of ticks as the freshness
                 Name = Name.Replace("(corpse)", "(rotting)");
-                Animation[0].Foreground = Color.Lerp(Animation[0].Foreground, Color.Red, 0.7f);
-                Animation.IsDirty = true;
+                Appearance.Foreground = Color.Lerp(Appearance.Foreground, Color.Red, 0.7f);
                 IsDirty = true;
 
                 _rottingCounter = 0;
@@ -236,8 +236,7 @@ namespace Mordred.Entities
             {
                 // Turn corpse to skeleton and start decay process which is 2x as long
                 Name = Name.Replace("(rotting)", "(skeleton)");
-                Animation[0].Foreground = Color.Lerp(Color.GhostWhite, Color.Black, 0.2f);
-                Animation.IsDirty = true;
+                Appearance.Foreground = Color.Lerp(Color.GhostWhite, Color.Black, 0.2f);
                 IsDirty = true;
 
                 _rottingCounter = 0;

@@ -1,5 +1,4 @@
-﻿using GoRogue;
-using Microsoft.Xna.Framework;
+﻿using SadRogue.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,7 +23,7 @@ namespace Mordred.Entities.Animals
 
         public IPackAnimal Leader { get; set; }
 
-        public Wolf(Coord position, Gender gender) : base(Color.LightSlateGray, 'w', gender, 65)
+        public Wolf(Point position, Gender gender) : base(Color.LightSlateGray, 'w', gender, 65)
         {
             PackMates = new List<Wolf>();
             Position = position;

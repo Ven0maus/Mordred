@@ -1,6 +1,6 @@
-﻿using GoRogue;
-using Mordred.Entities.Animals;
+﻿using Mordred.Entities.Animals;
 using Mordred.Graphics.Consoles;
+using SadRogue.Primitives;
 using System;
 
 namespace Mordred.Entities.Actions.Implementations
@@ -15,7 +15,7 @@ namespace Mordred.Entities.Actions.Implementations
         private const int _recalculatePositionInAmountTicks = 4;
         private int _positionCalculationCounter = 0;
 
-        private Coord _randomCoordinate;
+        private Point _randomCoordinate;
 
         public override bool Execute(Actor actor)
         {
@@ -38,7 +38,7 @@ namespace Mordred.Entities.Actions.Implementations
             if (_positionCalculationCounter >= _recalculatePositionInAmountTicks)
             {
                 // Get a random coordinate within the leader's position 6 square radius
-                _randomCoordinate = ((Coord)packLeader.Position).GetRandomCoordinateWithinSquareRadius(5);
+                _randomCoordinate = ((Point)packLeader.Position).GetRandomCoordinateWithinSquareRadius(5);
                 while (!MapConsole.World.CellWalkable(_randomCoordinate.X, _randomCoordinate.Y))
                 {
                     if (_whileLoopLimiter >= _whileLoopLimit)
@@ -46,7 +46,7 @@ namespace Mordred.Entities.Actions.Implementations
                         Cancel();
                         return false;
                     }
-                    _randomCoordinate = ((Coord)packLeader.Position).GetRandomCoordinateWithinSquareRadius(5);
+                    _randomCoordinate = ((Point)packLeader.Position).GetRandomCoordinateWithinSquareRadius(5);
                     _whileLoopLimiter++;
                 }
             }
@@ -81,7 +81,7 @@ namespace Mordred.Entities.Actions.Implementations
                 validPath = true;
                 return true;
             }
-            else if (((Coord)actor.Position).SquaredDistance(_randomCoordinate) < 2)
+            else if (((Point)actor.Position).SquaredDistance(_randomCoordinate) < 2)
             {
                 validPath = true;
                 return true;

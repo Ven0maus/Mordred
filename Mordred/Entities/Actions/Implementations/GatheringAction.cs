@@ -1,7 +1,7 @@
-﻿using GoRogue;
-using Mordred.Entities.Tribals;
+﻿using Mordred.Entities.Tribals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
+using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace Mordred.Entities.Actions.Implementations
 {
     public class GatheringAction : BaseAction
     {
-        public Coord? CurrentGatherable;
+        public Point? CurrentGatherable;
         public override event EventHandler<Actor> ActionCompleted;
         private readonly int[] _cellsToGather;
         private int _amount;
@@ -18,7 +18,7 @@ namespace Mordred.Entities.Actions.Implementations
         private bool _deliveringItem = false;
         private readonly int _gatherTickRate;
         private int _gatherCounter = 0;
-        private List<Coord> _gatherables;
+        private List<Point> _gatherables;
 
         public GatheringAction(int cellId, int amount = 1, int? gatherTickRate = null)
         {
@@ -28,7 +28,7 @@ namespace Mordred.Entities.Actions.Implementations
             TribalState = Human.State.Gathering;
         }
 
-        public GatheringAction(IEnumerable<Coord> gatherables, int? gatherTickRate = null)
+        public GatheringAction(IEnumerable<Point> gatherables, int? gatherTickRate = null)
         {
             _gatherables = gatherables.ToList();
             _amount = _gatherables.Count;
@@ -46,7 +46,7 @@ namespace Mordred.Entities.Actions.Implementations
         /// <param name="actorPosition"></param>
         /// <param name="human"></param>
         /// <returns></returns>
-        private Coord? GetClosestGatherable(Actor actor)
+        private Point? GetClosestGatherable(Actor actor)
         {
             if (_amount == 1)
             {
@@ -64,7 +64,7 @@ namespace Mordred.Entities.Actions.Implementations
             if (_gatherables.Count == 0) return null;
 
             var gatherable =  _gatherables
-                .Select(a => (Coord?)a)
+                .Select(a => (Point?)a)
                 .OrderBy(a => a.Value.SquaredDistance(actor.Position))
                 .FirstOrDefault(a => !IsGatherableAlreadyBeingGatheredByOtherActor(a.Value, actor));
 
@@ -82,7 +82,7 @@ namespace Mordred.Entities.Actions.Implementations
         /// <param name="coord"></param>
         /// <param name="human"></param>
         /// <returns></returns>
-        private bool IsGatherableAlreadyBeingGatheredByOtherActor(Coord coord, Actor actor)
+        private bool IsGatherableAlreadyBeingGatheredByOtherActor(Point coord, Actor actor)
         {
             var actors = EntitySpawner.Entities.OfType<Actor>()
                 .Where(a => !a.Equals(actor) && a.CurrentAction != null && a.CurrentAction is GatheringAction)

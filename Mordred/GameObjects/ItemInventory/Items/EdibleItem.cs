@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿using SadRogue.Primitives;
 
 namespace Mordred.GameObjects.ItemInventory.Items
 {
@@ -12,7 +12,7 @@ namespace Mordred.GameObjects.ItemInventory.Items
             EdibleWorth = edibleWorth;
         }
 
-        private EdibleItem(EdibleItem original) : base(original.Id, original.Name, original.Animation[0].Foreground, original.Animation[0].Background, original.Animation[0].Glyph, original.Amount, ConvertDropRatesToString(original.DroppedBy))
+        private EdibleItem(EdibleItem original) : base(original.Id, original.Name, original.Appearance.Foreground, original.Appearance.Background, original.Appearance.Glyph, original.Amount, ConvertDropRatesToString(original.DroppedBy))
         {
             EdibleWorth = original.EdibleWorth;
         }

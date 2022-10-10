@@ -1,16 +1,15 @@
-﻿using GoRogue;
-using GoRogue.MapViews;
-using GoRogue.Pathing;
-using Microsoft.Xna.Framework;
+﻿using GoRogue.Pathing;
 using Mordred.Config;
 using Mordred.Entities;
 using Mordred.Entities.Animals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
+using SadConsole;
+using SadRogue.Primitives;
+using SadRogue.Primitives.GridViews;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 
 namespace Mordred.WorldGen
 {
@@ -45,7 +44,7 @@ namespace Mordred.WorldGen
         /// The actual terrain values, which objects can overlap
         /// </summary>
         protected readonly int[] Terrain;
-        protected readonly ArrayMap<bool> Walkability;
+        protected readonly ArrayView<bool> Walkability;
 
         public World(int width, int height)
         {
@@ -59,8 +58,8 @@ namespace Mordred.WorldGen
             Cells = new WorldCell[Width * Height];
             Terrain = new int[Width * Height];
             _villages = new List<Village>(Constants.VillageSettings.MaxVillages);
-            Walkability = new ArrayMap<bool>(Width, Height);
-            Pathfinder = new FastAStar(Walkability, Distance.MANHATTAN);
+            Walkability = new ArrayView<bool>(Width, Height);
+            Pathfinder = new FastAStar(Walkability, Distance.Manhattan);
         }
 
         public void GenerateLands()
@@ -168,7 +167,7 @@ namespace Mordred.WorldGen
                 {
                     var animals = type.Value.Take(Constants.ActorSettings.MaxPackSize).ToList();
                     var leader = animals.TakeRandom();
-                    var centerPoint = (Coord)(leader as Animal).Position;
+                    var centerPoint = (Point)(leader as Animal).Position;
                     foreach (var animal in animals)
                     {
                         var list = animal.PackMates ?? new List<IPackAnimal>();
@@ -256,14 +255,14 @@ namespace Mordred.WorldGen
             }
         }
 
-        public IEnumerable<Coord> GetCellCoords(Func<WorldCell, bool> criteria)
+        public IEnumerable<Point> GetCellCoords(Func<WorldCell, bool> criteria)
         {
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
                 {
                     if (criteria.Invoke(Cells[y * Width + x]))
-                        yield return new Coord(x, y);
+                        yield return new Point(x, y);
                 }
             }
         }
@@ -286,7 +285,7 @@ namespace Mordred.WorldGen
         /// </summary>
         /// <param name="coord"></param>
         /// <returns></returns>
-        public List<int> GetItemIdDropsByCellId(Coord coord)
+        public List<int> GetItemIdDropsByCellId(Point coord)
         {
             var cellId = GetCell(coord.X, coord.Y).CellId;
             var items = Inventory.ItemCache.Where(a => a.Value.DroppedBy != null && a.Value.IsDroppedBy(cellId))
@@ -328,7 +327,7 @@ namespace Mordred.WorldGen
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    var cells = new Coord(x, y)
+                    var cells = new Point(x, y)
                         .Get4Neighbors()
                         .Where(a => InBounds(a.X, a.Y))
                         .Select(a => GetCell(a.X, a.Y));
@@ -350,7 +349,10 @@ namespace Mordred.WorldGen
                 HideObstructedCells();
 
             if (setSurface)
-                MapConsole.SetSurface(Cells, Width, Height);
+            {
+                MapConsole.Surface = new CellSurface(Width, Height, Width, Height, Cells);
+                MapConsole.IsDirty = true;
+            }
             else
                 MapConsole.IsDirty = true;
         }

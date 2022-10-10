@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿using SadRogue.Primitives;
 
 namespace Mordred.Entities.Animals
 {

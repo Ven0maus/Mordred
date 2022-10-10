@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Mordred.Graphics.Consoles;
+﻿using Mordred.Graphics.Consoles;
 using SadConsole;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,19 +8,16 @@ namespace Mordred.Graphics
     /// <summary>
     /// The general container where all windows of the game are stored.
     /// </summary>
-    public class Container : ContainerConsole
+    public class Container : Console
     {
         private readonly List<Console> Consoles = new List<Console>();
 
-        public Container(int gameWindowWidth, int gameWindowHeight)
-        {
-            Width = gameWindowWidth;
-            Height = gameWindowHeight;
-        }
+        public Container(int gameWindowWidth, int gameWindowHeight) : base(gameWindowWidth, gameWindowHeight)
+        { }
 
         public void InitializeConsoles()
         {
-            Consoles.Add(new MapConsole(Width, Height, Global.FontDefault.Master.GetFont(Font.FontSizes.One), new Rectangle(0, 0, Width, Height)));
+            Consoles.Add(new MapConsole(Width, Height));
 
             // Add all consoles as children of the container
             foreach (var console in Consoles)

@@ -1,5 +1,5 @@
-﻿using GoRogue;
-using GoRogue.Pathing;
+﻿using GoRogue.Pathing;
+using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +9,12 @@ namespace Mordred
 {
     public static class Extensions
     {
-        public static float SquaredDistance(this Coord pos, Coord target)
+        public static float SquaredDistance(this Point pos, Point target)
         {
             return (target.X - pos.X) * (target.X - pos.X) + (target.Y - pos.Y) * (target.Y - pos.Y);
         }
 
-        public static float Distance(this Coord pos, Coord target)
+        public static float Distance(this Point pos, Point target)
         {
             return MathF.Sqrt((target.X - pos.X) * (target.X - pos.X) + (target.Y - pos.Y) * (target.Y - pos.Y));
         }
@@ -51,7 +51,7 @@ namespace Mordred
             }
         }
 
-        public static Coord GetRandomCoordinateWithinSquareRadius(this Coord center, int squareSize, bool matchXLength = true)
+        public static Point GetRandomCoordinateWithinSquareRadius(this Point center, int squareSize, bool matchXLength = true)
         {
             int halfSquareSize = squareSize / 2;
             int x;
@@ -62,17 +62,17 @@ namespace Mordred
             else
                 x = Game.Random.Next(center.X - halfSquareSize, center.X + halfSquareSize);
 
-            return new Coord(x, y);
+            return new Point(x, y);
         } 
 
-        public static IEnumerable<Coord> GetCirclePositions(this Coord center, int radius)
+        public static IEnumerable<Point> GetCirclePositions(this Point center, int radius)
         {
-            var coords = new List<Coord>(radius * radius);
+            var coords = new List<Point>(radius * radius);
             for (int y=center.Y - radius; y <= center.Y + radius; y++)
             {
                 for (int x = center.X - radius; x <= center.X + radius; x++)
                 {
-                    coords.Add(new Coord(x, y));
+                    coords.Add(new Point(x, y));
                 }
             }
 
@@ -83,36 +83,36 @@ namespace Mordred
             }
         }
 
-        public static IEnumerable<Coord> GetBorderCoords(this ICollection<Coord> coords,
-            Func<Coord, bool> customCriteria = null)
+        public static IEnumerable<Point> GetBorderCoords(this ICollection<Point> coords,
+            Func<Point, bool> customCriteria = null)
         {
             var result = coords
-                .Select(a => (Coord: a, Neighbors: a.Get4Neighbors()))
+                .Select(a => (Point: a, Neighbors: a.Get4Neighbors()))
                 .Where(a => a.Neighbors.Any(neighbor => !coords.Contains(neighbor)))
-                .Select(a => a.Coord);
+                .Select(a => a.Point);
             if (customCriteria != null)
                 result = result.Where(a => customCriteria.Invoke(a));
             return result;
         }
 
-        public static IEnumerable<Coord> Get4Neighbors(this Coord coord)
+        public static IEnumerable<Point> Get4Neighbors(this Point coord)
         {
             for (int i = -1; i < 2; i++)
             {
                 if (i == 0) continue;
-                yield return new Coord(coord.X + i, coord.Y);
-                yield return new Coord(coord.X, coord.Y + i);
+                yield return new Point(coord.X + i, coord.Y);
+                yield return new Point(coord.X, coord.Y + i);
             }
         }
 
-        public static IEnumerable<Coord> Get8Neighbors(this Coord coord)
+        public static IEnumerable<Point> Get8Neighbors(this Point coord)
         {
             for (int x = -1; x < 2; x++)
             {
                 for (int y = -1; y < 2; y++)
                 {
                     if (x == 0 && y == 0) continue; // Don't include own coord
-                    yield return new Coord(coord.X + x, coord.Y + y);
+                    yield return new Point(coord.X + x, coord.Y + y);
                 }
             }
         }
@@ -140,7 +140,7 @@ namespace Mordred
 
     public sealed class CustomPath : Path
     {
-        private readonly List<Coord> _coords = new List<Coord>();
+        private readonly List<Point> _coords = new List<Point>();
         public CustomPath(Path path) : base(path) 
         {
             var length = path.Length;
@@ -150,7 +150,7 @@ namespace Mordred
             }
         }
 
-        public Coord TakeStep(int step)
+        public Point TakeStep(int step)
         {
             var value = _coords[step];
             _coords.RemoveAt(step);

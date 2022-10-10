@@ -1,5 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using Mordred.Entities.Actions.Implementations;
+﻿using Mordred.Entities.Actions.Implementations;
+using SadRogue.Primitives;
 using System;
 using System.Diagnostics;
 using System.Linq;

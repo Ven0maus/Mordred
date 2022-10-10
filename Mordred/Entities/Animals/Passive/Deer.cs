@@ -1,11 +1,10 @@
-﻿using GoRogue;
-using Microsoft.Xna.Framework;
+﻿using SadRogue.Primitives;
 
 namespace Mordred.Entities.Animals
 {
     public class Deer : PassiveAnimal
     {
-        public Deer(Coord position, Gender gender) : base(Color.SaddleBrown, 'D', gender, 80) 
+        public Deer(Point position, Gender gender) : base(Color.SaddleBrown, 'D', gender, 80) 
         {
             Position = position;
             HungerTickRate = 6;

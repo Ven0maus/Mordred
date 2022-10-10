@@ -1,9 +1,9 @@
-﻿using Microsoft.Xna.Framework;
-using Mordred.Config.ItemConfig;
+﻿using Mordred.Config.ItemConfig;
 using Mordred.Config.WorldGenConfig;
 using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.WorldGen;
 using Newtonsoft.Json;
+using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -68,9 +68,9 @@ namespace Mordred.Config
 
         private static Color GetColorByString(string value)
         {
-            var prop = typeof(Color).GetProperty(value);
-            if (prop != null)
-                return (Color)prop.GetValue(null, null);
+            var field = typeof(Color).GetField(value);
+            if (field != null)
+                return (Color)field.GetValue(null);
             return default;
         }
     }

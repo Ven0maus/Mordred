@@ -1,5 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using SadConsole.Entities;
+﻿using SadConsole.Entities;
+using SadRogue.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,7 +12,7 @@ namespace Mordred.GameObjects.ItemInventory.Items
         public readonly Dictionary<int, DropRate> DroppedBy;
 
         public int Amount;
-        public WorldItem(int id, string name, Color foreground, Color background, int glyph, int? amount = null, string[] droppedBy = null) : base(foreground, background, glyph)
+        public WorldItem(int id, string name, Color foreground, Color background, int glyph, int? amount = null, string[] droppedBy = null) : base(foreground, background, glyph, 1)
         {
             Name = name;
             Id = id;
@@ -57,7 +57,7 @@ namespace Mordred.GameObjects.ItemInventory.Items
             }
         }
 
-        public DropRate? GetDropRateForCellId(int cellId)
+        public DropRate GetDropRateForCellId(int cellId)
         {
             if (DroppedBy == null) return null;
             DroppedBy.TryGetValue(cellId, out DropRate dropRate);
@@ -76,7 +76,7 @@ namespace Mordred.GameObjects.ItemInventory.Items
             return DroppedBy.Select(a => a.Key);
         }
 
-        private WorldItem(WorldItem original) : base(original.Animation[0].Foreground, original.Animation[0].Background, original.Animation[0].Glyph)
+        private WorldItem(WorldItem original) : base(original.Appearance.Foreground, original.Appearance.Background, original.Appearance.Glyph, 1)
         {
             Id = original.Id;
             Amount = original.Amount;

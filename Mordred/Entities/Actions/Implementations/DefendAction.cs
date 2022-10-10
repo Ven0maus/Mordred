@@ -1,6 +1,6 @@
-﻿using GoRogue;
-using Mordred.Entities.Animals;
+﻿using Mordred.Entities.Animals;
 using Mordred.Entities.Tribals;
+using SadRogue.Primitives;
 using System;
 using System.Diagnostics;
 
@@ -101,7 +101,7 @@ namespace Mordred.Entities.Actions.Implementations
                 validPath = true;
                 return true;
             }
-            else if (((Coord)actor.Position).SquaredDistance(_defendee.CurrentAttacker.Position) < 2)
+            else if (((Point)actor.Position).SquaredDistance(_defendee.CurrentAttacker.Position) < 2)
             {
                 validPath = true;
                 return true;

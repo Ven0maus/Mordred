@@ -1,8 +1,8 @@
-﻿using GoRogue;
-using Mordred.Entities.Tribals;
+﻿using Mordred.Entities.Tribals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.Graphics.Consoles;
+using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,7 +63,7 @@ namespace Mordred.Entities.Actions.Implementations
             var closestEdible = GetEdibleCells().OrderBy(a => a.Value.Key.SquaredDistance(actor.Position)).FirstOrDefault();
             if (closestEdible != null)
             {
-                actor.AddAction(new GatheringAction(new Coord[] { closestEdible.Value.Key }));
+                actor.AddAction(new GatheringAction(new Point[] { closestEdible.Value.Key }));
                 if (actor is Human tribal)
                 {
                     // Add action to collect item from house
@@ -77,17 +77,17 @@ namespace Mordred.Entities.Actions.Implementations
             return true;
         }
 
-        private List<KeyValuePair<Coord, int>?> GetEdibleCells()
+        private List<KeyValuePair<Point, int>?> GetEdibleCells()
         {
             var cellIds = Inventory.ItemCache.Where(a => a.Value is EdibleItem edible && edible.DroppedBy != null)
                 .Select(a => new { a.Value, EdibleId = a.Value.Id })
                 .ToList();
-            var kvps = new List<KeyValuePair<Coord, int>?>();
+            var kvps = new List<KeyValuePair<Point, int>?>();
             
             foreach (var id in cellIds)
             {
                 var coords = MapConsole.World.GetCellCoords(a => id.Value.IsDroppedBy(a.CellId));
-                kvps.AddRange(coords.Select(a => new KeyValuePair<Coord, int>?(new KeyValuePair<Coord, int>(a, id.EdibleId))));
+                kvps.AddRange(coords.Select(a => new KeyValuePair<Point, int>?(new KeyValuePair<Point, int>(a, id.EdibleId))));
             }
             return kvps;
         }

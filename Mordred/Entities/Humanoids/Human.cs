@@ -1,5 +1,4 @@
-﻿using GoRogue;
-using Microsoft.Xna.Framework;
+﻿using SadRogue.Primitives;
 using Mordred.Entities.Actions;
 using Mordred.Entities.Actions.Implementations;
 using Mordred.Entities.Animals;
@@ -11,7 +10,7 @@ namespace Mordred.Entities.Tribals
 {
     public class Human : Actor
     {
-        public Coord HousePosition { get; private set; }
+        public Point HousePosition { get; private set; }
 
         public enum State
         {
@@ -30,7 +29,7 @@ namespace Mordred.Entities.Tribals
 
         public readonly Gender Gender;
 
-        public Human(Village village, Coord housePosition, Coord actorPosition, Color color, Gender gender, int health = 100) : base(color, Color.Black, 'T', health)
+        public Human(Village village, Point housePosition, Point actorPosition, Color color, Gender gender, int health = 100) : base(color, Color.Black, 'T', health)
         {
             HousePosition = housePosition;
             Position = actorPosition;

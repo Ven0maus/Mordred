@@ -76,6 +76,6 @@
 	  "transparent" : false,
       "walkable" : false,
       "layer" : "objects"
-    },
+    }
   ]
 }

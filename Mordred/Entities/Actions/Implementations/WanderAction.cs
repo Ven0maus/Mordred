@@ -1,13 +1,13 @@
-﻿using GoRogue;
-using Mordred.Entities.Tribals;
+﻿using Mordred.Entities.Tribals;
 using Mordred.Graphics.Consoles;
+using SadRogue.Primitives;
 using System;
 
 namespace Mordred.Entities.Actions.Implementations
 {
     public class WanderAction : BaseAction
     {
-        private Coord? _destination;
+        private Point? _destination;
         private CustomPath _path;
         private const int _whileLoopCheck = 500;
 
@@ -18,10 +18,10 @@ namespace Mordred.Entities.Actions.Implementations
             TribalState = Human.State.Wandering;
         }
 
-        public Coord? GetWanderingPosition(Actor actor)
+        public Point? GetWanderingPosition(Actor actor)
         {
             // Set random destination
-            Coord center;
+            Point center;
             if (actor is Human human)
             {
                 center = human.HousePosition;

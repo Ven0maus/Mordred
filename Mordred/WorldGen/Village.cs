@@ -1,5 +1,4 @@
-﻿using GoRogue;
-using Microsoft.Xna.Framework;
+﻿using SadRogue.Primitives;
 using Mordred.Entities;
 using Mordred.Entities.Animals;
 using Mordred.Entities.Tribals;
@@ -15,7 +14,7 @@ namespace Mordred.WorldGen
         /// <summary>
         /// The center position of the village.
         /// </summary>
-        public readonly Coord Position;
+        public readonly Point Position;
         /// <summary>
         /// The radius the village spans.
         /// </summary>
@@ -29,17 +28,17 @@ namespace Mordred.WorldGen
         /// </summary>
         public readonly Inventory Inventory;
 
-        public readonly List<Coord> HousePositions;
+        public readonly List<Point> HousePositions;
         public readonly List<Human> Humans;
 
-        public Village(Coord position, int radius, Color color)
+        public Village(Point position, int radius, Color color)
         {
             Position = position;
             Color = color;
             Radius = radius;
 
             Inventory = new Inventory();
-            HousePositions = new List<Coord>();
+            HousePositions = new List<Point>();
             Humans = new List<Human>();
         }
 
@@ -94,8 +93,8 @@ namespace Mordred.WorldGen
             }
         }
 
-        private Coord[] _villageAreaCache;
-        private bool CustomBorderCriteria(Coord coord)
+        private Point[] _villageAreaCache;
+        private bool CustomBorderCriteria(Point coord)
         {
             if (_villageAreaCache == null)
             {
@@ -113,7 +112,7 @@ namespace Mordred.WorldGen
 
         private void SpawnVillagers(int amount)
         {
-            var housePositions = new List<Coord>();
+            var housePositions = new List<Point>();
             foreach (var house in HousePositions)
             {
                 for (int i = 0; i < Constants.VillageSettings.HumansPerHouse; i++)

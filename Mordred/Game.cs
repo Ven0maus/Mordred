@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Mordred.Graphics;
+﻿using Mordred.Graphics;
 using System;
 
 namespace Mordred
@@ -21,17 +20,17 @@ namespace Mordred
             SadConsole.Game.Create(Constants.GameSettings.GameWindowWidth, Constants.GameSettings.GameWindowHeight);
 
             // Hook the start event so we can add consoles to the system.
-            SadConsole.Game.OnInitialize = Init;
-            SadConsole.Game.OnUpdate = Update;
+            SadConsole.Game.Instance.OnStart = Init;
+            SadConsole.Game.Instance.FrameUpdate += Instance_FrameUpdate;
 
             // Start the game.
             SadConsole.Game.Instance.Run();
             SadConsole.Game.Instance.Dispose();
         }
 
-        private static void Update(GameTime obj)
+        private static void Instance_FrameUpdate(object sender, SadConsole.GameHost e)
         {
-            _timeSinceLastTick -= obj.ElapsedGameTime.Milliseconds;
+            _timeSinceLastTick -= e.UpdateFrameDelta.Milliseconds;
             if (_timeSinceLastTick <= 0)
             {
                 _timeSinceLastTick = Constants.GameSettings.TimePerTickInSeconds * 1000;
@@ -55,7 +54,7 @@ namespace Mordred
             Container.InitializeGame();
 
             // Set container as the current/main screen
-            SadConsole.Global.CurrentScreen = Container;
+            SadConsole.Game.Instance.Screen = Container;
         }
     }
 }
