@@ -4,7 +4,6 @@ using Mordred.Entities;
 using Mordred.Entities.Animals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
-using SadConsole;
 using SadRogue.Primitives;
 using SadRogue.Primitives.GridViews;
 using System;

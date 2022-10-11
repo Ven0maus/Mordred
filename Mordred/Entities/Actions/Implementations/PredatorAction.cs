@@ -1,6 +1,6 @@
-﻿using SadRogue.Primitives;
-using Mordred.Entities.Animals;
+﻿using Mordred.Entities.Animals;
 using Mordred.Entities.Tribals;
+using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

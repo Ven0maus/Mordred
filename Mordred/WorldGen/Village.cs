@@ -1,9 +1,9 @@
-﻿using SadRogue.Primitives;
-using Mordred.Entities;
+﻿using Mordred.Entities;
 using Mordred.Entities.Animals;
 using Mordred.Entities.Tribals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
+using SadRogue.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 

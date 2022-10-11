@@ -1,11 +1,11 @@
-﻿using SadRogue.Primitives;
-using Mordred.Entities.Actions;
+﻿using Mordred.Entities.Actions;
 using Mordred.Entities.Actions.Implementations;
 using Mordred.Entities.Animals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.Graphics.Consoles;
 using SadConsole.Entities;
+using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

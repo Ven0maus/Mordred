@@ -1,7 +1,6 @@
 ﻿using Mordred.WorldGen;
 using SadConsole;
 using SadConsole.Entities;
-using SadRogue.Primitives;
 using Venomaus.FlowVitae.Basics;
 
 namespace Mordred.Graphics.Consoles
@@ -25,6 +24,7 @@ namespace Mordred.Graphics.Consoles
         public void OnCellUpdate(object sender, CellUpdateArgs<int, WorldCell> args)
         {
             Surface.SetGlyph(args.ScreenX, args.ScreenY, args.Cell);
+            Surface[args.ScreenX, args.ScreenY].IsVisible = args.Cell.IsVisible;
         }
 
         public void InitializeWorld()

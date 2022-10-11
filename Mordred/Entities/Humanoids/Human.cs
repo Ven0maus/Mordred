@@ -1,8 +1,8 @@
-﻿using SadRogue.Primitives;
-using Mordred.Entities.Actions;
+﻿using Mordred.Entities.Actions;
 using Mordred.Entities.Actions.Implementations;
 using Mordred.Entities.Animals;
 using Mordred.WorldGen;
+using SadRogue.Primitives;
 using System;
 using System.Diagnostics;
 
