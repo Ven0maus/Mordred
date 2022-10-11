@@ -65,7 +65,7 @@ namespace Mordred.WorldGen
                 .ToList();
             foreach  (var pos in positions)
             {
-                world.SetCell(World.GetRandomCellConfig(1, pos.X, pos.Y), false);
+                world.SetCell(pos.X, pos.Y, 1);
             }
 
             // Spawn the village house(s)

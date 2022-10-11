@@ -33,7 +33,7 @@ namespace Mordred.Graphics.Consoles
             World.GenerateLands();
             World.GenerateVillages();
             World.GenerateWildLife();
-            World.Render(true);
+            World.HideObstructedCells();
 
             // Apply world regrowth monitor
             Game.GameTick += WorldRegrowth.CheckRegrowthStatus;

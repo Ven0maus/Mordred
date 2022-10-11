@@ -114,8 +114,8 @@ namespace Mordred.Entities.Actions.Implementations
 
             // Replace gatherable by the underlying terrain
             var terrainCell = MapConsole.World.GetTerrain(CurrentGatherable.Value.X, CurrentGatherable.Value.Y);
-            MapConsole.World.SetCell(terrainCell);
-            MapConsole.World.Render(true);
+            if (terrainCell != -1)
+                MapConsole.World.SetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y, terrainCell);
 
             // Add x of the gatherable item to actor inventory
             foreach (var itemId in _currentItemsGathered)

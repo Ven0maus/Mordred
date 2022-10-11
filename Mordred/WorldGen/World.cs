@@ -99,7 +99,7 @@ namespace Mordred.WorldGen
                     if (simplexNoise[y * Width + x] >= 0.75f && simplexNoise[y * Width + x] <= 1f)
                     {
                         // Mountains
-                        SetCell(GetRandomCellConfig(3, x, y));
+                        SetCell(x, y, 3);
                         Terrain.SetCell(x, y, 3);
                     }
                     else
@@ -107,11 +107,11 @@ namespace Mordred.WorldGen
                         // Tree, berrybush or grass
                         int chance = Game.Random.Next(0, 100);
                         if (chance <= 1)
-                            SetCell(GetRandomCellConfig(7, x, y));
+                            SetCell(x, y, 7);
                         else if (chance <= 7)
-                            SetCell(GetRandomCellConfig(2, x, y));
+                            SetCell(x, y, 2);
                         else
-                            SetCell(GetRandomCellConfig(1, x, y));
+                            SetCell(x, y, 1);
                         Terrain.SetCell(x, y, 1);
                     }
                 }
@@ -231,10 +231,10 @@ namespace Mordred.WorldGen
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public WorldCell GetTerrain(int x, int y)
+        public int GetTerrain(int x, int y)
         {
-            if (!InBounds(x, y)) return null;
-            return GetRandomCellConfig(Terrain.GetCellType(x, y), x, y);
+            if (!InBounds(x, y)) return -1;
+            return Terrain.GetCellType(x, y);
         }
 
         /// <summary>
@@ -294,7 +294,7 @@ namespace Mordred.WorldGen
             return base.GetCells(points.Select(a => (a.X, a.Y)));
         }
 
-        private void HideObstructedCells()
+        public void HideObstructedCells()
         {
             for (int y = 0; y < Height; y++)
             {
@@ -306,27 +306,16 @@ namespace Mordred.WorldGen
                     var cell = GetCell(x, y);
                     if (cells.All(a => !a.Transparent))
                     {
-                        cell.Foreground = Color.Transparent;
-                        cell.Background = Color.Transparent;
-                        SetCell(cell, true);
+                        cell.IsVisible = false;
+                        SetCell(cell);
                     }
                     else
                     {
-                        var config = GetRandomCellConfig(cell.CellType, cell.X, cell.Y, false);
-                        cell.Foreground = config.Foreground;
-                        cell.Background = config.Background;
-                        SetCell(cell, true);
+                        cell.IsVisible = true;
+                        SetCell(cell);
                     }
                 }
             }
-        }
-
-        public void Render(bool hideObstructedCells = true)
-        {
-            if (hideObstructedCells)
-                HideObstructedCells();
-
-            MapConsole.IsDirty = true;
         }
     }
 }
