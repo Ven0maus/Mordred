@@ -1,6 +1,7 @@
 ﻿using Mordred.WorldGen;
 using SadConsole;
 using SadConsole.Entities;
+using SadRogue.Primitives;
 using Venomaus.FlowVitae.Basics;
 
 namespace Mordred.Graphics.Consoles
@@ -32,7 +33,7 @@ namespace Mordred.Graphics.Consoles
             World.GenerateLands();
             World.GenerateVillages();
             World.GenerateWildLife();
-            World.Render(true, true);
+            World.Render(true);
 
             // Apply world regrowth monitor
             Game.GameTick += WorldRegrowth.CheckRegrowthStatus;

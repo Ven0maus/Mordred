@@ -53,16 +53,6 @@ namespace Mordred.WorldGen
             IsVisible = original.IsVisible;
         }
 
-        public WorldCell Clone(int x, int y)
-        {
-            var cell = new WorldCell(this)
-            {
-                X = x,
-                Y = y
-            };
-            return cell;
-        }
-
         public new WorldCell Clone()
         {
             return new WorldCell(this);

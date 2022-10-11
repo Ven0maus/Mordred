@@ -48,6 +48,7 @@ namespace Mordred.WorldGen
             // Get map console reference
             MapConsole = Game.Container.GetConsole<MapConsole>();
             OnCellUpdate += MapConsole.OnCellUpdate;
+            RaiseOnlyOnCellTypeChange = false;
 
             // Initialize the arrays
             Terrain = new Grid<int, WorldCell>(width, height);
@@ -58,11 +59,17 @@ namespace Mordred.WorldGen
 
         protected override WorldCell Convert(int x, int y, int cellType)
         {
-            if (!WorldCells.TryGetValue(cellType, out var cells))
-                return base.Convert(x, y, cellType);
-
             // Get custom cell
-            var cell = cells.TakeRandom().Clone(x, y);
+            var cell = GetRandomCellConfig(cellType, x, y);
+            if (cell == null) return base.Convert(x, y, cellType);
+            cell.X = x;
+            cell.Y = y;
+            return cell;
+        }
+
+        public static WorldCell GetRandomCellConfig(int type, int x, int y, bool clone = true)
+        {
+            var cell = clone ? WorldCells[type].TakeRandom().Clone() : WorldCells[type].TakeRandom();
             cell.X = x;
             cell.Y = y;
             return cell;
@@ -93,7 +100,7 @@ namespace Mordred.WorldGen
                     if (simplexNoise[y * Width + x] >= 0.75f && simplexNoise[y * Width + x] <= 1f)
                     {
                         // Mountains
-                        SetCell(WorldCells[3].TakeRandom().Clone(x, y));
+                        SetCell(GetRandomCellConfig(3, x, y));
                         Terrain.SetCell(x, y, 3);
                     }
                     else
@@ -101,11 +108,11 @@ namespace Mordred.WorldGen
                         // Tree, berrybush or grass
                         int chance = Game.Random.Next(0, 100);
                         if (chance <= 1)
-                            SetCell(WorldCells[7].TakeRandom().Clone(x, y));
+                            SetCell(GetRandomCellConfig(7, x, y));
                         else if (chance <= 7)
-                            SetCell(WorldCells[2].TakeRandom().Clone(x, y));
+                            SetCell(GetRandomCellConfig(2, x, y));
                         else
-                            SetCell(WorldCells[1].TakeRandom().Clone(x, y));
+                            SetCell(GetRandomCellConfig(1, x, y));
                         Terrain.SetCell(x, y, 1);
                     }
                 }
@@ -228,7 +235,7 @@ namespace Mordred.WorldGen
         public WorldCell GetTerrain(int x, int y)
         {
             if (!InBounds(x, y)) return null;
-            return WorldCells[Terrain.GetCellType(x, y)].TakeRandom().Clone(x, y);
+            return GetRandomCellConfig(Terrain.GetCellType(x, y), x, y);
         }
 
         /// <summary>
@@ -241,7 +248,7 @@ namespace Mordred.WorldGen
         {
             var cell = base.GetCell(x, y);
             if (cell == null) return null;
-            return cell.Clone();
+            return cell;
         }
 
         public bool CellWalkable(int x, int y)
@@ -276,11 +283,16 @@ namespace Mordred.WorldGen
             return items;
         }
 
-        public override void SetCell(WorldCell cell, bool storeState = true)
+        public override void SetCell(WorldCell cell, bool storeState = false)
         {
             if (!InBounds(cell.X, cell.Y)) return;
             Walkability[cell.Y * Width + cell.X] = cell.Walkable;
-            base.SetCell(cell.Clone(), storeState);
+            base.SetCell(cell, storeState);
+        }
+
+        public IEnumerable<WorldCell> GetCells(IEnumerable<Point> points)
+        {
+            return base.GetCells(points.Select(a => (a.X, a.Y)));
         }
 
         private void HideObstructedCells()
@@ -289,37 +301,33 @@ namespace Mordred.WorldGen
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    var cells = new Point(x, y)
+                    var cells = GetCells(new Point(x, y)
                         .Get4Neighbors()
-                        .Where(a => InBounds(a.X, a.Y))
-                        .Select(a => GetCell(a.X, a.Y));
+                        .Where(a => InBounds(a.X, a.Y)));
                     var cell = GetCell(x, y);
                     if (cells.All(a => !a.Transparent))
                     {
-                        cell.IsVisible = false;
-                        SetCell(cell);
+                        cell.Foreground = Color.Transparent;
+                        cell.Background = Color.Transparent;
+                        SetCell(cell, true);
                     }
                     else
                     {
-                        cell.IsVisible = true;
-                        SetCell(cell);
+                        var config = GetRandomCellConfig(cell.CellType, cell.X, cell.Y, false);
+                        cell.Foreground = config.Foreground;
+                        cell.Background = config.Background;
+                        SetCell(cell, true);
                     }
                 }
             }
         }
 
-        public void Render(bool hideObstructedCells = true, bool setSurface = false)
+        public void Render(bool hideObstructedCells = true)
         {
             if (hideObstructedCells)
                 HideObstructedCells();
 
-            if (setSurface)
-            {
-                MapConsole.Surface = new CellSurface(Width, Height, Width, Height, GetViewPortCells().ToArray());
-                MapConsole.IsDirty = true;
-            }
-            else
-                MapConsole.IsDirty = true;
+            MapConsole.IsDirty = true;
         }
     }
 }
