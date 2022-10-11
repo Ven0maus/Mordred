@@ -123,7 +123,7 @@ namespace Mordred.WorldGen
             var wildLifeCount = Game.Random.Next(Constants.WorldSettings.MinWildLife, Constants.WorldSettings.MaxWildLife + 1);
             var spawnPositions = GetCellCoords(a => a.Walkable).ToList();
 
-            // Get all classes that inherit from PassiveAnimal
+            // Get all classes that inherit from PassiveAnimal / PredatorAnimal
             var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
             var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().ToList();
 
