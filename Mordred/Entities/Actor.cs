@@ -44,8 +44,6 @@ namespace Mordred.Entities
 
         public Actor(Color foreground, Color background, int glyph, int health = 100) : base(foreground, background, glyph, 1)
         {
-            MapConsole.Instance.EntityRenderer.Add(this);
-
             Name = GetType().Name;
 
             MaxHunger = Constants.ActorSettings.DefaultMaxHunger;

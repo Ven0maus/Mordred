@@ -179,7 +179,7 @@ namespace Mordred.WorldGen
                 {
                     var animals = type.Value.Take(Constants.ActorSettings.MaxPackSize).ToList();
                     var leader = animals.TakeRandom();
-                    var centerPoint = (Point)(leader as Animal).Position;
+                    var centerPoint = leader.Position;
                     foreach (var animal in animals)
                     {
                         var list = animal.PackMates ?? new List<IPackAnimal>();
@@ -206,7 +206,7 @@ namespace Mordred.WorldGen
                             whileLoopLimiter++;
                         }
 
-                        (animal as Animal).Position = newPos;
+                        animal.Position = newPos;
                     }
                     
                 }

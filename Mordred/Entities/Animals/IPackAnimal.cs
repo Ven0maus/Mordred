@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SadRogue.Primitives;
+using System.Collections.Generic;
 
 namespace Mordred.Entities.Animals
 {
@@ -11,5 +12,6 @@ namespace Mordred.Entities.Animals
     { 
         List<IPackAnimal> PackMates { get; set; }
         IPackAnimal Leader { get; set; }
+        Point Position { get; set; }
     }
 }

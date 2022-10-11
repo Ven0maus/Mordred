@@ -12,8 +12,9 @@ namespace Mordred.Entities
         public static T Spawn<T>(params object[] args) where T : Entity
         {
             var entity = (T)Activator.CreateInstance(typeof(T), args);
-            Game.Container.GetConsole<MapConsole>().Children.Add(entity);
+            MapConsole.Instance.Children.Add(entity);
             Entities.Add(entity);
+            MapConsole.Instance.EntityRenderer.Add(entity);
             return entity;
         }
 
@@ -21,21 +22,24 @@ namespace Mordred.Entities
         {
             if (entity != typeof(Entity) && !entity.IsSubclassOf(typeof(Entity))) return null;
             var entityObj = (Entity)Activator.CreateInstance(entity, args);
-            Game.Container.GetConsole<MapConsole>().Children.Add(entityObj);
+            MapConsole.Instance.Children.Add(entityObj);
             Entities.Add(entityObj);
+            MapConsole.Instance.EntityRenderer.Add(entityObj);
             return entityObj;
         }
 
         public static void Spawn(Entity entity)
         {
-            Game.Container.GetConsole<MapConsole>().Children.Add(entity);
+            MapConsole.Instance.Children.Add(entity);
             Entities.Add(entity);
+            MapConsole.Instance.EntityRenderer.Add(entity);
         }
 
         public static void Destroy(Entity entity)
         {
             Entities.Remove(entity);
-            Game.Container.GetConsole<MapConsole>().Children.Remove(entity);
+            MapConsole.Instance.EntityRenderer.Remove(entity);
+            MapConsole.Instance.Children.Remove(entity);
         }
     }
 }
