@@ -1,9 +1,9 @@
-﻿using SadRogue.Primitives;
-using Mordred.Entities;
+﻿using Mordred.Entities;
 using Mordred.Entities.Animals;
 using Mordred.Entities.Tribals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
+using SadRogue.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -65,7 +65,7 @@ namespace Mordred.WorldGen
                 .ToList();
             foreach  (var pos in positions)
             {
-                world.SetCell(pos.X, pos.Y, World.WorldCells[1].TakeRandom());
+                world.SetCell(pos.X, pos.Y, 1);
             }
 
             // Spawn the village house(s)
@@ -73,9 +73,9 @@ namespace Mordred.WorldGen
             foreach (var housePosition in housePositions)
             {
                 HousePositions.Add(housePosition);
-                var cell = World.WorldCells[6].TakeRandom();
+                var cell = World.GetRandomCellConfig(6, housePosition.X, housePosition.Y);
                 cell.Foreground = Color;
-                world.SetCell(housePosition.X, housePosition.Y, cell);
+                world.SetCell(cell, true);
             }
 
             if (Constants.GameSettings.DebugMode)
@@ -88,7 +88,7 @@ namespace Mordred.WorldGen
                 {
                     var cell = MapConsole.World.GetCell(borderCell.X, borderCell.Y);
                     cell.Background = Color.LightYellow;
-                    world.SetCell(borderCell.X, borderCell.Y, cell);
+                    world.SetCell(cell, true);
                 }
             }
         }

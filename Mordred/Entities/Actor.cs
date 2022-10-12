@@ -1,11 +1,11 @@
-﻿using SadRogue.Primitives;
-using Mordred.Entities.Actions;
+﻿using Mordred.Entities.Actions;
 using Mordred.Entities.Actions.Implementations;
 using Mordred.Entities.Animals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.Graphics.Consoles;
 using SadConsole.Entities;
+using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -44,8 +44,6 @@ namespace Mordred.Entities
 
         public Actor(Color foreground, Color background, int glyph, int health = 100) : base(foreground, background, glyph, 1)
         {
-            MapConsole.Instance.EntityRenderer.Add(this);
-
             Name = GetType().Name;
 
             MaxHunger = Constants.ActorSettings.DefaultMaxHunger;

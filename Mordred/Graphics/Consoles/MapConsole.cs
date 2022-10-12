@@ -1,6 +1,7 @@
 ﻿using Mordred.WorldGen;
 using SadConsole;
 using SadConsole.Entities;
+using Venomaus.FlowVitae.Basics;
 
 namespace Mordred.Graphics.Consoles
 {
@@ -20,13 +21,19 @@ namespace Mordred.Graphics.Consoles
             _instance = this;
         }
 
+        public void OnCellUpdate(object sender, CellUpdateArgs<int, WorldCell> args)
+        {
+            Surface.SetGlyph(args.ScreenX, args.ScreenY, args.Cell);
+            Surface[args.ScreenX, args.ScreenY].IsVisible = args.Cell.IsVisible;
+        }
+
         public void InitializeWorld()
         {
             World = new World(Width, Height);
             World.GenerateLands();
             World.GenerateVillages();
             World.GenerateWildLife();
-            World.Render(true, true);
+            World.HideObstructedCells();
 
             // Apply world regrowth monitor
             Game.GameTick += WorldRegrowth.CheckRegrowthStatus;

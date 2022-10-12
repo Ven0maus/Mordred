@@ -34,7 +34,7 @@ namespace Mordred.Entities.Actions.Implementations
             _amount = _gatherables.Count;
             _gatherTickRate = gatherTickRate != null ? gatherTickRate.Value : Constants.ActionSettings.DefaultGatherTickRate;
             _cellsToGather = _gatherables
-                .Select(a => MapConsole.World.GetCell(a.X, a.Y).CellId)
+                .Select(a => MapConsole.World.GetCell(a.X, a.Y).CellType)
                 .Distinct()
                 .ToArray();
             TribalState = Human.State.Gathering;
@@ -55,11 +55,11 @@ namespace Mordred.Entities.Actions.Implementations
 
             if (_gatherables == null)
             {
-                _gatherables = MapConsole.World.GetCellCoords(a => a.CellId == _cellsToGather[0]).ToList();
+                _gatherables = MapConsole.World.GetCellCoords(a => a.CellType == _cellsToGather[0]).ToList();
             }
 
             // Update gatherables
-            _gatherables.RemoveAll(a => !_cellsToGather.Contains(MapConsole.World.GetCell(a.X, a.Y).CellId));
+            _gatherables.RemoveAll(a => !_cellsToGather.Contains(MapConsole.World.GetCell(a.X, a.Y).CellType));
 
             if (_gatherables.Count == 0) return null;
 
@@ -110,12 +110,12 @@ namespace Mordred.Entities.Actions.Implementations
 
             // Get correct items
             _currentItemsGathered = MapConsole.World.GetItemIdDropsByCellId(CurrentGatherable.Value);
-            _currentCellGathered = MapConsole.World.GetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y).CellId;
+            _currentCellGathered = MapConsole.World.GetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y).CellType;
 
             // Replace gatherable by the underlying terrain
             var terrainCell = MapConsole.World.GetTerrain(CurrentGatherable.Value.X, CurrentGatherable.Value.Y);
-            MapConsole.World.SetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y, terrainCell);
-            MapConsole.World.Render(true, false);
+            if (terrainCell != -1)
+                MapConsole.World.SetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y, terrainCell);
 
             // Add x of the gatherable item to actor inventory
             foreach (var itemId in _currentItemsGathered)

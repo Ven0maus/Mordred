@@ -1,14 +1,15 @@
 ﻿using SadConsole;
 using SadRogue.Primitives;
+using Venomaus.FlowVitae.Basics;
 
 namespace Mordred.WorldGen
 {
     /// <summary>
     /// Base class of a grid cell
     /// </summary>
-    public class WorldCell : ColoredGlyph
+    public class WorldCell : ColoredGlyph, ICell<int>
     {
-        public int CellId { get; private set; }
+        public int CellType { get; set; }
         /// <summary>
         /// Can entities walk on this cell
         /// </summary>
@@ -25,11 +26,15 @@ namespace Mordred.WorldGen
         /// The name of the cell
         /// </summary>
         public string Name { get; private set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+
+        public WorldCell() { }
 
         public WorldCell(int cellId, Color foreground, Color background, string name, int glyph, int layer, bool walkable, bool transparent) : 
             base(foreground, background, glyph)
         {
-            CellId = cellId;
+            CellType = cellId;
             Name = name;
             Walkable = walkable;
             Transparent = transparent;
@@ -38,11 +43,14 @@ namespace Mordred.WorldGen
 
         public WorldCell(WorldCell original) : base(original.Foreground, original.Background, original.Glyph)
         {
-            CellId = original.CellId;
+            X = original.X;
+            Y = original.Y;
+            CellType = original.CellType;
             Name = original.Name;
             Walkable = original.Walkable;
             Transparent = original.Transparent;
             Layer = original.Layer;
+            IsVisible = original.IsVisible;
         }
 
         public new WorldCell Clone()
@@ -50,14 +58,15 @@ namespace Mordred.WorldGen
             return new WorldCell(this);
         }
 
-        public void CopyFrom(WorldCell cell)
+        public bool Equals(ICell<int> other)
         {
-            CopyAppearanceFrom(cell);
-            CellId = cell.CellId;
-            Walkable = cell.Walkable;
-            Transparent = cell.Transparent;
-            Layer = cell.Layer;
-            Name = cell.Name;
+            if (other == null) return false;
+            return X == other.X && Y == other.Y;
+        }
+
+        public bool Equals((int x, int y) other)
+        {
+            return other.x == X && other.y == Y;
         }
     }
 }
