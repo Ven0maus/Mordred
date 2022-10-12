@@ -1,6 +1,5 @@
 ﻿using Mordred.Entities.Animals;
 using Mordred.Entities.Tribals;
-using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -60,7 +59,7 @@ namespace Mordred.Entities.Actions.Implementations
             if (base.Execute(actor)) return true;
 
             // This action cannot be assigned to actor's that aren't of type PredatorAnimal
-            if (!(actor is PredatorAnimal predator)) 
+            if (actor is not PredatorAnimal predator) 
             { 
                 Cancel();
                 return false;
@@ -147,7 +146,7 @@ namespace Mordred.Entities.Actions.Implementations
                     bool preyIsStunned = false;
                     if (_currentPrey.CurrentAction != null)
                     {
-                        if (!(_currentPrey.CurrentAction is StunAction))
+                        if (_currentPrey.CurrentAction is not StunAction)
                             _currentPrey.CurrentAction.Cancel();
                         else
                             preyIsStunned = true;
@@ -178,7 +177,7 @@ namespace Mordred.Entities.Actions.Implementations
                 return false;
             }
 
-            if (((Point)predator.Position).SquaredDistance(_currentPrey.Position) < 2)
+            if (predator.Position.SquaredDistance(_currentPrey.Position) < 2)
             {
                 validPath = true;
                 return true;
@@ -198,7 +197,7 @@ namespace Mordred.Entities.Actions.Implementations
             var actors = EntitySpawner.Entities.OfType<Actor>();
             var actor = actors
                 .Where(a => !a.Alive && !a.Rotting && !a.SkeletonDecaying && !_badPrey.Contains(a))
-                .OrderBy(a => ((Point)a.Position)
+                .OrderBy(a => a.Position
                     .SquaredDistance(predator.Position))
                 .FirstOrDefault();
             if (actor != null) return actor;
@@ -215,7 +214,7 @@ namespace Mordred.Entities.Actions.Implementations
                     return true;
                 })
                 .Where(a => !_badPrey.Contains(a))
-                .OrderBy(a => ((Point)a.Position)
+                .OrderBy(a => a.Position
                     .SquaredDistance(predator.Position))
                 .FirstOrDefault();
             if (actor != null) return actor;
@@ -223,7 +222,7 @@ namespace Mordred.Entities.Actions.Implementations
             // No animal found?: find nearest human
             actor = actors
                 .Where(a => a is Human)
-                .OrderBy(a => ((Point)a.Position)
+                .OrderBy(a => a.Position
                     .SquaredDistance(predator.Position))
                 .FirstOrDefault();
             return actor;
