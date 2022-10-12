@@ -141,8 +141,8 @@ namespace Mordred.Entities.Actions.Implementations
                 _currentPrey.DealDamage(predator.AttackDamage, predator);
                 Debug.WriteLine($"{predator.Name} just attacked {_currentPrey.Name} for {predator.AttackDamage}");
 
-                // 20% chance to stun prey for 2-4 seconds
-                if (_currentPrey.Alive && Game.Random.Next(0, 100) < 20)
+                // 35% chance to stun prey for 3 to 8 game ticks
+                if (_currentPrey.Alive && Game.Random.Next(0, 100) < 35)
                 {
                     bool preyIsStunned = false;
                     if (_currentPrey.CurrentAction != null)
@@ -153,9 +153,9 @@ namespace Mordred.Entities.Actions.Implementations
                             preyIsStunned = true;
                     }
 
-                    // Add stun action
+                    // Add stun action (3 to 8 game ticks)
                     if (!preyIsStunned)
-                        _currentPrey.AddAction(new StunAction(Game.Random.Next(2, 5), false), true, false);
+                        _currentPrey.AddAction(new StunAction(Game.Random.Next(3, 8), false), true, false);
                 }
                 return false;
             }
