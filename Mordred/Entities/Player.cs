@@ -29,7 +29,7 @@ namespace Mordred.Entities
         public void MoveTowards(int x, int y, bool checkCanMove = true)
         {
             var cell = MapConsole.World.GetCell(x, y);
-            if (checkCanMove && !cell.Walkable) return;
+            if (cell == null || (checkCanMove && !cell.Walkable)) return;
             WorldPosition = new Point(x, y);
 
             // If we are on a static grid we don't need to center, but move the actual player coord on screen
