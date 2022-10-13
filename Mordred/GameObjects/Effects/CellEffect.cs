@@ -1,0 +1,41 @@
+﻿using SadRogue.Primitives;
+
+namespace Mordred.GameObjects.Effects
+{
+    public abstract class CellEffect
+    {
+        private readonly int _initialTicks;
+        public int TicksRemaining { get; private set; }
+        public Point Position { get; }
+
+        public CellEffect(Point position, int effectTime, bool inSeconds = true)
+        {
+            Position = position;
+            TicksRemaining = inSeconds ? effectTime.ToTicks() : effectTime;
+            _initialTicks = TicksRemaining;
+        }
+
+        public void Execute()
+        {
+            if (TicksRemaining <= 0) return;
+
+            if (TicksRemaining == _initialTicks)
+                EffectStart();
+
+            TicksRemaining -= 1;
+
+            Effect();
+
+            if (TicksRemaining == 0)
+                EffectEnd();
+        }
+
+        public abstract void Effect();
+
+        public virtual void EffectEnd()
+        { }
+
+        public virtual void EffectStart()
+        { }
+    }
+}

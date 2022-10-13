@@ -63,6 +63,7 @@ namespace Mordred.Entities.Tribals
 
         protected override void OnAttacked(int damage, Actor attacker)
         {
+            if (Health <= 0) return;
             if (!HasActionOfType<DefendAction>())
             {
                 if (CurrentAction != null)
@@ -76,7 +77,7 @@ namespace Mordred.Entities.Tribals
                 // Let tribals know who to attack
                 foreach (var tribal in Village.Humans)
                 {
-                    if (!tribal.HasActionOfType<DefendAction>())
+                    if (!tribal.HasActionOfType<DefendAction>() && tribal.Health > 0)
                     {
                         if (tribal.CurrentAction != null)
                             tribal.CurrentAction.Cancel();

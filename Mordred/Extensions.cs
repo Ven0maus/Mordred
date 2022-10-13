@@ -9,6 +9,17 @@ namespace Mordred
 {
     public static class Extensions
     {
+        /// <summary>
+        /// Converts seconds to game ticks
+        /// </summary>
+        /// <param name="seconds"></param>
+        /// <returns></returns>
+        public static int ToTicks(this int seconds)
+        {
+            float ticksPerSecond = 1f / Constants.GameSettings.TimePerTickInSeconds;
+            return (int)Math.Round(ticksPerSecond * seconds);
+        }
+
         public static float SquaredDistance(this Point pos, Point target)
         {
             return (target.X - pos.X) * (target.X - pos.X) + (target.Y - pos.Y) * (target.Y - pos.Y);

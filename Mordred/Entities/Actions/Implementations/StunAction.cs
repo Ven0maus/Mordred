@@ -19,8 +19,7 @@ namespace Mordred.Entities.Actions.Implementations
         {
             if (inSeconds)
             {
-                float ticksPerSecond = 1f / Constants.GameSettings.TimePerTickInSeconds;
-                _stunTime = (int)Math.Round(ticksPerSecond * stunTime);
+                _stunTime = stunTime.ToTicks();
             }
             else
             {

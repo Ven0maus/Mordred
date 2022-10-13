@@ -2,6 +2,7 @@
 using Mordred.Config;
 using Mordred.Entities;
 using Mordred.Entities.Animals;
+using Mordred.GameObjects.Effects;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
 using SadRogue.Primitives;
@@ -28,8 +29,9 @@ namespace Mordred.WorldGen
 
         public readonly FastAStar Pathfinder;
 
-        protected readonly MapConsole MapConsole;
-        protected readonly List<Village> _villages;
+        private readonly MapConsole MapConsole;
+        private readonly List<Village> _villages;
+        private readonly List<CellEffect> _cellEffects;
         
         public IReadOnlyList<Village> Villages
         {
@@ -50,10 +52,28 @@ namespace Mordred.WorldGen
             RaiseOnlyOnCellTypeChange = false;
 
             // Initialize the arrays
-            Terrain = new Grid<int, WorldCell>(width, height);
             _villages = new List<Village>(Constants.VillageSettings.MaxVillages);
+            _cellEffects = new List<CellEffect>();
+            Terrain = new Grid<int, WorldCell>(width, height);
             Walkability = new ArrayView<bool>(Width, Height);
             Pathfinder = new FastAStar(Walkability, Distance.Manhattan);
+
+            Game.GameTick += HandleEffects;
+        }
+
+        public void AddEffect(CellEffect effect)
+        {
+            if (effect.TicksRemaining > 0 && !_cellEffects.Contains(effect))
+                _cellEffects.Add(effect);
+        }
+
+        private void HandleEffects(object sender, EventArgs args)
+        {
+            foreach (var effect in _cellEffects)
+            {
+                effect.Execute();
+            }
+            _cellEffects.RemoveAll(a => a.TicksRemaining <= 0);
         }
 
         protected override WorldCell Convert(int x, int y, int cellType)
