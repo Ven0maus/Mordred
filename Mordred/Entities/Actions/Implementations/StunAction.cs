@@ -3,7 +3,7 @@ using System;
 
 namespace Mordred.Entities.Actions.Implementations
 {
-    public class StunAction : BaseAction
+    public class StunAction : BaseAction, ICombatAction
     {
         public override event EventHandler<Actor> ActionCompleted;
 

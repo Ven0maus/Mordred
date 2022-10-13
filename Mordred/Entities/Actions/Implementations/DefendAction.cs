@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace Mordred.Entities.Actions.Implementations
 {
-    public class DefendAction : BaseAction
+    public class DefendAction : BaseAction, ICombatAction
     {
         public override event EventHandler<Actor> ActionCompleted;
 

@@ -1,6 +1,9 @@
-﻿using Mordred.WorldGen;
+﻿using Mordred.Entities;
+using Mordred.WorldGen;
 using SadConsole;
 using SadConsole.Entities;
+using SadRogue.Primitives;
+using System.Linq;
 using Venomaus.FlowVitae.Basics;
 
 namespace Mordred.Graphics.Consoles
@@ -10,6 +13,7 @@ namespace Mordred.Graphics.Consoles
         private static MapConsole _instance;
         public static MapConsole Instance { get { return _instance; } }
         public static World World { get; private set; }
+        public static Player Player { get; private set; }
         public Renderer EntityRenderer { get; private set; }
 
         public MapConsole(int width, int height) : base(width, height)
@@ -31,12 +35,26 @@ namespace Mordred.Graphics.Consoles
         {
             World = new World(Width, Height);
             World.GenerateLands();
-            World.GenerateVillages();
+            //World.GenerateVillages();
             World.GenerateWildLife();
             World.HideObstructedCells();
 
+            // Spawn player
+            SpawnPlayer();
+
             // Apply world regrowth monitor
             Game.GameTick += WorldRegrowth.CheckRegrowthStatus;
+        }
+
+        private void SpawnPlayer()
+        {
+            var centerPos = new Point(Width / 2, Height / 2);
+            var pos = World.GetCellCoords(a => a.Walkable).OrderBy(a => centerPos.SquaredDistance(a)).First();
+            Player = new Player(pos, true)
+            {
+                IsFocused = true
+            };
+            EntitySpawner.Spawn(Player);
         }
     }
 }

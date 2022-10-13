@@ -10,7 +10,7 @@ namespace Mordred.Entities.Actions.Implementations
     /// <summary>
     /// Action for a predator animal to hunt for food
     /// </summary>
-    public class PredatorAction : BaseAction
+    public class PredatorAction : BaseAction, ICombatAction
     {
         public override event EventHandler<Actor> ActionCompleted;
 

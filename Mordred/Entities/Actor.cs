@@ -274,8 +274,8 @@ namespace Mordred.Entities
                 else
                     DealDamage(2, this);
 
-                // Health regeneration rate
-                if (_healthRegenTicks >= HealthRegenerationTickRate)
+                // Health regeneration rate when not in combat
+                if (_healthRegenTicks >= HealthRegenerationTickRate && CurrentAction is not ICombatAction)
                 {
                     _healthRegenTicks = 0;
                     if (Hunger >= (MaxHunger / 100 * Constants.ActorSettings.DefaultPercentageHungerHealthRegen) && Health < MaxHealth)
