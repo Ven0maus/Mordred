@@ -141,7 +141,7 @@ namespace Mordred.Entities.Actions.Implementations
                 Debug.WriteLine($"{predator.Name} just attacked {_currentPrey.Name} for {predator.AttackDamage}");
 
                 // 35% chance to stun prey for 3 to 8 game ticks
-                if (_currentPrey.Alive && Game.Random.Next(0, 100) < 35)
+                if (_currentPrey.Alive && Game.Random.Next(0, 100) < 40)
                 {
                     bool preyIsStunned = false;
                     if (_currentPrey.CurrentAction != null)
