@@ -7,6 +7,7 @@ namespace Mordred.GameObjects.Effects
         private readonly int _initialTicks;
         public int TicksRemaining { get; private set; }
         public Point Position { get; }
+        public bool Completed { get; protected set; }
 
         public CellEffect(Point position, int effectTime, bool inSeconds = true)
         {
@@ -33,7 +34,9 @@ namespace Mordred.GameObjects.Effects
         public abstract void Effect();
 
         public virtual void EffectEnd()
-        { }
+        {
+            Completed = true;
+        }
 
         public virtual void EffectStart()
         { }

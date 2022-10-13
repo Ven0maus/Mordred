@@ -1,6 +1,7 @@
 ﻿using Mordred.Entities.Actions;
 using Mordred.Entities.Actions.Implementations;
 using Mordred.Entities.Animals;
+using Mordred.GameObjects.Effects;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.Graphics.Consoles;
@@ -317,6 +318,7 @@ namespace Mordred.Entities
                 }
                 int bleedDamage = (int)Math.Ceiling((double)Health / 100 * 10);
                 Debug.WriteLine($"{Name}: just bled for {bleedDamage} damage. Only {Health} health remains.");
+                MapConsole.World.AddEffect(new Bleed(Position, 2));
                 DealDamage(bleedDamage, this);
                 _bleedingCounterTicks = 0;
             }

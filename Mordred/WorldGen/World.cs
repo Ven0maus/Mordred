@@ -67,6 +67,12 @@ namespace Mordred.WorldGen
                 _cellEffects.Add(effect);
         }
 
+        public IEnumerable<CellEffect> GetCellEffects(int x, int y)
+        {
+            var pos = new Point(x, y);
+            return _cellEffects.Where(a => a.Position == pos);
+        }
+
         private void HandleEffects(object sender, EventArgs args)
         {
             foreach (var effect in _cellEffects)
