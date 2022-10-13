@@ -301,7 +301,6 @@ namespace Mordred.Entities
 
             if (Bleeding && Alive)
             {
-                // TODO: Add blood trail that discipates automatically after x seconds
                 _bleedingForTicks++;
                 if (_bleedingForTicks >= Constants.ActorSettings.StopBleedingAfterSeconds * Game.TicksPerSecond)
                 {

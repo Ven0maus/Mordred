@@ -79,7 +79,7 @@ namespace Mordred.WorldGen
             {
                 effect.Execute();
             }
-            _cellEffects.RemoveAll(a => a.TicksRemaining <= 0);
+            _cellEffects.RemoveAll(a => a.TicksRemaining <= 0 || a.Completed);
         }
 
         protected override WorldCell Convert(int x, int y, int cellType)
