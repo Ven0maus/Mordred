@@ -8,7 +8,7 @@ namespace Mordred.GameObjects.Effects
     public class Bleed : CellEffect
     {
         private readonly WorldCell _cell;
-        private readonly Color _originColor;
+        private readonly Color _startColor, _originColorBg, _originColorFg;
         private readonly float _amountPerTick;
         private float _amount;
 
@@ -16,7 +16,8 @@ namespace Mordred.GameObjects.Effects
             : base(position, time, inSeconds)
         {
             // Don't add another stack
-            if (MapConsole.World.GetCellEffects(position.X, position.Y).Any(a => a is Bleed && a.Equals(this)))
+            if (MapConsole.World.GetCellEffects(position.X, position.Y)
+                .Any(a => a is Bleed && a.Equals(this)))
             {
                 Completed = true;
                 return;
@@ -24,6 +25,9 @@ namespace Mordred.GameObjects.Effects
 
             // Retrieve cell and store its state
             _cell = MapConsole.World.GetCell(Position.X, Position.Y);
+            _originColorFg = _cell.Foreground;
+            _originColorBg = _cell.Background;
+            _startColor = Color.Lerp(Color.DarkRed, Color.Transparent, 0.15f);
 
             _amountPerTick = 1f / TicksRemaining;
         }
@@ -31,14 +35,16 @@ namespace Mordred.GameObjects.Effects
         public override void Effect()
         {
             _amount += _amountPerTick;
-            _cell.Background = Color.Lerp(Color.Red, _originColor, _amount);
+            _cell.Foreground = Color.Lerp(_startColor, _originColorFg, _amount);
+            _cell.Background = Color.Lerp(_startColor, _originColorBg, _amount);
             MapConsole.World.SetCell(_cell);
-            System.Diagnostics.Debug.WriteLine("Bleed effect triggered");
         }
 
         public override void EffectEnd()
         {
-            _cell.Background = _originColor;
+            _cell.Foreground = _originColorFg;
+            _cell.Background = _originColorBg;
+            MapConsole.World.SetCell(_cell);
         }
     }
 }

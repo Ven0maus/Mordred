@@ -48,7 +48,7 @@ namespace Mordred.Entities
             Name = GetType().Name;
 
             MaxHunger = Constants.ActorSettings.DefaultMaxHunger;
-            Hunger = Game.Random.Next(65, MaxHunger + 1);
+            Hunger = Game.Random.Next(35, MaxHunger + 1);
 
             MaxHealth = health;
             Health = health;
@@ -317,14 +317,28 @@ namespace Mordred.Entities
                     return;
                 }
                 int bleedDamage = (int)Math.Ceiling((double)Health / 100 * 10);
+
                 Debug.WriteLine($"{Name}: just bled for {bleedDamage} damage. Only {Health} health remains.");
-                MapConsole.World.AddEffect(new Bleed(Position, 2));
+
                 DealDamage(bleedDamage, this);
+                AddBleedEffect();
+
                 _bleedingCounterTicks = 0;
             }
 
             _hungerTicks++;
             _healthRegenTicks++;
+        }
+
+        private void AddBleedEffect()
+        {
+            // Add bleed effect to some random cells
+            var cellsToApplyBleedEffectTo = Position.Get8Neighbors()
+                .Where(a => MapConsole.World.InBounds(a.X, a.Y))
+                .TakeRandom(Game.Random.Next(1, 4))
+                .Append(Position);
+            foreach (var neighbor in cellsToApplyBleedEffectTo)
+                MapConsole.World.AddEffect(new Bleed(neighbor, Game.Random.Next(4, 7)));
         }
 
         protected bool HasActionOfType<T>() where T : IAction
