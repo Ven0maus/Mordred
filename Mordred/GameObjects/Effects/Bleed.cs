@@ -17,7 +17,7 @@ namespace Mordred.GameObjects.Effects
         {
             // Don't add another stack
             if (MapConsole.World.GetCellEffects(position.X, position.Y)
-                .Any(a => a is Bleed && a.Equals(this)))
+                .Any(a => a.Equals(this)))
             {
                 Completed = true;
                 return;
