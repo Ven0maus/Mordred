@@ -210,7 +210,16 @@ namespace Mordred.Entities.Actions.Implementations
                 {
                     // Predator animals should not go after stronger predators
                     if (a is PredatorAnimal && a.Health > predator.MaxHealth)
+                    {
+                        // Unless they are in a pack and have more numbers than the hunted
+                        if (predator is IPackAnimal hunterPa && hunterPa.PackMates.Count > 0)
+                        {
+                            if (a is IPackAnimal huntedPa && huntedPa.PackMates.Count >= hunterPa.PackMates.Count)
+                                return false;
+                            return true;
+                        }
                         return false;
+                    }
                     return true;
                 })
                 .Where(a => !_badPrey.Contains(a))

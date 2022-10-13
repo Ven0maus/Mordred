@@ -294,7 +294,6 @@ namespace Mordred.Entities
                     else
                     {
                         AddAction(new EatAction(), true);
-                        Debug.WriteLine("Added EatAction for: " + Name);
                     }
                 }
             }
