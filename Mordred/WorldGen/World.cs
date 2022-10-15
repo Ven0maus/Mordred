@@ -56,7 +56,7 @@ namespace Mordred.WorldGen
             get { return _villages; }
         }
 
-        protected readonly ArrayView<bool> Walkability;
+        protected readonly LambdaGridView<bool> Walkability;
         private bool _worldInitialized = false;
 
         public World(int width, int height) : base(width, height, 
@@ -70,7 +70,7 @@ namespace Mordred.WorldGen
             // Initialize the arrays
             _villages = new List<Village>(Constants.VillageSettings.MaxVillages);
             _cellEffects = new List<CellEffect>();
-            Walkability = new ArrayView<bool>(Width, Height);
+            Walkability = new LambdaGridView<bool>(width, height, point => GetCell(point.X, point.Y).Walkable);
             Pathfinder = new FastAStar(Walkability, Distance.Manhattan);
 
             Game.GameTick += HandleEffects;
@@ -183,8 +183,6 @@ namespace Mordred.WorldGen
                     entity.Position = WorldToScreenCoordinate(wEntity.WorldPosition.X, wEntity.WorldPosition.Y);
                 }
             }
-
-            HideObstructedCells();
         }
 
         public void GenerateWildLife()
@@ -342,17 +340,6 @@ namespace Mordred.WorldGen
                 .Select(a => a.Key)
                 .ToList();
             return items;
-        }
-
-        public override void SetCell(WorldCell cell, bool storeState = false)
-        {
-            if (IsWorldCoordinateOnViewPort(cell.X, cell.Y))
-            {
-                var screenPos = WorldToScreenCoordinate(cell.X, cell.Y);
-                Walkability[screenPos.y * Width + screenPos.x] = cell.Walkable;
-            }
-
-            base.SetCell(cell, storeState);
         }
 
         public IEnumerable<WorldCell> GetCells(IEnumerable<Point> points)
