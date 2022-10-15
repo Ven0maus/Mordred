@@ -9,6 +9,7 @@ using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Venomaus.FlowVitae.Basics;
 using Venomaus.FlowVitae.Basics.Chunking;
 using Venomaus.FlowVitae.Basics.Procedural;
@@ -81,16 +82,22 @@ namespace Mordred.WorldGen
 
         private void LoadEntities(object sender, ChunkUpdateArgs args)
         {
-            if (_chunkEntitiesLoaded.Contains((args.ChunkX, args.ChunkY))) return;
-            GenerateWildLife(args.ChunkX, args.ChunkY);
-            _chunkEntitiesLoaded.Add((args.ChunkX, args.ChunkY));
+            _ = Task.Factory.StartNew(() =>
+            {
+                if (_chunkEntitiesLoaded.Contains((args.ChunkX, args.ChunkY))) return;
+                GenerateWildLife(args.ChunkX, args.ChunkY);
+                _chunkEntitiesLoaded.Add((args.ChunkX, args.ChunkY));
+            });
         }
 
         private void UnloadEntities(object sender, ChunkUpdateArgs args)
         {
-            var chunkCellPositions = args.GetCellPositions().ToHashSet(new TupleComparer<int>());
-            EntitySpawner.DestroyAll<IEntity>(a => chunkCellPositions.Contains(a.WorldPosition));
-            _chunkEntitiesLoaded.Remove((args.ChunkX, args.ChunkY));
+            _ = Task.Factory.StartNew(() =>
+            {
+                var chunkCellPositions = args.GetCellPositions().ToHashSet(new TupleComparer<int>());
+                EntitySpawner.DestroyAll<IEntity>(a => chunkCellPositions.Contains(a.WorldPosition));
+                _chunkEntitiesLoaded.Remove((args.ChunkX, args.ChunkY));
+            });
         }
 
         public void AddEffect(CellEffect effect)
