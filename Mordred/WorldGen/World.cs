@@ -70,7 +70,7 @@ namespace Mordred.WorldGen
             // Initialize the arrays
             _villages = new List<Village>(Constants.VillageSettings.MaxVillages);
             _cellEffects = new List<CellEffect>();
-            Walkability = new LambdaGridView<bool>(width, height, point => GetCell(point.X, point.Y).Walkable);
+            Walkability = new LambdaGridView<bool>(width, height, point => IsChunkLoaded(point.X, point.Y) && GetCell(point.X, point.Y).Walkable);
             Pathfinder = new FastAStar(Walkability, Distance.Manhattan);
 
             Game.GameTick += HandleEffects;
@@ -326,6 +326,7 @@ namespace Mordred.WorldGen
             {
                 for (int x = sX; x < eX; x++)
                 {
+                    if (!IsChunkLoaded(x, y)) continue;
                     if (criteria.Invoke(GetCell(x, y)))
                         yield return (x, y);
                 }
