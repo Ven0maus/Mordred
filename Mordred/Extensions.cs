@@ -1,4 +1,5 @@
 ﻿using GoRogue.Pathing;
+using Mordred.Entities;
 using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
@@ -130,9 +131,9 @@ namespace Mordred
             }
         }
 
-        public static CustomPath ToCustomPath(this Path path)
+        public static PathFinding.CustomPath ToCustomPath(this Path path, PathFinding pathfinder)
         {
-            return new CustomPath(path);
+            return new PathFinding.CustomPath(pathfinder, path);
         }
     }
 
@@ -148,27 +149,6 @@ namespace Mordred
                 objects.Add(type);
             }
             return objects;
-        }
-    }
-
-    public sealed class CustomPath : Path
-    {
-        private readonly List<Point> _coords = new List<Point>();
-        public CustomPath(Path path) : base(path) 
-        {
-            var length = path.Length;
-            for (int i=0; i < length; i++)
-            {
-                _coords.Add(GetStep(i));
-            }
-        }
-
-        public Point? TakeStep()
-        {
-            if (_coords.Count == 0) return null;
-            var value = _coords[0];
-            _coords.RemoveAt(0);
-            return value;
         }
     }
 }

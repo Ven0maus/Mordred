@@ -171,7 +171,7 @@ namespace Mordred.Entities.Actions.Implementations
 
         private bool MoveTowardsPrey(PredatorAnimal predator, out bool validPath)
         {
-            if (!predator.CanMoveTowards(_currentPrey.WorldPosition.X, _currentPrey.WorldPosition.Y, out CustomPath path))
+            if (!predator.CanMoveTowards(_currentPrey.WorldPosition.X, _currentPrey.WorldPosition.Y, out PathFinding.CustomPath path))
             {
                 validPath = false;
                 return false;

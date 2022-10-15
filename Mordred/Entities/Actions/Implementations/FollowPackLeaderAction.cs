@@ -70,7 +70,7 @@ namespace Mordred.Entities.Actions.Implementations
 
         private bool MoveTowardsPackLeader(Actor actor, out bool validPath)
         {
-            if (!actor.CanMoveTowards(_randomCoordinate.X, _randomCoordinate.Y, out CustomPath path))
+            if (!actor.CanMoveTowards(_randomCoordinate.X, _randomCoordinate.Y, out PathFinding.CustomPath path))
             {
                 validPath = false;
                 return false;

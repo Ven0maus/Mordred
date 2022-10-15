@@ -160,7 +160,7 @@ namespace Mordred.Entities.Actions.Implementations
             {
                 var human = actor as Human;
                 if (human.WorldPosition == human.HousePosition ||
-                    !human.CanMoveTowards(human.HousePosition.X, human.HousePosition.Y, out CustomPath movPath) ||
+                    !human.CanMoveTowards(human.HousePosition.X, human.HousePosition.Y, out PathFinding.CustomPath movPath) ||
                     !human.MoveTowards(movPath))
                 {
                     // Add gatherables to village resource collection
@@ -200,7 +200,7 @@ namespace Mordred.Entities.Actions.Implementations
             }
 
             // Check if the path towards the tree is valid
-            if (!actor.CanMoveTowards(CurrentGatherable.Value.X, CurrentGatherable.Value.Y, out CustomPath path))
+            if (!actor.CanMoveTowards(CurrentGatherable.Value.X, CurrentGatherable.Value.Y, out PathFinding.CustomPath path))
             {
                 CurrentGatherable = null;
                 if (_taskDone)

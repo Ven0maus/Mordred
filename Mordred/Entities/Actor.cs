@@ -35,6 +35,8 @@ namespace Mordred.Entities
             }
         }
 
+        private readonly PathFinding _pathfinder;
+
         #region Actor stats
         public virtual int MaxHealth { get; private set; }
         public virtual int Health { get; private set; }
@@ -67,6 +69,7 @@ namespace Mordred.Entities
             Health = health;
 
             _actorActionsQueue = new Queue<IAction>();
+            _pathfinder = new PathFinding(this, Constants.ActorSettings.PathingWidth, Constants.ActorSettings.PathingHeight);
             Inventory = new Inventory();
 
             // Subscribe to the game tick event
@@ -95,17 +98,15 @@ namespace Mordred.Entities
             }
         }
 
-        public bool CanMoveTowards(int x, int y, out CustomPath path)
+        public bool CanMoveTowards(int x, int y, out PathFinding.CustomPath path)
         {
-            // TODO: Fix pathfinding for entities that go off the viewport
-            // Perhaps keep limited arrayview per entity?
             path = null;
             if (!Alive) return false;
-            path = MapConsole.World.Pathfinder.ShortestPath(WorldPosition, (x, y))?.ToCustomPath();
+            path = _pathfinder.ShortestPath(WorldPosition, (x, y));
             return path != null;
         }
 
-        public bool MoveTowards(CustomPath path)
+        public bool MoveTowards(PathFinding.CustomPath path)
         {
             if (path == null || !Alive) return false;
 
@@ -127,7 +128,7 @@ namespace Mordred.Entities
         public bool MoveTowards(int x, int y)
         {
             if (!Alive) return false;
-            var movementPath = MapConsole.World.Pathfinder.ShortestPath(WorldPosition, (x, y)).ToCustomPath();
+            var movementPath = _pathfinder.ShortestPath(WorldPosition, (x, y));
             return MoveTowards(movementPath);
         }
 

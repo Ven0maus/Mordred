@@ -45,7 +45,7 @@ namespace Mordred.WorldGen
             .SelectMany(a => a.Value)
             .ToDictionary(a => a.CellType, a => a);
 
-        public readonly FastAStar Pathfinder;
+
 
         private readonly MapConsole MapConsole;
         private readonly List<Village> _villages;
@@ -56,8 +56,7 @@ namespace Mordred.WorldGen
             get { return _villages; }
         }
 
-        protected readonly LambdaGridView<bool> Walkability;
-        private bool _worldInitialized = false;
+        private readonly bool _worldInitialized = false;
 
         public World(int width, int height) : base(width, height, 
             Constants.WorldSettings.ChunkWidth, Constants.WorldSettings.ChunkHeight, new ProceduralGenerator<int, WorldCell>(1000, GenerateLands))
@@ -71,8 +70,6 @@ namespace Mordred.WorldGen
             // Initialize the arrays
             _villages = new List<Village>(Constants.VillageSettings.MaxVillages);
             _cellEffects = new List<CellEffect>();
-            Walkability = new LambdaGridView<bool>(width, height, point => IsChunkLoaded(point.X, point.Y) && GetCell(point.X, point.Y).Walkable);
-            Pathfinder = new FastAStar(Walkability, Distance.Manhattan);
 
             Game.GameTick += HandleEffects;
             _worldInitialized = true;

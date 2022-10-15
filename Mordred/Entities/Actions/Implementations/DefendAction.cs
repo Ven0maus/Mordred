@@ -90,7 +90,7 @@ namespace Mordred.Entities.Actions.Implementations
 
         private bool MoveTowardsAttacker(Actor actor, out bool validPath)
         {
-            if (!actor.CanMoveTowards(_defendee.CurrentAttacker.WorldPosition.X, _defendee.CurrentAttacker.WorldPosition.Y, out CustomPath path))
+            if (!actor.CanMoveTowards(_defendee.CurrentAttacker.WorldPosition.X, _defendee.CurrentAttacker.WorldPosition.Y, out PathFinding.CustomPath path))
             {
                 validPath = false;
                 return false;

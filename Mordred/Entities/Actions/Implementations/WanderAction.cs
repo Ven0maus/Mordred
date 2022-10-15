@@ -8,7 +8,7 @@ namespace Mordred.Entities.Actions.Implementations
     public class WanderAction : BaseAction
     {
         private Point? _destination;
-        private CustomPath _path;
+        private PathFinding.CustomPath _path;
         private const int _whileLoopCheck = 500;
 
         public override event EventHandler<Actor> ActionCompleted;

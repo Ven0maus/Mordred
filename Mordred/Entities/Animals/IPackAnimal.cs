@@ -12,6 +12,5 @@ namespace Mordred.Entities.Animals
     { 
         List<IPackAnimal> PackMates { get; set; }
         IPackAnimal Leader { get; set; }
-        Point Position { get; set; }
     }
 }
