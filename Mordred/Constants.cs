@@ -29,8 +29,8 @@
             public const float DefaultSecondsPerBleeding = 1.5f;
             public const int StopBleedingAfterSeconds = 15;
             public const int MaxPackSize = 4;
-            public const int PathingWidth = 50;
-            public const int PathingHeight = 25;
+            public const int PathingWidth = 30;
+            public const int PathingHeight = 15;
         }
 
         public static class ActionSettings
