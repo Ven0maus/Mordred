@@ -6,7 +6,7 @@ namespace Mordred.Entities.Animals.Aggressive
     {
         public Leopard(Point position, Gender gender) : base(Color.YellowGreen, 'L', gender, 125)
         {
-            Position = position;
+            WorldPosition = position;
             HungerTickRate = 10;
             AttackDamage = 25;
         }

@@ -28,7 +28,7 @@ namespace Mordred.Entities.Actions.Implementations
             }
             else
             {
-                center = actor.Position;
+                center = actor.WorldPosition;
             }
 
             _destination = center.GetRandomCoordinateWithinSquareRadius(10);
@@ -48,9 +48,9 @@ namespace Mordred.Entities.Actions.Implementations
 
         public bool Wander(Actor actor)
         {
-            if (actor.Position != _destination)
+            if (actor.WorldPosition != _destination)
             {
-                return !actor.MoveTowards(_path) || actor.Position == _destination.Value;
+                return !actor.MoveTowards(_path) || actor.WorldPosition == _destination.Value;
             }
             return true;
         }

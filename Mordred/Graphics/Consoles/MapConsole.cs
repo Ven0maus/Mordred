@@ -34,10 +34,9 @@ namespace Mordred.Graphics.Consoles
         public void InitializeWorld()
         {
             World = new World(Width, Height);
-            World.GenerateLands();
             //World.GenerateVillages();
-            World.GenerateWildLife();
-            World.HideObstructedCells();
+            //World.GenerateWildLife();
+            //World.HideObstructedCells();
 
             // Spawn player
             SpawnPlayer();
@@ -50,11 +49,16 @@ namespace Mordred.Graphics.Consoles
         {
             var centerPos = new Point(Width / 2, Height / 2);
             var pos = World.GetCellCoords(a => a.Walkable).OrderBy(a => centerPos.SquaredDistance(a)).First();
-            Player = new Player(pos, true)
+            Player = new Player(pos, false)
             {
                 IsFocused = true
             };
             EntitySpawner.Spawn(Player);
+
+            // The initial center doesn't need to be off-threaded
+            World.UseThreading = false;
+            World.Center(Player.Position.X, Player.Position.Y);
+            World.UseThreading = true;
         }
     }
 }

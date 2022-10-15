@@ -26,7 +26,7 @@ namespace Mordred.Entities.Animals
         public Wolf(Point position, Gender gender) : base(Color.LightSlateGray, 'w', gender, 65)
         {
             PackMates = new List<Wolf>();
-            Position = position;
+            WorldPosition = position;
 
             // Wolf stats
             HungerTickRate = 7;

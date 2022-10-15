@@ -7,7 +7,7 @@ namespace Mordred.Entities.Animals.Aggressive
     {
         public Snake(Point position, Gender gender) : base(Color.DarkKhaki, 's', gender, 45)
         {
-            Position = position;
+            WorldPosition = position;
             HungerTickRate = 13;
             AttackDamage = 8;
             TimeBetweenAttacksInTicks = (int)Math.Ceiling(Game.TicksPerSecond / 2f);

@@ -43,7 +43,7 @@ namespace Mordred.Entities.Actions.Implementations
             }
 
             // Interact with tribe house
-            if (human.Position == human.HousePosition || !human.MoveTowards(path))
+            if (human.WorldPosition == human.HousePosition || !human.MoveTowards(path))
             {
                 if (_interaction == Interaction.Take)
                 {

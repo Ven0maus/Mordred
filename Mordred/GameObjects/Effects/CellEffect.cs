@@ -6,12 +6,12 @@ namespace Mordred.GameObjects.Effects
     {
         private readonly int _initialTicks;
         public int TicksRemaining { get; private set; }
-        public Point Position { get; }
+        public Point WorldPosition { get; }
         public bool Completed { get; protected set; }
 
         public CellEffect(Point position, int effectTime, bool inSeconds = true)
         {
-            Position = position;
+            WorldPosition = position;
             TicksRemaining = inSeconds ? effectTime.ToTicks() : effectTime;
             _initialTicks = TicksRemaining;
         }

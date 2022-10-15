@@ -1,13 +1,16 @@
-﻿using SadConsole.Entities;
+﻿using Mordred.Entities;
+using SadConsole.Entities;
 using SadRogue.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Mordred.GameObjects.ItemInventory.Items
 {
-    public class WorldItem : Entity
+    public class WorldItem : Entity, IWorldEntity
     {
         public int Id { get; private set; }
+
+        public Point WorldPosition { get; set; }
 
         public readonly Dictionary<int, DropRate> DroppedBy;
 

@@ -6,7 +6,7 @@ namespace Mordred.Entities.Animals.Passive
     {
         public Cow(Point position, Gender gender) : base(Color.PapayaWhip, 'C', gender, 80)
         {
-            Position = position;
+            WorldPosition = position;
             HungerTickRate = 10;
         }
     }

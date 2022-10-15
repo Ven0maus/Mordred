@@ -12,6 +12,8 @@
 
         public static class WorldSettings
         {
+            public const int ChunkWidth = 100;
+            public const int ChunkHeight = 100;
             public const int MinWildLife = 15;
             public const int MaxWildLife = 25;
         }

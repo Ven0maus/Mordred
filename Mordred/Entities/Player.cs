@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace Mordred.Entities
 {
-    public class Player : Entity
+    public class Player : Entity, IWorldEntity
     {
-        public Point WorldPosition { get; private set; }
+        public Point WorldPosition { get; set; }
 
         private readonly bool _isStaticGrid;
 
@@ -46,7 +46,7 @@ namespace Mordred.Entities
                 if (keyboard.IsKeyPressed(key))
                 {
                     var moveDirection = _playerMovements[key];
-                    MoveTowards(moveDirection);
+                    MoveTowards(moveDirection, false);
                     return true;
                 }
             }

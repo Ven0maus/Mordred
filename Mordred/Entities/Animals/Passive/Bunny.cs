@@ -6,7 +6,7 @@ namespace Mordred.Entities.Animals
     {
         public Bunny(Point position, Gender gender) : base(Color.Aquamarine, 'B', gender, 25)
         {
-            Position = position;
+            WorldPosition = position;
             HungerTickRate = 7;
         }
     }

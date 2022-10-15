@@ -5,12 +5,15 @@ using Mordred.Entities.Animals;
 using Mordred.GameObjects.Effects;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
+using SadConsole.Entities;
 using SadRogue.Primitives;
 using SadRogue.Primitives.GridViews;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Venomaus.FlowVitae.Basics;
+using Venomaus.FlowVitae.Basics.Chunking;
+using Venomaus.FlowVitae.Basics.Procedural;
 using Venomaus.FlowVitae.Grids;
 
 namespace Mordred.WorldGen
@@ -38,13 +41,11 @@ namespace Mordred.WorldGen
             get { return _villages; }
         }
 
-        /// <summary>
-        /// The actual terrain values, which objects can overlap
-        /// </summary>
-        protected readonly Grid<int, WorldCell> Terrain;
         protected readonly ArrayView<bool> Walkability;
+        private bool _worldInitialized = false;
 
-        public World(int width, int height) : base(width, height)
+        public World(int width, int height) : base(width, height, 
+            Constants.WorldSettings.ChunkWidth, Constants.WorldSettings.ChunkHeight, new ProceduralGenerator<int, WorldCell>(1000, GenerateLands))
         {
             // Get map console reference
             MapConsole = Game.Container.GetConsole<MapConsole>();
@@ -54,11 +55,11 @@ namespace Mordred.WorldGen
             // Initialize the arrays
             _villages = new List<Village>(Constants.VillageSettings.MaxVillages);
             _cellEffects = new List<CellEffect>();
-            Terrain = new Grid<int, WorldCell>(width, height);
             Walkability = new ArrayView<bool>(Width, Height);
             Pathfinder = new FastAStar(Walkability, Distance.Manhattan);
 
             Game.GameTick += HandleEffects;
+            _worldInitialized = true;
         }
 
         public void AddEffect(CellEffect effect)
@@ -70,7 +71,7 @@ namespace Mordred.WorldGen
         public IEnumerable<CellEffect> GetCellEffects(int x, int y)
         {
             var pos = new Point(x, y);
-            return _cellEffects.Where(a => a.Position == pos);
+            return _cellEffects.Where(a => a.WorldPosition == pos);
         }
 
         private void HandleEffects(object sender, EventArgs args)
@@ -92,56 +93,75 @@ namespace Mordred.WorldGen
             return cell;
         }
 
-        public static WorldCell GetRandomCellConfig(int type, int x, int y, bool clone = true)
+        public static WorldCell GetRandomCellConfig(int type, int x, int y, bool clone = true, Random customRandom = null)
         {
-            var cell = clone ? WorldCells[type].TakeRandom().Clone() : WorldCells[type].TakeRandom();
+            var cell = clone ? WorldCells[type].TakeRandom(customRandom).Clone() : WorldCells[type].TakeRandom(customRandom);
             cell.X = x;
             cell.Y = y;
             return cell;
         }
 
-        public void GenerateLands()
+        public static void GenerateLands(Random random, int[] chunk, int width, int height)
         {
             // Idk, need to rework..
-            var simplex1 = new OpenSimplex2F(Game.Random.Next(-500000, 500000));
-            var simplexNoise = new double[Width * Height];
-            for (int y=0; y < Height; y++)
+            var simplex1 = new OpenSimplex2F(random.Next(-500000, 500000));
+            var simplexNoise = new double[width * height];
+            for (int y=0; y < height; y++)
             {
-                for (int x = 0; x < Width; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    double nx = (double)x / Width - 0.5d;
-                    double ny = (double)y / Height - 0.5d;
-                    simplexNoise[y * Width + x] = simplex1.Noise2(nx, ny);
+                    double nx = (double)x / width - 0.5d;
+                    double ny = (double)y / height - 0.5d;
+                    simplexNoise[y * width + x] = simplex1.Noise2(nx, ny);
                 }
             }
 
             // Normalize
             simplexNoise = OpenSimplex2F.Normalize(simplexNoise);
 
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < Width; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    if (simplexNoise[y * Width + x] >= 0.75f && simplexNoise[y * Width + x] <= 1f)
+                    if (x == 0 || y == 0 || x == width - 1 || y == height - 1)
+                        chunk[y * width + x] = 8; // Border
+                    else if (simplexNoise[y * width + x] >= 0.75f && simplexNoise[y * width + x] <= 1f)
                     {
                         // Mountains
-                        SetCell(x, y, 3);
-                        Terrain.SetCell(x, y, 3);
+                        chunk[y * width + x] = 3;
                     }
                     else
                     {
                         // Tree, berrybush or grass
-                        int chance = Game.Random.Next(0, 100);
+                        int chance = random.Next(0, 100);
                         if (chance <= 1)
-                            SetCell(x, y, 7);
+                            chunk[y * width + x] = 7;
                         else if (chance <= 7)
-                            SetCell(x, y, 2);
+                            chunk[y * width + x] = 2;
                         else
-                            SetCell(x, y, 1);
-                        Terrain.SetCell(x, y, 1);
+                            chunk[y * width + x] = 1;
                     }
                 }
             }
+        }
+
+        public override void Center(int x, int y)
+        {
+            base.Center(x, y);
+
+            if (!_worldInitialized) return;
+
+            foreach (var entity in EntitySpawner.Entities.Where(a => a is IWorldEntity))
+            {
+                var wEntity = entity as IWorldEntity;
+                entity.IsVisible = IsWorldCoordinateOnViewPort(wEntity.WorldPosition.X, wEntity.WorldPosition.Y);
+                if (entity.IsVisible)
+                {
+                    entity.Position = WorldToScreenCoordinate(wEntity.WorldPosition.X, wEntity.WorldPosition.Y);
+                }
+            }
+
+            HideObstructedCells();
         }
 
         public void GenerateWildLife()
@@ -205,7 +225,7 @@ namespace Mordred.WorldGen
                 {
                     var animals = type.Value.Take(Constants.ActorSettings.MaxPackSize).ToList();
                     var leader = animals.TakeRandom();
-                    var centerPoint = leader.Position;
+                    var centerPoint = leader.WorldPosition;
                     foreach (var animal in animals)
                     {
                         var list = animal.PackMates ?? new List<IPackAnimal>();
@@ -232,9 +252,15 @@ namespace Mordred.WorldGen
                             whileLoopLimiter++;
                         }
 
-                        animal.Position = newPos;
+                        var entity = ((Entity)animal);
+                        var wEntity = entity as IWorldEntity;
+                        wEntity.WorldPosition = newPos;
+                        entity.IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(newPos.X, newPos.Y);
+                        if (entity.IsVisible)
+                        {
+                            animal.Position = MapConsole.World.WorldToScreenCoordinate(newPos.X, newPos.Y);
+                        }
                     }
-                    
                 }
             }
         }
@@ -252,18 +278,6 @@ namespace Mordred.WorldGen
         }
 
         /// <summary>
-        /// The underlying terrain of a cell
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        public int GetTerrain(int x, int y)
-        {
-            if (!InBounds(x, y)) return -1;
-            return Terrain.GetCellType(x, y);
-        }
-
-        /// <summary>
         /// The actual visual displayed cell
         /// </summary>
         /// <param name="x"></param>
@@ -278,7 +292,6 @@ namespace Mordred.WorldGen
 
         public bool CellWalkable(int x, int y)
         {
-            if (!InBounds(x, y)) return false;
             return GetCell(x, y).Walkable;
         }
 
@@ -310,8 +323,12 @@ namespace Mordred.WorldGen
 
         public override void SetCell(WorldCell cell, bool storeState = false)
         {
-            if (!InBounds(cell.X, cell.Y)) return;
-            Walkability[cell.Y * Width + cell.X] = cell.Walkable;
+            if (IsWorldCoordinateOnViewPort(cell.X, cell.Y))
+            {
+                var screenPos = WorldToScreenCoordinate(cell.X, cell.Y);
+                Walkability[screenPos.y * Width + screenPos.x] = cell.Walkable;
+            }
+
             base.SetCell(cell, storeState);
         }
 
@@ -320,26 +337,39 @@ namespace Mordred.WorldGen
             return base.GetCells(points.Select(a => (a.X, a.Y)));
         }
 
+        public IEnumerable<(int x, int y)> GetViewPortWorldCoordinates()
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    yield return ScreenToWorldCoordinate(x, y);
+                }
+            }
+        }
+
         public void HideObstructedCells()
         {
-            for (int y = 0; y < Height; y++)
+            var viewPortWorldPositions = GetCells(GetViewPortWorldCoordinates());
+            var cache = viewPortWorldPositions.ToDictionary(a => (a.X, a.Y));
+            foreach (var cell in viewPortWorldPositions)
             {
-                for (int x = 0; x < Width; x++)
+                var neighborPositions = new Point(cell.X, cell.Y).Get4Neighbors();
+                var neighbors = neighborPositions.Select(a =>
                 {
-                    var cells = GetCells(new Point(x, y)
-                        .Get4Neighbors()
-                        .Where(a => InBounds(a.X, a.Y)));
-                    var cell = GetCell(x, y);
-                    if (cells.All(a => !a.Transparent))
-                    {
-                        cell.IsVisible = false;
-                        SetCell(cell);
-                    }
-                    else
-                    {
-                        cell.IsVisible = true;
-                        SetCell(cell);
-                    }
+                    if (!cache.TryGetValue(a, out WorldCell neighborCell))
+                        cache.Add(a, GetCell(a.X, a.Y));
+                    return neighborCell ?? cache[a];
+                });
+                if (neighbors.All(a => !a.Transparent) && cell.CellType != 8)
+                {
+                    cell.IsVisible = false;
+                    SetCell(cell);
+                }
+                else
+                {
+                    cell.IsVisible = true;
+                    SetCell(cell);
                 }
             }
         }

@@ -36,17 +36,19 @@ namespace Mordred
             return enumerable[Game.Random.Next(0, enumerable.Count)];
         }
 
-        public static T TakeRandom<T>(this T[] enumerable)
+        public static T TakeRandom<T>(this T[] enumerable, Random customRandom = null)
         {
             if (enumerable.Length == 0) return default;
-            return enumerable[Game.Random.Next(0, enumerable.Length)];
+            var rand = customRandom ?? Game.Random;
+            return enumerable[rand.Next(0, enumerable.Length)];
         }
 
-        public static T TakeRandom<T>(this IEnumerable<T> enumerable)
+        public static T TakeRandom<T>(this IEnumerable<T> enumerable, Random customRandom = null)
         {
             int count = enumerable.Count();
             if (count == 0) return default;
-            return enumerable.ElementAt(Game.Random.Next(0, count));
+            var rand = customRandom ?? Game.Random;
+            return enumerable.ElementAt(rand.Next(0, count));
         }
 
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> enumerable, int amount)
@@ -161,10 +163,11 @@ namespace Mordred
             }
         }
 
-        public Point TakeStep(int step)
+        public Point? TakeStep()
         {
-            var value = _coords[step];
-            _coords.RemoveAt(step);
+            if (_coords.Count == 0) return null;
+            var value = _coords[0];
+            _coords.RemoveAt(0);
             return value;
         }
     }

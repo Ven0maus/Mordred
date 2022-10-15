@@ -8,7 +8,7 @@ namespace Mordred.Entities.Animals
         new List<T> PackMates { get; set; }
     }
 
-    public interface IPackAnimal
+    public interface IPackAnimal : IWorldEntity
     { 
         List<IPackAnimal> PackMates { get; set; }
         IPackAnimal Leader { get; set; }

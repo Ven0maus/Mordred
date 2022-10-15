@@ -14,13 +14,26 @@ using System.Linq;
 
 namespace Mordred.Entities
 {
-    public abstract class Actor : Entity
+    public abstract class Actor : Entity, IWorldEntity
     {
         public Inventory Inventory { get; private set; }
         public IAction CurrentAction { get; private set; }
         private Queue<IAction> _actorActionsQueue;
 
         public event EventHandler<Actor> OnActorDeath;
+
+        private Point _worldPosition;
+        public Point WorldPosition
+        {
+            get { return _worldPosition; }
+            set 
+            { 
+                _worldPosition = value;
+                IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(_worldPosition.X, _worldPosition.Y);
+                if (IsVisible)
+                    Position = MapConsole.World.WorldToScreenCoordinate(_worldPosition.X, _worldPosition.Y);
+            }
+        }
 
         #region Actor stats
         public virtual int MaxHealth { get; private set; }
@@ -61,6 +74,11 @@ namespace Mordred.Entities
             Game.GameTick += HandleActions;
         }
 
+        public bool IsOnScreen(Point position)
+        {
+            return MapConsole.World.IsWorldCoordinateOnViewPort(position.X, position.Y);
+        }
+
         public void AddAction(IAction action, bool prioritize = false, bool addDuplicateTask = true)
         {
             if (!Alive) return;
@@ -79,9 +97,11 @@ namespace Mordred.Entities
 
         public bool CanMoveTowards(int x, int y, out CustomPath path)
         {
+            // TODO: Fix pathfinding for entities that go off the viewport
+            // Perhaps keep limited arrayview per entity?
             path = null;
             if (!Alive) return false;
-            path = MapConsole.World.Pathfinder.ShortestPath(Position, new Point(x, y))?.ToCustomPath();
+            path = MapConsole.World.Pathfinder.ShortestPath(WorldPosition, new Point(x, y))?.ToCustomPath();
             return path != null;
         }
 
@@ -89,10 +109,16 @@ namespace Mordred.Entities
         {
             if (path == null || !Alive) return false;
 
-            var nextStep = path.TakeStep(0);
-            if (MapConsole.World.CellWalkable(nextStep.X, nextStep.Y))
+            var nextStep = path.TakeStep();
+            if (nextStep == null) return false;
+            if (MapConsole.World.CellWalkable(nextStep.Value.X, nextStep.Value.Y))
             {
-                Position = nextStep;
+                WorldPosition = nextStep.Value;
+                IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(WorldPosition.X, WorldPosition.Y);
+                if (IsVisible)
+                {
+                    Position = MapConsole.World.WorldToScreenCoordinate(WorldPosition.X, WorldPosition.Y);
+                }
                 return true;
             }
             return false;
@@ -101,7 +127,7 @@ namespace Mordred.Entities
         public bool MoveTowards(int x, int y)
         {
             if (!Alive) return false;
-            var movementPath = MapConsole.World.Pathfinder.ShortestPath(Position, new Point(x, y)).ToCustomPath();
+            var movementPath = MapConsole.World.Pathfinder.ShortestPath(WorldPosition, new Point(x, y)).ToCustomPath();
             return MoveTowards(movementPath);
         }
 
@@ -331,10 +357,9 @@ namespace Mordred.Entities
         private void AddBleedEffect()
         {
             // Add bleed effect to some random cells
-            var cellsToApplyBleedEffectTo = Position.Get8Neighbors()
-                .Where(a => MapConsole.World.InBounds(a.X, a.Y))
+            var cellsToApplyBleedEffectTo = WorldPosition.Get8Neighbors()
                 .TakeRandom(Game.Random.Next(1, 4))
-                .Append(Position);
+                .Append(WorldPosition);
             foreach (var neighbor in cellsToApplyBleedEffectTo)
                 MapConsole.World.AddEffect(new Bleed(neighbor, Game.Random.Next(4, 7)));
         }

@@ -60,7 +60,7 @@ namespace Mordred.Entities.Actions.Implementations
             }
 
             // TODO: Add action to gather edibles if house doesn't contain edibles
-            var closestEdible = GetEdibleCells().OrderBy(a => a.Value.Key.SquaredDistance(actor.Position)).FirstOrDefault();
+            var closestEdible = GetEdibleCells().OrderBy(a => a.Value.Key.SquaredDistance(actor.WorldPosition)).FirstOrDefault();
             if (closestEdible != null)
             {
                 actor.AddAction(new GatheringAction(new Point[] { closestEdible.Value.Key }));
