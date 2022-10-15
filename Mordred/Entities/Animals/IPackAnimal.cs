@@ -1,5 +1,4 @@
-﻿using SadRogue.Primitives;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Mordred.Entities.Animals
 {

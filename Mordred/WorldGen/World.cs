@@ -1,5 +1,4 @@
-﻿using GoRogue.Pathing;
-using Mordred.Config;
+﻿using Mordred.Config;
 using Mordred.Entities;
 using Mordred.Entities.Animals;
 using Mordred.GameObjects.Effects;
@@ -7,7 +6,6 @@ using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
 using SadConsole.Entities;
 using SadRogue.Primitives;
-using SadRogue.Primitives.GridViews;
 using System;
 using System.Collections.Generic;
 using System.Linq;
