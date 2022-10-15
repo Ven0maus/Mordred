@@ -7,5 +7,6 @@ namespace Mordred.Entities
         Point Position { get; set; }
         Point WorldPosition { get; set; }
         bool IsVisible { get; set; }
+        void UnSubscribe();
     }
 }

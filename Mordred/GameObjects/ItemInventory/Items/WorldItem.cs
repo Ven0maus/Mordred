@@ -90,5 +90,10 @@ namespace Mordred.GameObjects.ItemInventory.Items
         {
             return new WorldItem(this);
         }
+
+        public void UnSubscribe()
+        {
+            // Not required atm
+        }
     }
 }

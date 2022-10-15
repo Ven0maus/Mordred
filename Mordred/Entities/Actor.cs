@@ -191,8 +191,7 @@ namespace Mordred.Entities
                 CurrentAction = null;
 
                 // Remove from the map and unsubscribe from events
-                Game.GameTick -= GameTick;
-                Game.GameTick -= HandleActions;
+                UnSubscribe();
 
                 // Make sure we re-assign the leader
                 ReAssignPackLeader();
@@ -212,6 +211,12 @@ namespace Mordred.Entities
 
             // Call virtual method
             OnAttacked(damage, attacker);
+        }
+
+        public void UnSubscribe()
+        {
+            Game.GameTick -= GameTick;
+            Game.GameTick -= HandleActions;
         }
 
         private void ReAssignPackLeader()

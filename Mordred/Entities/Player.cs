@@ -54,6 +54,11 @@ namespace Mordred.Entities
             return base.ProcessKeyboard(keyboard);
         }
 
+        public void UnSubscribe()
+        {
+            // Not required atm
+        }
+
         private readonly Dictionary<Keys, Direction> _playerMovements =
             new()
             {

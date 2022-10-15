@@ -41,6 +41,7 @@ namespace Mordred.Entities
 
         public static void Destroy(IEntity entity)
         {
+            entity.UnSubscribe();
             Entities.Remove(entity);
             MapConsole.Instance.EntityRenderer.Remove((Entity)entity);
             while (MapConsole.Instance.Children.IsLocked) { }
