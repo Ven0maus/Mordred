@@ -14,8 +14,8 @@
         {
             public const int ChunkWidth = 100;
             public const int ChunkHeight = 100;
-            public const int MinWildLife = 4;
-            public const int MaxWildLife = 10;
+            public const int MinWildLifePerChunk = 4;
+            public const int MaxWildLifePerChunk = 10;
         }
 
         public static class ActorSettings

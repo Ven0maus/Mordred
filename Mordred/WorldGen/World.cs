@@ -204,7 +204,7 @@ namespace Mordred.WorldGen
         public void GenerateWildLife(int chunkX, int chunkY)
         {
             var random = new Random(GetChunkSeed(chunkX, chunkY));
-            var wildLifeCount = random.Next(Constants.WorldSettings.MinWildLife, Constants.WorldSettings.MaxWildLife + 1);
+            var wildLifeCount = random.Next(Constants.WorldSettings.MinWildLifePerChunk, Constants.WorldSettings.MaxWildLifePerChunk + 1);
             var (x, y) = (chunkX + Constants.WorldSettings.ChunkWidth / 2, chunkY + Constants.WorldSettings.ChunkHeight / 2);
             var spawnPositions = GetCellCoords(x, y, a => a.Walkable).ToList();
 
