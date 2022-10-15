@@ -57,6 +57,7 @@ namespace Mordred.WorldGen
         }
 
         private readonly bool _worldInitialized = false;
+        private readonly HashSet<Point> _chunkEntitiesLoaded;
 
         public World(int width, int height) : base(width, height, 
             Constants.WorldSettings.ChunkWidth, Constants.WorldSettings.ChunkHeight, new ProceduralGenerator<int, WorldCell>(1000, GenerateLands))
@@ -71,15 +72,15 @@ namespace Mordred.WorldGen
             // Initialize the arrays
             _villages = new List<Village>(Constants.VillageSettings.MaxVillages);
             _cellEffects = new List<CellEffect>();
+            _chunkEntitiesLoaded = new();
 
             Game.GameTick += HandleEffects;
             _worldInitialized = true;
         }
 
-        private readonly HashSet<Point> _chunkEntitiesLoaded = new HashSet<Point>();
-
         private void LoadEntities(object sender, ChunkUpdateArgs args)
         {
+            // TODO: Load initial chunk entities
             if (_chunkEntitiesLoaded.Contains((args.ChunkX, args.ChunkY))) return;
             GenerateWildLife(args.ChunkX, args.ChunkY);
             _chunkEntitiesLoaded.Add((args.ChunkX, args.ChunkY));
