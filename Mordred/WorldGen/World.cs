@@ -56,7 +56,7 @@ namespace Mordred.WorldGen
             get { return _villages; }
         }
 
-        private readonly bool _worldInitialized = false;
+        private bool _worldInitialized = false;
         private readonly HashSet<Point> _chunkEntitiesLoaded;
 
         public World(int width, int height) : base(width, height, 
@@ -76,6 +76,22 @@ namespace Mordred.WorldGen
 
             Game.GameTick += HandleEffects;
             _worldInitialized = true;
+        }
+
+        public void Initialize()
+        {
+            // Re-initialize the starter chunks
+            ClearCache();
+
+            // Draw entities properly
+            foreach (var entity in EntitySpawner.Entities.ToArray())
+            {
+                entity.IsVisible = IsWorldCoordinateOnViewPort(entity.WorldPosition.X, entity.WorldPosition.Y);
+                if (entity.IsVisible)
+                {
+                    entity.Position = WorldToScreenCoordinate(entity.WorldPosition.X, entity.WorldPosition.Y);
+                }
+            }
         }
 
         private void LoadEntities(object sender, ChunkUpdateArgs args)
