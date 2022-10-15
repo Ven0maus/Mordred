@@ -87,7 +87,7 @@ namespace Mordred.WorldGen
                 if (_chunkEntitiesLoaded.Contains((args.ChunkX, args.ChunkY))) return;
                 GenerateWildLife(args.ChunkX, args.ChunkY);
                 _chunkEntitiesLoaded.Add((args.ChunkX, args.ChunkY));
-            });
+            }).ConfigureAwait(false);
         }
 
         private void UnloadEntities(object sender, ChunkUpdateArgs args)
@@ -97,7 +97,7 @@ namespace Mordred.WorldGen
                 var chunkCellPositions = args.GetCellPositions().ToHashSet(new TupleComparer<int>());
                 EntitySpawner.DestroyAll<IEntity>(a => chunkCellPositions.Contains(a.WorldPosition));
                 _chunkEntitiesLoaded.Remove((args.ChunkX, args.ChunkY));
-            });
+            }).ConfigureAwait(false);
         }
 
         public void AddEffect(CellEffect effect)
