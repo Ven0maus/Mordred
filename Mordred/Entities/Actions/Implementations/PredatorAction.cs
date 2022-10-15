@@ -191,6 +191,45 @@ namespace Mordred.Entities.Actions.Implementations
             return false;
         }
 
+        public static bool PreyExistsNearby(PredatorAnimal predator)
+        {
+            // Find a body in the world that is dead but not rotten
+            var actors = EntitySpawner.Entities.OfType<Actor>();
+            var actor = actors
+                .Where(a => !a.Alive && !a.Rotting && !a.SkeletonDecaying)
+                .FirstOrDefault();
+            if (actor != null) return true;
+
+            // No body found?: then find the animal with lower or equal health than the predator
+            var predatorType = predator.GetType();
+            actor = actors
+                .Where(a => a.Alive && a is Animal && a.GetType() != predatorType)
+                .Where(a =>
+                {
+                    // Predator animals should not go after stronger predators
+                    if (a is PredatorAnimal && a.Health > predator.MaxHealth)
+                    {
+                        // Unless they are in a pack and have more numbers than the hunted
+                        if (predator is IPackAnimal hunterPa && hunterPa.PackMates.Count > 0)
+                        {
+                            if (a is IPackAnimal huntedPa && huntedPa.PackMates.Count >= hunterPa.PackMates.Count)
+                                return false;
+                            return true;
+                        }
+                        return false;
+                    }
+                    return true;
+                })
+                .FirstOrDefault();
+            if (actor != null) return true;
+
+            // No animal found?: find nearest human
+            actor = actors
+                .Where(a => a is Human)
+                .FirstOrDefault();
+            return actor != null;
+        }
+
         public Actor FindPreyTarget(PredatorAnimal predator)
         {
             // Find a body in the world that is dead but not rotten

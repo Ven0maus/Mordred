@@ -190,7 +190,7 @@ namespace Mordred.WorldGen
 
             if (!_worldInitialized) return;
 
-            foreach (var entity in EntitySpawner.Entities.Where(a => a is IEntity))
+            foreach (var entity in EntitySpawner.Entities.ToArray().Where(a => a is IEntity))
             {
                 var wEntity = entity as IEntity;
                 entity.IsVisible = IsWorldCoordinateOnViewPort(wEntity.WorldPosition.X, wEntity.WorldPosition.Y);

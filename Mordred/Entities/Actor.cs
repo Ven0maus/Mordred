@@ -316,15 +316,22 @@ namespace Mordred.Entities
 
                 if (Hunger <= (MaxHunger / 100 * 35) && !HasActionOfType<EatAction>() && !HasActionOfType<PredatorAction>())
                 {
-                    if (CurrentAction is WanderAction || CurrentAction is FollowPackLeaderAction)
-                        CurrentAction.Cancel();
                     if (this is PredatorAnimal predator)
                     {
-                        AddAction(new PredatorAction(predator.TimeBetweenAttacksInTicks), true);
-                        Debug.WriteLine("Added PredatorAction for: " + Name);
+                        if (PredatorAction.PreyExistsNearby(predator))
+                        {
+                            if (CurrentAction is WanderAction || CurrentAction is FollowPackLeaderAction)
+                                CurrentAction.Cancel();
+
+                            AddAction(new PredatorAction(predator.TimeBetweenAttacksInTicks), true);
+                            Debug.WriteLine("Added PredatorAction for: " + Name);
+                        }
                     }
                     else
                     {
+                        if (CurrentAction is WanderAction || CurrentAction is FollowPackLeaderAction)
+                            CurrentAction.Cancel();
+
                         AddAction(new EatAction(), true);
                     }
                 }
