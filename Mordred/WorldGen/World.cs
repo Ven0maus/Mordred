@@ -350,6 +350,7 @@ namespace Mordred.WorldGen
 
         public void HideObstructedCells()
         {
+            // Rework this to skip neighbors that go off the screen
             var viewPortWorldPositions = GetCells(GetViewPortWorldCoordinates());
             var cache = viewPortWorldPositions.ToDictionary(a => (a.X, a.Y));
             foreach (var cell in viewPortWorldPositions)
