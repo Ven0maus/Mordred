@@ -188,7 +188,7 @@ namespace Mordred.WorldGen
         public void GenerateWildLife()
         {
             var wildLifeCount = Game.Random.Next(Constants.WorldSettings.MinWildLife, Constants.WorldSettings.MaxWildLife + 1);
-            var spawnPositions = GetCellCoords(a => a.Walkable).ToList();
+            var spawnPositions = GetCellCoords(Width / 2, Height / 2, a => a.Walkable).ToList();
 
             // Get all classes that inherit from PassiveAnimal / PredatorAnimal
             var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
@@ -288,7 +288,7 @@ namespace Mordred.WorldGen
 
         public void GenerateVillages()
         {
-            var coords = GetCellCoords(a => a.Walkable).TakeRandom(2).ToList();
+            var coords = GetCellCoords(Width / 2, Height / 2, a => a.Walkable).TakeRandom(2).ToList();
             var village = new Village(coords.First(), 4, Color.Magenta);
             village.Initialize(this);
             _villages.Add(village);
@@ -316,14 +316,18 @@ namespace Mordred.WorldGen
             return GetCell(x, y).Walkable;
         }
 
-        public IEnumerable<Point> GetCellCoords(Func<WorldCell, bool> criteria)
+        public IEnumerable<Point> GetCellCoords(int startX, int startY, Func<WorldCell, bool> criteria)
         {
-            for (int y = 0; y < Height; y++)
+            var sX = startX - Width / 2;
+            var sY = startY - Height / 2;
+            var eX = sX + Width;
+            var eY = sY + Height;
+            for (int y = sY; y < eY; y++)
             {
-                for (int x = 0; x < Width; x++)
+                for (int x = sX; x < eX; x++)
                 {
                     if (criteria.Invoke(GetCell(x, y)))
-                        yield return new Point(x, y);
+                        yield return (x, y);
                 }
             }
         }

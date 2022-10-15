@@ -101,7 +101,7 @@ namespace Mordred.Entities
             // Perhaps keep limited arrayview per entity?
             path = null;
             if (!Alive) return false;
-            path = MapConsole.World.Pathfinder.ShortestPath(WorldPosition, new Point(x, y))?.ToCustomPath();
+            path = MapConsole.World.Pathfinder.ShortestPath(WorldPosition, (x, y))?.ToCustomPath();
             return path != null;
         }
 
@@ -127,7 +127,7 @@ namespace Mordred.Entities
         public bool MoveTowards(int x, int y)
         {
             if (!Alive) return false;
-            var movementPath = MapConsole.World.Pathfinder.ShortestPath(WorldPosition, new Point(x, y)).ToCustomPath();
+            var movementPath = MapConsole.World.Pathfinder.ShortestPath(WorldPosition, (x, y)).ToCustomPath();
             return MoveTowards(movementPath);
         }
 

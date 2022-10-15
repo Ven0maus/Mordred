@@ -35,7 +35,7 @@ namespace Mordred.Graphics.Consoles
         {
             World = new World(Width, Height);
             //World.GenerateVillages();
-            //World.GenerateWildLife();
+            World.GenerateWildLife();
             //World.HideObstructedCells();
 
             // Spawn player
@@ -48,7 +48,7 @@ namespace Mordred.Graphics.Consoles
         private void SpawnPlayer()
         {
             var centerPos = new Point(Width / 2, Height / 2);
-            var pos = World.GetCellCoords(a => a.Walkable).OrderBy(a => centerPos.SquaredDistance(a)).First();
+            var pos = World.GetCellCoords(Width / 2, Height / 2, a => a.Walkable).OrderBy(a => centerPos.SquaredDistance(a)).First();
             Player = new Player(pos, false)
             {
                 IsFocused = true

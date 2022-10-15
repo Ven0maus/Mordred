@@ -101,7 +101,7 @@ namespace Mordred.Entities.Actions.Implementations
                 validPath = true;
                 return true;
             }
-            else if (((Point)actor.WorldPosition).SquaredDistance(_defendee.CurrentAttacker.WorldPosition) < 2)
+            else if (actor.WorldPosition.SquaredDistance(_defendee.CurrentAttacker.WorldPosition) < 2)
             {
                 validPath = true;
                 return true;
