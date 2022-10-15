@@ -26,9 +26,24 @@ namespace Mordred.WorldGen
         ENTITIES
     }
 
+    public enum WorldTiles
+    {
+        Void = 0,
+        Grass = 1,
+        Tree = 2,
+        Mountain = 3,
+        Wall = 4,
+        House = 5,
+        BerryBush = 6,
+        Border = 7
+    }
+
     public class World : GridBase<int, WorldCell>
     {
-        public static readonly Dictionary<int, WorldCell[]> WorldCells = ConfigLoader.LoadWorldCells();
+        public static readonly Dictionary<int, WorldCell[]> TerrainCells = ConfigLoader.LoadWorldCells();
+        public static readonly Dictionary<int, WorldCell> WorldCells = TerrainCells
+            .SelectMany(a => a.Value)
+            .ToDictionary(a => a.CellType, a => a);
 
         public readonly FastAStar Pathfinder;
 
@@ -86,16 +101,24 @@ namespace Mordred.WorldGen
         protected override WorldCell Convert(int x, int y, int cellType)
         {
             // Get custom cell
-            var cell = GetRandomCellConfig(cellType, x, y);
+            var cell = GetCellConfig(cellType, x, y);
             if (cell == null) return base.Convert(x, y, cellType);
             cell.X = x;
             cell.Y = y;
             return cell;
         }
 
-        public static WorldCell GetRandomCellConfig(int type, int x, int y, bool clone = true, Random customRandom = null)
+        public static WorldCell GetCellConfig(int type, int x, int y, bool clone = true, Random customRandom = null)
         {
-            var cell = clone ? WorldCells[type].TakeRandom(customRandom).Clone() : WorldCells[type].TakeRandom(customRandom);
+            var cell = clone ? WorldCells[type].Clone() : WorldCells[type];
+            cell.X = x;
+            cell.Y = y;
+            return cell;
+        }
+
+        public static WorldCell GetRandomTerrainCell(int type, int x, int y, bool clone = true, Random customRandom = null)
+        {
+            var cell = clone ? TerrainCells[type].TakeRandom(customRandom).Clone() : TerrainCells[type].TakeRandom(customRandom);
             cell.X = x;
             cell.Y = y;
             return cell;
@@ -124,22 +147,22 @@ namespace Mordred.WorldGen
                 for (int x = 0; x < width; x++)
                 {
                     if (x == 0 || y == 0 || x == width - 1 || y == height - 1)
-                        chunk[y * width + x] = 8; // Border
+                        chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Border, x, y).CellType; // Border
                     else if (simplexNoise[y * width + x] >= 0.75f && simplexNoise[y * width + x] <= 1f)
                     {
                         // Mountains
-                        chunk[y * width + x] = 3;
+                        chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Mountain, x, y).CellType;
                     }
                     else
                     {
                         // Tree, berrybush or grass
                         int chance = random.Next(0, 100);
                         if (chance <= 1)
-                            chunk[y * width + x] = 7;
+                            chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.BerryBush, x, y).CellType;
                         else if (chance <= 7)
-                            chunk[y * width + x] = 2;
+                            chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Tree, x, y).CellType;
                         else
-                            chunk[y * width + x] = 1;
+                            chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Grass, x, y).CellType;
                     }
                 }
             }

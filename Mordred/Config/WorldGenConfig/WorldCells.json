@@ -56,7 +56,7 @@
       "layer": "objects"
     },
     {
-      "id": 6,
+      "id": 5,
       "glyph": "&",
       "additionalGlyphs": null,
       "name": "House",
@@ -67,7 +67,7 @@
       "layer": "objects"
     },
     {
-      "id": 7,
+      "id": 6,
       "glyph": "+",
       "additionalGlyphs": null,
       "name": "BerryBush",
@@ -78,7 +78,7 @@
       "layer": "objects"
     },
     {
-      "id": 8,
+      "id": 7,
       "glyph": "$",
       "additionalGlyphs": null,
       "name": "Border",

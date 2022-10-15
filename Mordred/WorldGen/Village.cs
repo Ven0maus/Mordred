@@ -72,7 +72,7 @@ namespace Mordred.WorldGen
             foreach (var housePosition in housePositions)
             {
                 HousePositions.Add(housePosition);
-                var cell = World.GetRandomCellConfig(6, housePosition.X, housePosition.Y);
+                var cell = World.GetCellConfig(6, housePosition.X, housePosition.Y);
                 cell.Foreground = Color;
                 world.SetCell(cell, true);
             }
