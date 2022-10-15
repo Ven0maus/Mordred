@@ -190,13 +190,12 @@ namespace Mordred.WorldGen
 
             if (!_worldInitialized) return;
 
-            foreach (var entity in EntitySpawner.Entities.ToArray().Where(a => a is IEntity))
+            foreach (var entity in EntitySpawner.Entities.ToArray())
             {
-                var wEntity = entity as IEntity;
-                entity.IsVisible = IsWorldCoordinateOnViewPort(wEntity.WorldPosition.X, wEntity.WorldPosition.Y);
+                entity.IsVisible = IsWorldCoordinateOnViewPort(entity.WorldPosition.X, entity.WorldPosition.Y);
                 if (entity.IsVisible)
                 {
-                    entity.Position = WorldToScreenCoordinate(wEntity.WorldPosition.X, wEntity.WorldPosition.Y);
+                    entity.Position = WorldToScreenCoordinate(entity.WorldPosition.X, entity.WorldPosition.Y);
                 }
             }
         }
