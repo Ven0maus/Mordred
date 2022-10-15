@@ -55,7 +55,7 @@ namespace Mordred.Entities.Actions.Implementations
 
             if (_gatherables == null)
             {
-                _gatherables = MapConsole.World.GetCellCoords(a => a.CellType == _cellsToGather[0]).ToList();
+                _gatherables = MapConsole.World.GetCellCoords(actor.WorldPosition.X, actor.WorldPosition.Y, a => a.CellType == _cellsToGather[0]).ToList();
             }
 
             // Update gatherables
@@ -65,7 +65,7 @@ namespace Mordred.Entities.Actions.Implementations
 
             var gatherable =  _gatherables
                 .Select(a => (Point?)a)
-                .OrderBy(a => a.Value.SquaredDistance(actor.Position))
+                .OrderBy(a => a.Value.SquaredDistance(actor.WorldPosition))
                 .FirstOrDefault(a => !IsGatherableAlreadyBeingGatheredByOtherActor(a.Value, actor));
 
             if (gatherable != null)
@@ -112,10 +112,8 @@ namespace Mordred.Entities.Actions.Implementations
             _currentItemsGathered = MapConsole.World.GetItemIdDropsByCellId(CurrentGatherable.Value);
             _currentCellGathered = MapConsole.World.GetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y).CellType;
 
-            // Replace gatherable by the underlying terrain
-            var terrainCell = MapConsole.World.GetTerrain(CurrentGatherable.Value.X, CurrentGatherable.Value.Y);
-            if (terrainCell != -1)
-                MapConsole.World.SetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y, terrainCell);
+            // Replace gatherable by grass
+            MapConsole.World.SetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y, 1);
 
             // Add x of the gatherable item to actor inventory
             foreach (var itemId in _currentItemsGathered)
@@ -142,7 +140,13 @@ namespace Mordred.Entities.Actions.Implementations
                         var dropRate = Inventory.ItemCache[itemId].GetDropRateForCellId(_currentCellGathered.Value);
                         if (dropRate == null) continue;
                         var item = actor.Inventory.Take(itemId, Game.Random.Next(dropRate.Min, dropRate.Max));
-                        item.Position = actor.Position;
+                        item.WorldPosition = actor.WorldPosition;
+                        item.IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(actor.WorldPosition.X, actor.WorldPosition.Y);
+                        if (item.IsVisible)
+                        {
+                            // TODO: Revisit -> when entering screen how do we make it visible again?
+                            item.Position = MapConsole.World.WorldToScreenCoordinate(actor.WorldPosition.X, actor.WorldPosition.Y);
+                        }
 
                         // Insert under the actor
                         mapConsole.Children.Insert(0, item);
@@ -155,8 +159,8 @@ namespace Mordred.Entities.Actions.Implementations
             if (_deliveringItem)
             {
                 var human = actor as Human;
-                if (human.Position == human.HousePosition ||
-                    !human.CanMoveTowards(human.HousePosition.X, human.HousePosition.Y, out CustomPath movPath) ||
+                if (human.WorldPosition == human.HousePosition ||
+                    !human.CanMoveTowards(human.HousePosition.X, human.HousePosition.Y, out PathFinding.CustomPath movPath) ||
                     !human.MoveTowards(movPath))
                 {
                     // Add gatherables to village resource collection
@@ -196,7 +200,7 @@ namespace Mordred.Entities.Actions.Implementations
             }
 
             // Check if the path towards the tree is valid
-            if (!actor.CanMoveTowards(CurrentGatherable.Value.X, CurrentGatherable.Value.Y, out CustomPath path))
+            if (!actor.CanMoveTowards(CurrentGatherable.Value.X, CurrentGatherable.Value.Y, out PathFinding.CustomPath path))
             {
                 CurrentGatherable = null;
                 if (_taskDone)
@@ -204,7 +208,7 @@ namespace Mordred.Entities.Actions.Implementations
                 return _taskDone;
             }
 
-            if (actor.Position == CurrentGatherable.Value || !actor.MoveTowards(path))
+            if (actor.WorldPosition == CurrentGatherable.Value || !actor.MoveTowards(path))
             {
                 if (GatherItem(actor))
                 {

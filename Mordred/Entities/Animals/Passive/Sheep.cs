@@ -26,7 +26,7 @@ namespace Mordred.Entities.Animals
         public Sheep(Point position, Gender gender) : base(Color.Plum, 'S', gender, 65)
         {
             PackMates = new List<Sheep>();
-            Position = position;
+            WorldPosition = position;
             HungerTickRate = 6;
         }
     }

@@ -36,14 +36,14 @@ namespace Mordred.Entities.Actions.Implementations
             human = actor as Human;
 
             // Go to the house that belongs to this human
-            if (!human.CanMoveTowards(human.HousePosition.X, human.HousePosition.Y, out CustomPath path))
+            if (!human.CanMoveTowards(human.HousePosition.X, human.HousePosition.Y, out PathFinding.CustomPath path))
             {
                 ActionCompleted?.Invoke(this, actor);
                 return true;
             }
 
             // Interact with tribe house
-            if (human.Position == human.HousePosition || !human.MoveTowards(path))
+            if (human.WorldPosition == human.HousePosition || !human.MoveTowards(path))
             {
                 if (_interaction == Interaction.Take)
                 {

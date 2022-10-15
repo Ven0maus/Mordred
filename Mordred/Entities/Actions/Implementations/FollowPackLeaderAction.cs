@@ -38,7 +38,7 @@ namespace Mordred.Entities.Actions.Implementations
             if (_positionCalculationCounter >= _recalculatePositionInAmountTicks)
             {
                 // Get a random coordinate within the leader's position 6 square radius
-                _randomCoordinate = ((Point)packLeader.Position).GetRandomCoordinateWithinSquareRadius(5);
+                _randomCoordinate = packLeader.WorldPosition.GetRandomCoordinateWithinSquareRadius(5);
                 while (!MapConsole.World.CellWalkable(_randomCoordinate.X, _randomCoordinate.Y))
                 {
                     if (_whileLoopLimiter >= _whileLoopLimit)
@@ -46,7 +46,7 @@ namespace Mordred.Entities.Actions.Implementations
                         Cancel();
                         return false;
                     }
-                    _randomCoordinate = ((Point)packLeader.Position).GetRandomCoordinateWithinSquareRadius(5);
+                    _randomCoordinate = packLeader.WorldPosition.GetRandomCoordinateWithinSquareRadius(5);
                     _whileLoopLimiter++;
                 }
             }
@@ -70,18 +70,18 @@ namespace Mordred.Entities.Actions.Implementations
 
         private bool MoveTowardsPackLeader(Actor actor, out bool validPath)
         {
-            if (!actor.CanMoveTowards(_randomCoordinate.X, _randomCoordinate.Y, out CustomPath path))
+            if (!actor.CanMoveTowards(_randomCoordinate.X, _randomCoordinate.Y, out PathFinding.CustomPath path))
             {
                 validPath = false;
                 return false;
             }
 
-            if (actor.Position == _randomCoordinate || !actor.MoveTowards(path))
+            if (actor.WorldPosition == _randomCoordinate || !actor.MoveTowards(path))
             {
                 validPath = true;
                 return true;
             }
-            else if (((Point)actor.Position).SquaredDistance(_randomCoordinate) < 2)
+            else if (actor.WorldPosition.SquaredDistance(_randomCoordinate) < 2)
             {
                 validPath = true;
                 return true;

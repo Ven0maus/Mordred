@@ -24,7 +24,7 @@ namespace Mordred.GameObjects.Effects
             }
 
             // Retrieve cell and store its state
-            _cell = MapConsole.World.GetCell(Position.X, Position.Y);
+            _cell = MapConsole.World.GetCell(WorldPosition.X, WorldPosition.Y);
             _originColorFg = _cell.Foreground;
             _originColorBg = _cell.Background;
             _startColor = Color.Lerp(Color.DarkRed, Color.Transparent, 0.15f);

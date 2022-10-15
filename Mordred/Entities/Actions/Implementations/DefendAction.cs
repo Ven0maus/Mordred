@@ -90,18 +90,18 @@ namespace Mordred.Entities.Actions.Implementations
 
         private bool MoveTowardsAttacker(Actor actor, out bool validPath)
         {
-            if (!actor.CanMoveTowards(_defendee.CurrentAttacker.Position.X, _defendee.CurrentAttacker.Position.Y, out CustomPath path))
+            if (!actor.CanMoveTowards(_defendee.CurrentAttacker.WorldPosition.X, _defendee.CurrentAttacker.WorldPosition.Y, out PathFinding.CustomPath path))
             {
                 validPath = false;
                 return false;
             }
 
-            if (actor.Position == _defendee.CurrentAttacker.Position || !actor.MoveTowards(path))
+            if (actor.WorldPosition == _defendee.CurrentAttacker.WorldPosition || !actor.MoveTowards(path))
             {
                 validPath = true;
                 return true;
             }
-            else if (((Point)actor.Position).SquaredDistance(_defendee.CurrentAttacker.Position) < 2)
+            else if (actor.WorldPosition.SquaredDistance(_defendee.CurrentAttacker.WorldPosition) < 2)
             {
                 validPath = true;
                 return true;

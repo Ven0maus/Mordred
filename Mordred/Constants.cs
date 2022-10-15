@@ -12,8 +12,10 @@
 
         public static class WorldSettings
         {
-            public const int MinWildLife = 15;
-            public const int MaxWildLife = 25;
+            public const int ChunkWidth = 100;
+            public const int ChunkHeight = 100;
+            public const int MinWildLife = 4;
+            public const int MaxWildLife = 10;
         }
 
         public static class ActorSettings
@@ -27,6 +29,8 @@
             public const float DefaultSecondsPerBleeding = 1.5f;
             public const int StopBleedingAfterSeconds = 15;
             public const int MaxPackSize = 4;
+            public const int PathingWidth = 50;
+            public const int PathingHeight = 25;
         }
 
         public static class ActionSettings

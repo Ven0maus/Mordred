@@ -9,6 +9,7 @@ namespace Mordred.WorldGen
     /// </summary>
     public class WorldCell : ColoredGlyph, ICell<int>
     {
+        public int TerrainId { get; set; }
         public int CellType { get; set; }
         /// <summary>
         /// Can entities walk on this cell
@@ -31,7 +32,7 @@ namespace Mordred.WorldGen
 
         public WorldCell() { }
 
-        public WorldCell(int cellId, Color foreground, Color background, string name, int glyph, int layer, bool walkable, bool transparent) : 
+        public WorldCell(int terrainId, int cellId, Color foreground, Color background, string name, int glyph, int layer, bool walkable, bool transparent) : 
             base(foreground, background, glyph)
         {
             CellType = cellId;

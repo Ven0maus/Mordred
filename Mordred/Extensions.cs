@@ -1,4 +1,5 @@
 ﻿using GoRogue.Pathing;
+using Mordred.Entities;
 using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
@@ -30,48 +31,53 @@ namespace Mordred
             return MathF.Sqrt((target.X - pos.X) * (target.X - pos.X) + (target.Y - pos.Y) * (target.Y - pos.Y));
         }
 
-        public static T TakeRandom<T>(this IList<T> enumerable)
+        public static T TakeRandom<T>(this IList<T> enumerable, Random customRandom = null)
         {
             if (enumerable.Count == 0) return default;
-            return enumerable[Game.Random.Next(0, enumerable.Count)];
+            var rand = customRandom ?? Game.Random;
+            return enumerable[rand.Next(0, enumerable.Count)];
         }
 
-        public static T TakeRandom<T>(this T[] enumerable)
+        public static T TakeRandom<T>(this T[] enumerable, Random customRandom = null)
         {
             if (enumerable.Length == 0) return default;
-            return enumerable[Game.Random.Next(0, enumerable.Length)];
+            var rand = customRandom ?? Game.Random;
+            return enumerable[rand.Next(0, enumerable.Length)];
         }
 
-        public static T TakeRandom<T>(this IEnumerable<T> enumerable)
+        public static T TakeRandom<T>(this IEnumerable<T> enumerable, Random customRandom = null)
         {
             int count = enumerable.Count();
             if (count == 0) return default;
-            return enumerable.ElementAt(Game.Random.Next(0, count));
+            var rand = customRandom ?? Game.Random;
+            return enumerable.ElementAt(rand.Next(0, count));
         }
 
-        public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> enumerable, int amount)
+        public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> enumerable, int amount, Random customRandom = null)
         {
             var total = amount;
             var newCollection = new List<T>(enumerable);
+            var rand = customRandom ?? Game.Random;
             while (newCollection.Count > 0 && total > 0)
             {
-                var value = newCollection[Game.Random.Next(0, newCollection.Count)];
+                var value = newCollection[rand.Next(0, newCollection.Count)];
                 newCollection.Remove(value);
                 total--;
                 yield return value;
             }
         }
 
-        public static Point GetRandomCoordinateWithinSquareRadius(this Point center, int squareSize, bool matchXLength = true)
+        public static Point GetRandomCoordinateWithinSquareRadius(this Point center, int squareSize, bool matchXLength = true, Random customRandom = null)
         {
             int halfSquareSize = squareSize / 2;
             int x;
-            int y = Game.Random.Next(center.Y - halfSquareSize, center.Y + halfSquareSize);
+            var rand = customRandom ?? Game.Random;
+            int y = rand.Next(center.Y - halfSquareSize, center.Y + halfSquareSize);
 
             if (matchXLength)
-                x = Game.Random.Next(center.X - squareSize, center.X + squareSize);
+                x = rand.Next(center.X - squareSize, center.X + squareSize);
             else
-                x = Game.Random.Next(center.X - halfSquareSize, center.X + halfSquareSize);
+                x = rand.Next(center.X - halfSquareSize, center.X + halfSquareSize);
 
             return new Point(x, y);
         } 
@@ -128,9 +134,9 @@ namespace Mordred
             }
         }
 
-        public static CustomPath ToCustomPath(this Path path)
+        public static PathFinding.CustomPath ToCustomPath(this Path path, PathFinding pathfinder)
         {
-            return new CustomPath(path);
+            return new PathFinding.CustomPath(pathfinder, path);
         }
     }
 
@@ -146,26 +152,6 @@ namespace Mordred
                 objects.Add(type);
             }
             return objects;
-        }
-    }
-
-    public sealed class CustomPath : Path
-    {
-        private readonly List<Point> _coords = new List<Point>();
-        public CustomPath(Path path) : base(path) 
-        {
-            var length = path.Length;
-            for (int i=0; i < length; i++)
-            {
-                _coords.Add(GetStep(i));
-            }
-        }
-
-        public Point TakeStep(int step)
-        {
-            var value = _coords[step];
-            _coords.RemoveAt(step);
-            return value;
         }
     }
 }

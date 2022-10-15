@@ -14,7 +14,7 @@ namespace Mordred.WorldGen
         /// <summary>
         /// The center position of the village.
         /// </summary>
-        public readonly Point Position;
+        public readonly Point WorldPosition;
         /// <summary>
         /// The radius the village spans.
         /// </summary>
@@ -33,7 +33,7 @@ namespace Mordred.WorldGen
 
         public Village(Point position, int radius, Color color)
         {
-            Position = position;
+            WorldPosition = position;
             Color = color;
             Radius = radius;
 
@@ -59,9 +59,8 @@ namespace Mordred.WorldGen
         private void Build(World world, int starterHouses)
         {
             // Clear out the village zone, make it all grass
-            var positions = Position
+            var positions = WorldPosition
                 .GetCirclePositions(Radius)
-                .Where(a => MapConsole.World.InBounds(a.X, a.Y))
                 .ToList();
             foreach  (var pos in positions)
             {
@@ -73,7 +72,7 @@ namespace Mordred.WorldGen
             foreach (var housePosition in housePositions)
             {
                 HousePositions.Add(housePosition);
-                var cell = World.GetRandomCellConfig(6, housePosition.X, housePosition.Y);
+                var cell = World.GetRandomTerrainCell(6, housePosition.X, housePosition.Y);
                 cell.Foreground = Color;
                 world.SetCell(cell, true);
             }
@@ -99,7 +98,7 @@ namespace Mordred.WorldGen
             if (_villageAreaCache == null)
             {
                 _villageAreaCache = MapConsole.World.Villages.Where(a => a != this)
-                .SelectMany(a => a.Position
+                .SelectMany(a => a.WorldPosition
                     .GetCirclePositions(Radius)
                     .Where(a => MapConsole.World.InBounds(a.X, a.Y)))
                     .ToArray();

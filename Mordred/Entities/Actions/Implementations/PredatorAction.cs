@@ -171,18 +171,18 @@ namespace Mordred.Entities.Actions.Implementations
 
         private bool MoveTowardsPrey(PredatorAnimal predator, out bool validPath)
         {
-            if (!predator.CanMoveTowards(_currentPrey.Position.X, _currentPrey.Position.Y, out CustomPath path))
+            if (!predator.CanMoveTowards(_currentPrey.WorldPosition.X, _currentPrey.WorldPosition.Y, out PathFinding.CustomPath path))
             {
                 validPath = false;
                 return false;
             }
 
-            if (predator.Position.SquaredDistance(_currentPrey.Position) < 2)
+            if (predator.WorldPosition.SquaredDistance(_currentPrey.WorldPosition) < 2)
             {
                 validPath = true;
                 return true;
             }
-            else if (predator.Position == _currentPrey.Position || !predator.MoveTowards(path))
+            else if (predator.WorldPosition == _currentPrey.WorldPosition || !predator.MoveTowards(path))
             {
                 validPath = true;
                 return true;
@@ -197,8 +197,8 @@ namespace Mordred.Entities.Actions.Implementations
             var actors = EntitySpawner.Entities.OfType<Actor>();
             var actor = actors
                 .Where(a => !a.Alive && !a.Rotting && !a.SkeletonDecaying && !_badPrey.Contains(a))
-                .OrderBy(a => a.Position
-                    .SquaredDistance(predator.Position))
+                .OrderBy(a => a.WorldPosition
+                    .SquaredDistance(predator.WorldPosition))
                 .FirstOrDefault();
             if (actor != null) return actor;
 
@@ -223,16 +223,16 @@ namespace Mordred.Entities.Actions.Implementations
                     return true;
                 })
                 .Where(a => !_badPrey.Contains(a))
-                .OrderBy(a => a.Position
-                    .SquaredDistance(predator.Position))
+                .OrderBy(a => a.WorldPosition
+                    .SquaredDistance(predator.WorldPosition))
                 .FirstOrDefault();
             if (actor != null) return actor;
 
             // No animal found?: find nearest human
             actor = actors
                 .Where(a => a is Human)
-                .OrderBy(a => a.Position
-                    .SquaredDistance(predator.Position))
+                .OrderBy(a => a.WorldPosition
+                    .SquaredDistance(predator.WorldPosition))
                 .FirstOrDefault();
             return actor;
         }

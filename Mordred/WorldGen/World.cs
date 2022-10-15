@@ -5,13 +5,16 @@ using Mordred.Entities.Animals;
 using Mordred.GameObjects.Effects;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
+using SadConsole.Entities;
 using SadRogue.Primitives;
 using SadRogue.Primitives.GridViews;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Venomaus.FlowVitae.Basics;
-using Venomaus.FlowVitae.Grids;
+using Venomaus.FlowVitae.Basics.Chunking;
+using Venomaus.FlowVitae.Basics.Procedural;
+using Venomaus.FlowVitae.Helpers;
 
 namespace Mordred.WorldGen
 {
@@ -23,11 +26,26 @@ namespace Mordred.WorldGen
         ENTITIES
     }
 
+    public enum WorldTiles
+    {
+        Void = 0,
+        Grass = 1,
+        Tree = 2,
+        Mountain = 3,
+        Wall = 4,
+        House = 5,
+        BerryBush = 6,
+        Border = 7
+    }
+
     public class World : GridBase<int, WorldCell>
     {
-        public static readonly Dictionary<int, WorldCell[]> WorldCells = ConfigLoader.LoadWorldCells();
+        public static readonly Dictionary<int, WorldCell[]> TerrainCells = ConfigLoader.LoadWorldCells();
+        public static readonly Dictionary<int, WorldCell> WorldCells = TerrainCells
+            .SelectMany(a => a.Value)
+            .ToDictionary(a => a.CellType, a => a);
 
-        public readonly FastAStar Pathfinder;
+
 
         private readonly MapConsole MapConsole;
         private readonly List<Village> _villages;
@@ -38,27 +56,40 @@ namespace Mordred.WorldGen
             get { return _villages; }
         }
 
-        /// <summary>
-        /// The actual terrain values, which objects can overlap
-        /// </summary>
-        protected readonly Grid<int, WorldCell> Terrain;
-        protected readonly ArrayView<bool> Walkability;
+        private readonly bool _worldInitialized = false;
 
-        public World(int width, int height) : base(width, height)
+        public World(int width, int height) : base(width, height, 
+            Constants.WorldSettings.ChunkWidth, Constants.WorldSettings.ChunkHeight, new ProceduralGenerator<int, WorldCell>(1000, GenerateLands))
         {
             // Get map console reference
             MapConsole = Game.Container.GetConsole<MapConsole>();
             OnCellUpdate += MapConsole.OnCellUpdate;
+            OnChunkUnload += UnloadEntities;
+            OnChunkLoad += LoadEntities;
             RaiseOnlyOnCellTypeChange = false;
 
             // Initialize the arrays
             _villages = new List<Village>(Constants.VillageSettings.MaxVillages);
             _cellEffects = new List<CellEffect>();
-            Terrain = new Grid<int, WorldCell>(width, height);
-            Walkability = new ArrayView<bool>(Width, Height);
-            Pathfinder = new FastAStar(Walkability, Distance.Manhattan);
 
             Game.GameTick += HandleEffects;
+            _worldInitialized = true;
+        }
+
+        private readonly HashSet<Point> _chunkEntitiesLoaded = new HashSet<Point>();
+
+        private void LoadEntities(object sender, ChunkUpdateArgs args)
+        {
+            if (_chunkEntitiesLoaded.Contains((args.ChunkX, args.ChunkY))) return;
+            GenerateWildLife(args.ChunkX, args.ChunkY);
+            _chunkEntitiesLoaded.Add((args.ChunkX, args.ChunkY));
+        }
+
+        private void UnloadEntities(object sender, ChunkUpdateArgs args)
+        {
+            var chunkCellPositions = args.GetCellPositions().ToHashSet(new TupleComparer<int>());
+            EntitySpawner.DestroyAll<IEntity>(a => chunkCellPositions.Contains(a.WorldPosition));
+            _chunkEntitiesLoaded.Remove((args.ChunkX, args.ChunkY));
         }
 
         public void AddEffect(CellEffect effect)
@@ -70,7 +101,7 @@ namespace Mordred.WorldGen
         public IEnumerable<CellEffect> GetCellEffects(int x, int y)
         {
             var pos = new Point(x, y);
-            return _cellEffects.Where(a => a.Position == pos);
+            return _cellEffects.Where(a => a.WorldPosition == pos);
         }
 
         private void HandleEffects(object sender, EventArgs args)
@@ -85,69 +116,96 @@ namespace Mordred.WorldGen
         protected override WorldCell Convert(int x, int y, int cellType)
         {
             // Get custom cell
-            var cell = GetRandomCellConfig(cellType, x, y);
+            var cell = GetCellConfig(cellType, x, y);
             if (cell == null) return base.Convert(x, y, cellType);
             cell.X = x;
             cell.Y = y;
             return cell;
         }
 
-        public static WorldCell GetRandomCellConfig(int type, int x, int y, bool clone = true)
+        public static WorldCell GetCellConfig(int type, int x, int y, bool clone = true, Random customRandom = null)
         {
-            var cell = clone ? WorldCells[type].TakeRandom().Clone() : WorldCells[type].TakeRandom();
+            var cell = clone ? WorldCells[type].Clone() : WorldCells[type];
             cell.X = x;
             cell.Y = y;
             return cell;
         }
 
-        public void GenerateLands()
+        public static WorldCell GetRandomTerrainCell(int type, int x, int y, bool clone = true, Random customRandom = null)
+        {
+            var cell = clone ? TerrainCells[type].TakeRandom(customRandom).Clone() : TerrainCells[type].TakeRandom(customRandom);
+            cell.X = x;
+            cell.Y = y;
+            return cell;
+        }
+
+        public static void GenerateLands(Random random, int[] chunk, int width, int height)
         {
             // Idk, need to rework..
-            var simplex1 = new OpenSimplex2F(Game.Random.Next(-500000, 500000));
-            var simplexNoise = new double[Width * Height];
-            for (int y=0; y < Height; y++)
+            var simplex1 = new OpenSimplex2F(random.Next(-500000, 500000));
+            var simplexNoise = new double[width * height];
+            for (int y=0; y < height; y++)
             {
-                for (int x = 0; x < Width; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    double nx = (double)x / Width - 0.5d;
-                    double ny = (double)y / Height - 0.5d;
-                    simplexNoise[y * Width + x] = simplex1.Noise2(nx, ny);
+                    double nx = (double)x / width - 0.5d;
+                    double ny = (double)y / height - 0.5d;
+                    simplexNoise[y * width + x] = simplex1.Noise2(nx, ny);
                 }
             }
 
             // Normalize
             simplexNoise = OpenSimplex2F.Normalize(simplexNoise);
 
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < Width; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    if (simplexNoise[y * Width + x] >= 0.75f && simplexNoise[y * Width + x] <= 1f)
+                    if (x == 0 || y == 0 || x == width - 1 || y == height - 1)
+                        chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Border, x, y).CellType; // Border
+                    else if (simplexNoise[y * width + x] >= 0.75f && simplexNoise[y * width + x] <= 1f)
                     {
                         // Mountains
-                        SetCell(x, y, 3);
-                        Terrain.SetCell(x, y, 3);
+                        chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Mountain, x, y).CellType;
                     }
                     else
                     {
                         // Tree, berrybush or grass
-                        int chance = Game.Random.Next(0, 100);
+                        int chance = random.Next(0, 100);
                         if (chance <= 1)
-                            SetCell(x, y, 7);
+                            chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.BerryBush, x, y).CellType;
                         else if (chance <= 7)
-                            SetCell(x, y, 2);
+                            chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Tree, x, y).CellType;
                         else
-                            SetCell(x, y, 1);
-                        Terrain.SetCell(x, y, 1);
+                            chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Grass, x, y).CellType;
                     }
                 }
             }
         }
 
-        public void GenerateWildLife()
+        public override void Center(int x, int y)
         {
-            var wildLifeCount = Game.Random.Next(Constants.WorldSettings.MinWildLife, Constants.WorldSettings.MaxWildLife + 1);
-            var spawnPositions = GetCellCoords(a => a.Walkable).ToList();
+            base.Center(x, y);
+
+            if (!_worldInitialized) return;
+
+            foreach (var entity in EntitySpawner.Entities.Where(a => a is IEntity))
+            {
+                var wEntity = entity as IEntity;
+                entity.IsVisible = IsWorldCoordinateOnViewPort(wEntity.WorldPosition.X, wEntity.WorldPosition.Y);
+                if (entity.IsVisible)
+                {
+                    entity.Position = WorldToScreenCoordinate(wEntity.WorldPosition.X, wEntity.WorldPosition.Y);
+                }
+            }
+        }
+
+        public void GenerateWildLife(int chunkX, int chunkY)
+        {
+            var random = new Random(GetChunkSeed(chunkX, chunkY));
+            var wildLifeCount = random.Next(Constants.WorldSettings.MinWildLife, Constants.WorldSettings.MaxWildLife + 1);
+            var (x, y) = (chunkX + Constants.WorldSettings.ChunkWidth / 2, chunkY + Constants.WorldSettings.ChunkHeight / 2);
+            var spawnPositions = GetCellCoords(x, y, a => a.Walkable).ToList();
 
             // Get all classes that inherit from PassiveAnimal / PredatorAnimal
             var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
@@ -160,10 +218,10 @@ namespace Mordred.WorldGen
             // Automatic selection of all predators
             for (int i = 0; i < predators; i++)
             {
-                var animal = predatorAnimals.TakeRandom();
-                var pos = spawnPositions.TakeRandom();
+                var animal = predatorAnimals.TakeRandom(random);
+                var pos = spawnPositions.TakeRandom(random);
                 spawnPositions.Remove(pos);
-                var entity = EntitySpawner.Spawn(animal, pos, Game.Random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
+                var entity = EntitySpawner.Spawn(animal, pos, random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
 
                 if (typeof(IPackAnimal).IsAssignableFrom(animal))
                 {
@@ -180,10 +238,10 @@ namespace Mordred.WorldGen
             // Automatic selection of passive animals
             for (int i=0; i < nonPredators; i++)
             {
-                var animal = passiveAnimals.TakeRandom();
-                var pos = spawnPositions.TakeRandom();
+                var animal = passiveAnimals.TakeRandom(random);
+                var pos = spawnPositions.TakeRandom(random);
                 spawnPositions.Remove(pos);
-                var entity = EntitySpawner.Spawn(animal, pos, Game.Random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
+                var entity = EntitySpawner.Spawn(animal, pos, random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
 
                 if (typeof(IPackAnimal).IsAssignableFrom(animal))
                 {
@@ -204,8 +262,8 @@ namespace Mordred.WorldGen
                 for (int i = 0; i < splits; i++)
                 {
                     var animals = type.Value.Take(Constants.ActorSettings.MaxPackSize).ToList();
-                    var leader = animals.TakeRandom();
-                    var centerPoint = leader.Position;
+                    var leader = animals.TakeRandom(random);
+                    var centerPoint = leader.WorldPosition;
                     foreach (var animal in animals)
                     {
                         var list = animal.PackMates ?? new List<IPackAnimal>();
@@ -220,28 +278,34 @@ namespace Mordred.WorldGen
 
                         int whileLoopLimiter = 0;
 
-                        var newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5);
+                        var newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5, customRandom: random);
                         while (!MapConsole.World.CellWalkable(newPos.X, newPos.Y))
                         {
                             if (whileLoopLimiter >= whileLoopLimit)
                             {
-                                newPos = spawnPositions.TakeRandom();
+                                newPos = spawnPositions.TakeRandom(random);
                                 break;
                             }
-                            newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5);
+                            newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5, customRandom: random);
                             whileLoopLimiter++;
                         }
 
-                        animal.Position = newPos;
+                        var entity = ((Entity)animal);
+                        var wEntity = entity as IEntity;
+                        wEntity.WorldPosition = newPos;
+                        entity.IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(newPos.X, newPos.Y);
+                        if (entity.IsVisible)
+                        {
+                            animal.Position = MapConsole.World.WorldToScreenCoordinate(newPos.X, newPos.Y);
+                        }
                     }
-                    
                 }
             }
         }
 
         public void GenerateVillages()
         {
-            var coords = GetCellCoords(a => a.Walkable).TakeRandom(2).ToList();
+            var coords = GetCellCoords(Width / 2, Height / 2, a => a.Walkable).TakeRandom(2).ToList();
             var village = new Village(coords.First(), 4, Color.Magenta);
             village.Initialize(this);
             _villages.Add(village);
@@ -249,18 +313,6 @@ namespace Mordred.WorldGen
             village = new Village(coords.Last(), 4, Color.Orange);
             village.Initialize(this);
             _villages.Add(village);
-        }
-
-        /// <summary>
-        /// The underlying terrain of a cell
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        public int GetTerrain(int x, int y)
-        {
-            if (!InBounds(x, y)) return -1;
-            return Terrain.GetCellType(x, y);
         }
 
         /// <summary>
@@ -278,18 +330,22 @@ namespace Mordred.WorldGen
 
         public bool CellWalkable(int x, int y)
         {
-            if (!InBounds(x, y)) return false;
             return GetCell(x, y).Walkable;
         }
 
-        public IEnumerable<Point> GetCellCoords(Func<WorldCell, bool> criteria)
+        public IEnumerable<Point> GetCellCoords(int startX, int startY, Func<WorldCell, bool> criteria)
         {
-            for (int y = 0; y < Height; y++)
+            var sX = startX - Constants.WorldSettings.ChunkWidth / 2;
+            var sY = startY - Constants.WorldSettings.ChunkHeight / 2;
+            var eX = sX + Constants.WorldSettings.ChunkWidth;
+            var eY = sY + Constants.WorldSettings.ChunkHeight;
+            for (int y = sY; y < eY; y++)
             {
-                for (int x = 0; x < Width; x++)
+                for (int x = sX; x < eX; x++)
                 {
+                    if (!IsChunkLoaded(x, y)) continue;
                     if (criteria.Invoke(GetCell(x, y)))
-                        yield return new Point(x, y);
+                        yield return (x, y);
                 }
             }
         }
@@ -308,38 +364,45 @@ namespace Mordred.WorldGen
             return items;
         }
 
-        public override void SetCell(WorldCell cell, bool storeState = false)
-        {
-            if (!InBounds(cell.X, cell.Y)) return;
-            Walkability[cell.Y * Width + cell.X] = cell.Walkable;
-            base.SetCell(cell, storeState);
-        }
-
         public IEnumerable<WorldCell> GetCells(IEnumerable<Point> points)
         {
             return base.GetCells(points.Select(a => (a.X, a.Y)));
         }
 
+        public IEnumerable<(int x, int y)> GetViewPortWorldCoordinates()
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    yield return ScreenToWorldCoordinate(x, y);
+                }
+            }
+        }
+
         public void HideObstructedCells()
         {
-            for (int y = 0; y < Height; y++)
+            // Rework this to skip neighbors that go off the screen
+            var viewPortWorldPositions = GetCells(GetViewPortWorldCoordinates());
+            var cache = viewPortWorldPositions.ToDictionary(a => (a.X, a.Y));
+            foreach (var cell in viewPortWorldPositions)
             {
-                for (int x = 0; x < Width; x++)
+                var neighborPositions = new Point(cell.X, cell.Y).Get4Neighbors();
+                var neighbors = neighborPositions.Select(a =>
                 {
-                    var cells = GetCells(new Point(x, y)
-                        .Get4Neighbors()
-                        .Where(a => InBounds(a.X, a.Y)));
-                    var cell = GetCell(x, y);
-                    if (cells.All(a => !a.Transparent))
-                    {
-                        cell.IsVisible = false;
-                        SetCell(cell);
-                    }
-                    else
-                    {
-                        cell.IsVisible = true;
-                        SetCell(cell);
-                    }
+                    if (!cache.TryGetValue(a, out WorldCell neighborCell))
+                        cache.Add(a, GetCell(a.X, a.Y));
+                    return neighborCell ?? cache[a];
+                });
+                if (neighbors.All(a => !a.Transparent) && cell.CellType != 8)
+                {
+                    cell.IsVisible = false;
+                    SetCell(cell);
+                }
+                else
+                {
+                    cell.IsVisible = true;
+                    SetCell(cell);
                 }
             }
         }

@@ -60,7 +60,7 @@ namespace Mordred.Entities.Actions.Implementations
             }
 
             // TODO: Add action to gather edibles if house doesn't contain edibles
-            var closestEdible = GetEdibleCells().OrderBy(a => a.Value.Key.SquaredDistance(actor.Position)).FirstOrDefault();
+            var closestEdible = GetEdibleCells(actor).OrderBy(a => a.Value.Key.SquaredDistance(actor.WorldPosition)).FirstOrDefault();
             if (closestEdible != null)
             {
                 actor.AddAction(new GatheringAction(new Point[] { closestEdible.Value.Key }));
@@ -77,7 +77,7 @@ namespace Mordred.Entities.Actions.Implementations
             return true;
         }
 
-        private List<KeyValuePair<Point, int>?> GetEdibleCells()
+        private List<KeyValuePair<Point, int>?> GetEdibleCells(Actor actor)
         {
             var cellIds = Inventory.ItemCache.Where(a => a.Value is EdibleItem edible && edible.DroppedBy != null)
                 .Select(a => new { a.Value, EdibleId = a.Value.Id })
@@ -86,7 +86,7 @@ namespace Mordred.Entities.Actions.Implementations
             
             foreach (var id in cellIds)
             {
-                var coords = MapConsole.World.GetCellCoords(a => id.Value.IsDroppedBy(a.CellType));
+                var coords = MapConsole.World.GetCellCoords(actor.WorldPosition.X, actor.WorldPosition.Y, a => id.Value.IsDroppedBy(a.CellType));
                 kvps.AddRange(coords.Select(a => new KeyValuePair<Point, int>?(new KeyValuePair<Point, int>(a, id.EdibleId))));
             }
             return kvps;

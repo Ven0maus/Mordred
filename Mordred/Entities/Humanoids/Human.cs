@@ -33,6 +33,7 @@ namespace Mordred.Entities.Tribals
         {
             HousePosition = housePosition;
             Position = actorPosition;
+            IsVisible = IsOnScreen(actorPosition);
             Village = village;
             CurrentState = State.Idle;
 
