@@ -83,7 +83,6 @@ namespace Mordred.WorldGen
 
         private void LoadEntities(object sender, ChunkUpdateArgs args)
         {
-            // TODO: Load initial chunk entities
             if (_chunkEntitiesLoaded.Contains((args.ChunkX, args.ChunkY))) return;
             GenerateWildLife(args.ChunkX, args.ChunkY);
             _chunkEntitiesLoaded.Add((args.ChunkX, args.ChunkY));
