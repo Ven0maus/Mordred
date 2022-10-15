@@ -35,7 +35,6 @@ namespace Mordred.Graphics.Consoles
         {
             World = new World(Width, Height);
             //World.GenerateVillages();
-            World.GenerateWildLife();
             //World.HideObstructedCells();
 
             // Spawn player

@@ -65,6 +65,7 @@ namespace Mordred.WorldGen
             MapConsole = Game.Container.GetConsole<MapConsole>();
             OnCellUpdate += MapConsole.OnCellUpdate;
             OnChunkUnload += UnloadEntities;
+            OnChunkLoad += LoadEntities;
             RaiseOnlyOnCellTypeChange = false;
 
             // Initialize the arrays
@@ -75,10 +76,20 @@ namespace Mordred.WorldGen
             _worldInitialized = true;
         }
 
+        private readonly HashSet<Point> _chunkEntitiesLoaded = new HashSet<Point>();
+
+        private void LoadEntities(object sender, ChunkUpdateArgs args)
+        {
+            if (_chunkEntitiesLoaded.Contains((args.ChunkX, args.ChunkY))) return;
+            GenerateWildLife(args.ChunkX, args.ChunkY);
+            _chunkEntitiesLoaded.Add((args.ChunkX, args.ChunkY));
+        }
+
         private void UnloadEntities(object sender, ChunkUpdateArgs args)
         {
             var chunkCellPositions = args.GetCellPositions().ToHashSet(new TupleComparer<int>());
             EntitySpawner.DestroyAll<IEntity>(a => chunkCellPositions.Contains(a.WorldPosition));
+            _chunkEntitiesLoaded.Remove((args.ChunkX, args.ChunkY));
         }
 
         public void AddEffect(CellEffect effect)
@@ -189,10 +200,12 @@ namespace Mordred.WorldGen
             }
         }
 
-        public void GenerateWildLife()
+        public void GenerateWildLife(int chunkX, int chunkY)
         {
-            var wildLifeCount = Game.Random.Next(Constants.WorldSettings.MinWildLife, Constants.WorldSettings.MaxWildLife + 1);
-            var spawnPositions = GetCellCoords(Width / 2, Height / 2, a => a.Walkable).ToList();
+            var random = new Random(GetChunkSeed(chunkX, chunkY));
+            var wildLifeCount = random.Next(Constants.WorldSettings.MinWildLife, Constants.WorldSettings.MaxWildLife + 1);
+            var (x, y) = (chunkX + Constants.WorldSettings.ChunkWidth / 2, chunkY + Constants.WorldSettings.ChunkHeight / 2);
+            var spawnPositions = GetCellCoords(x, y, a => a.Walkable).ToList();
 
             // Get all classes that inherit from PassiveAnimal / PredatorAnimal
             var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
@@ -205,10 +218,10 @@ namespace Mordred.WorldGen
             // Automatic selection of all predators
             for (int i = 0; i < predators; i++)
             {
-                var animal = predatorAnimals.TakeRandom();
-                var pos = spawnPositions.TakeRandom();
+                var animal = predatorAnimals.TakeRandom(random);
+                var pos = spawnPositions.TakeRandom(random);
                 spawnPositions.Remove(pos);
-                var entity = EntitySpawner.Spawn(animal, pos, Game.Random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
+                var entity = EntitySpawner.Spawn(animal, pos, random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
 
                 if (typeof(IPackAnimal).IsAssignableFrom(animal))
                 {
@@ -225,10 +238,10 @@ namespace Mordred.WorldGen
             // Automatic selection of passive animals
             for (int i=0; i < nonPredators; i++)
             {
-                var animal = passiveAnimals.TakeRandom();
-                var pos = spawnPositions.TakeRandom();
+                var animal = passiveAnimals.TakeRandom(random);
+                var pos = spawnPositions.TakeRandom(random);
                 spawnPositions.Remove(pos);
-                var entity = EntitySpawner.Spawn(animal, pos, Game.Random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
+                var entity = EntitySpawner.Spawn(animal, pos, random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
 
                 if (typeof(IPackAnimal).IsAssignableFrom(animal))
                 {
@@ -249,7 +262,7 @@ namespace Mordred.WorldGen
                 for (int i = 0; i < splits; i++)
                 {
                     var animals = type.Value.Take(Constants.ActorSettings.MaxPackSize).ToList();
-                    var leader = animals.TakeRandom();
+                    var leader = animals.TakeRandom(random);
                     var centerPoint = leader.WorldPosition;
                     foreach (var animal in animals)
                     {
@@ -265,15 +278,15 @@ namespace Mordred.WorldGen
 
                         int whileLoopLimiter = 0;
 
-                        var newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5);
+                        var newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5, customRandom: random);
                         while (!MapConsole.World.CellWalkable(newPos.X, newPos.Y))
                         {
                             if (whileLoopLimiter >= whileLoopLimit)
                             {
-                                newPos = spawnPositions.TakeRandom();
+                                newPos = spawnPositions.TakeRandom(random);
                                 break;
                             }
-                            newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5);
+                            newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5, customRandom: random);
                             whileLoopLimiter++;
                         }
 
@@ -322,10 +335,10 @@ namespace Mordred.WorldGen
 
         public IEnumerable<Point> GetCellCoords(int startX, int startY, Func<WorldCell, bool> criteria)
         {
-            var sX = startX - Width / 2;
-            var sY = startY - Height / 2;
-            var eX = sX + Width;
-            var eY = sY + Height;
+            var sX = startX - Constants.WorldSettings.ChunkWidth / 2;
+            var sY = startY - Constants.WorldSettings.ChunkHeight / 2;
+            var eX = sX + Constants.WorldSettings.ChunkWidth;
+            var eY = sY + Constants.WorldSettings.ChunkHeight;
             for (int y = sY; y < eY; y++)
             {
                 for (int x = sX; x < eX; x++)

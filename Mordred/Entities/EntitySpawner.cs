@@ -13,6 +13,7 @@ namespace Mordred.Entities
         public static T Spawn<T>(params object[] args) where T : Entity, IEntity
         {
             var entity = (T)Activator.CreateInstance(typeof(T), args);
+            while (MapConsole.Instance.Children.IsLocked) { }
             MapConsole.Instance.Children.Add(entity);
             Entities.Add(entity);
             MapConsole.Instance.EntityRenderer.Add(entity);
@@ -23,6 +24,7 @@ namespace Mordred.Entities
         {
             if (entity != typeof(Entity) && !entity.IsSubclassOf(typeof(Entity))) return null;
             var entityObj = (Entity)Activator.CreateInstance(entity, args);
+            while (MapConsole.Instance.Children.IsLocked) { }
             MapConsole.Instance.Children.Add(entityObj);
             Entities.Add((IEntity)entityObj);
             MapConsole.Instance.EntityRenderer.Add(entityObj);
@@ -31,6 +33,7 @@ namespace Mordred.Entities
 
         public static void Spawn(IEntity entity)
         {
+            while (MapConsole.Instance.Children.IsLocked) { }
             MapConsole.Instance.Children.Add((Entity)entity);
             Entities.Add(entity);
             MapConsole.Instance.EntityRenderer.Add((Entity)entity);
@@ -40,6 +43,7 @@ namespace Mordred.Entities
         {
             Entities.Remove(entity);
             MapConsole.Instance.EntityRenderer.Remove((Entity)entity);
+            while (MapConsole.Instance.Children.IsLocked) { }
             MapConsole.Instance.Children.Remove((Entity)entity);
         }
 
