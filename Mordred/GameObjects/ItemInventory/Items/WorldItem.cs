@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Mordred.GameObjects.ItemInventory.Items
 {
-    public class WorldItem : Entity, IWorldEntity
+    public class WorldItem : Entity, IEntity
     {
         public int Id { get; private set; }
 

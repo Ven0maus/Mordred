@@ -14,7 +14,7 @@ using System.Linq;
 using Venomaus.FlowVitae.Basics;
 using Venomaus.FlowVitae.Basics.Chunking;
 using Venomaus.FlowVitae.Basics.Procedural;
-using Venomaus.FlowVitae.Grids;
+using Venomaus.FlowVitae.Helpers;
 
 namespace Mordred.WorldGen
 {
@@ -65,6 +65,7 @@ namespace Mordred.WorldGen
             // Get map console reference
             MapConsole = Game.Container.GetConsole<MapConsole>();
             OnCellUpdate += MapConsole.OnCellUpdate;
+            OnChunkUnload += UnloadEntities;
             RaiseOnlyOnCellTypeChange = false;
 
             // Initialize the arrays
@@ -75,6 +76,12 @@ namespace Mordred.WorldGen
 
             Game.GameTick += HandleEffects;
             _worldInitialized = true;
+        }
+
+        private void UnloadEntities(object sender, ChunkUpdateArgs args)
+        {
+            var chunkCellPositions = args.GetCellPositions().ToHashSet(new TupleComparer<int>());
+            EntitySpawner.DestroyAll<IEntity>(a => chunkCellPositions.Contains(a.WorldPosition));
         }
 
         public void AddEffect(CellEffect effect)
@@ -174,9 +181,9 @@ namespace Mordred.WorldGen
 
             if (!_worldInitialized) return;
 
-            foreach (var entity in EntitySpawner.Entities.Where(a => a is IWorldEntity))
+            foreach (var entity in EntitySpawner.Entities.Where(a => a is IEntity))
             {
-                var wEntity = entity as IWorldEntity;
+                var wEntity = entity as IEntity;
                 entity.IsVisible = IsWorldCoordinateOnViewPort(wEntity.WorldPosition.X, wEntity.WorldPosition.Y);
                 if (entity.IsVisible)
                 {
@@ -274,7 +281,7 @@ namespace Mordred.WorldGen
                         }
 
                         var entity = ((Entity)animal);
-                        var wEntity = entity as IWorldEntity;
+                        var wEntity = entity as IEntity;
                         wEntity.WorldPosition = newPos;
                         entity.IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(newPos.X, newPos.Y);
                         if (entity.IsVisible)

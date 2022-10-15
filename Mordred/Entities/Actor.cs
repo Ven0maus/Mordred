@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace Mordred.Entities
 {
-    public abstract class Actor : Entity, IWorldEntity
+    public abstract class Actor : Entity, IEntity
     {
         public Inventory Inventory { get; private set; }
         public IAction CurrentAction { get; private set; }

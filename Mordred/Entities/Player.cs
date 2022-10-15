@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Mordred.Entities
 {
-    public class Player : Entity, IWorldEntity
+    public class Player : Entity, IEntity
     {
         public Point WorldPosition { get; set; }
 
