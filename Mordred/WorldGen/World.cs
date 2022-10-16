@@ -157,8 +157,8 @@ namespace Mordred.WorldGen
             {
                 for (int x = 0; x < width; x++)
                 {
-                    if (x == 0 || y == 0 || x == width - 1 || y == height - 1)
-                        chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Border, x, y).CellType; // Border
+                    if ((x == 0 || y == 0 || x == width - 1 || y == height - 1) && Constants.GameSettings.DebugMode)
+                        chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Border, x, y).CellType;
                     else if (simplexNoise[y * width + x] >= 0.75f && simplexNoise[y * width + x] <= 1f)
                     {
                         // Mountains
