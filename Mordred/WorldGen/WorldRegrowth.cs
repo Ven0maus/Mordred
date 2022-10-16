@@ -54,7 +54,7 @@ namespace Mordred.WorldGen
             if (entityChunk == null)
             {
                 // No entities for this chunk??
-                RegrowWildLife();
+                RegrowWildLife(chunkCoordinate);
                 return;
             }
 
@@ -64,7 +64,7 @@ namespace Mordred.WorldGen
             if (predators < minPercentagePredators)
             {
                 // Not enough predators
-                RegrowWildLife();
+                RegrowWildLife(chunkCoordinate);
                 return;
             }
 
@@ -82,7 +82,7 @@ namespace Mordred.WorldGen
             if (totalWildLife < minWildLife)
             {
                 // Under the minimum for all wild life
-                RegrowWildLife();
+                RegrowWildLife(chunkCoordinate);
                 return;
             }
         }
@@ -97,16 +97,16 @@ namespace Mordred.WorldGen
             {
                 var amount = group.Count();
                 if (amount < Constants.WorldSettings.Resources.MinResourcePerChunk)
-                    RegrowResource(group.Key);
+                    RegrowResource(chunkCoordinate, group.Key);
             }
         }
 
-        private static void RegrowWildLife()
+        private static void RegrowWildLife((int x, int y) chunkCoordinate)
         {
             // TODO
         }
 
-        private static void RegrowResource(int terrainId)
+        private static void RegrowResource((int x, int y) chunkCoordinate, int terrainId)
         {
             // TODO
         }
