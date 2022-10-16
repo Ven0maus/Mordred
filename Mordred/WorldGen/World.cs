@@ -55,7 +55,6 @@ namespace Mordred.WorldGen
             RaiseOnlyOnCellTypeChange = false;
 
             // Initialize the arrays
-            _villages = new List<Village>(Constants.VillageSettings.MaxVillages);
             _cellEffects = new List<CellEffect>();
             _chunkEntitiesLoaded = new();
 
@@ -74,7 +73,7 @@ namespace Mordred.WorldGen
             _ = Task.Factory.StartNew(() =>
             {
                 if (_chunkEntitiesLoaded.Contains((args.ChunkX, args.ChunkY))) return;
-                GenerateWildLife(args.ChunkX, args.ChunkY);
+                ProceduralGeneration.GenerateWildLife(args.ChunkX, args.ChunkY);
                 _chunkEntitiesLoaded.Add((args.ChunkX, args.ChunkY));
             }).ConfigureAwait(false);
         }
@@ -120,14 +119,13 @@ namespace Mordred.WorldGen
             return cell;
         }
 
-
-
         public override void Center(int x, int y)
         {
             base.Center(x, y);
 
             if (!_worldInitialized) return;
 
+            // Adjust entity visibiltiy when off screen
             foreach (var entity in EntitySpawner.Entities.ToArray())
             {
                 entity.IsVisible = IsWorldCoordinateOnViewPort(entity.WorldPosition.X, entity.WorldPosition.Y);
@@ -137,122 +135,7 @@ namespace Mordred.WorldGen
                 }
             }
         }
-
-        public void GenerateWildLife(int chunkX, int chunkY)
-        {
-            var random = new Random(GetChunkSeed(chunkX, chunkY));
-            var wildLifeCount = random.Next(Constants.WorldSettings.WildLife.MinWildLifePerChunk, Constants.WorldSettings.WildLife.MaxWildLifePerChunk + 1);
-            var (x, y) = (chunkX + ChunkWidth / 2, chunkY + ChunkHeight / 2);
-            var spawnPositions = GetCellCoords(x, y, a => a.Walkable).ToList();
-
-            // Get all classes that inherit from PassiveAnimal / PredatorAnimal
-            var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
-            var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().ToList();
-
-            // Divide wildlife into passive and predators based on percentage
-            int predators = (int)Math.Round((double)wildLifeCount / 100 * Constants.WorldSettings.WildLife.PercentagePredators);
-
-            var packAnimals = new Dictionary<Type, List<IPackAnimal>>();
-            // Automatic selection of all predators
-            for (int i = 0; i < predators; i++)
-            {
-                var animal = predatorAnimals.TakeRandom(random);
-                var pos = spawnPositions.TakeRandom(random);
-                spawnPositions.Remove(pos);
-                var entity = EntitySpawner.Spawn(animal, pos, random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
-
-                if (typeof(IPackAnimal).IsAssignableFrom(animal))
-                {
-                    if (!packAnimals.TryGetValue(animal, out List<IPackAnimal> pAnimals))
-                    {
-                        pAnimals = new List<IPackAnimal>();
-                        packAnimals.Add(animal, pAnimals);
-                    }
-                    pAnimals.Add(entity as IPackAnimal);
-                }
-            }
-
-            int nonPredators = wildLifeCount - predators;
-            // Automatic selection of passive animals
-            for (int i=0; i < nonPredators; i++)
-            {
-                var animal = passiveAnimals.TakeRandom(random);
-                var pos = spawnPositions.TakeRandom(random);
-                spawnPositions.Remove(pos);
-                var entity = EntitySpawner.Spawn(animal, pos, random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
-
-                if (typeof(IPackAnimal).IsAssignableFrom(animal))
-                {
-                    if (!packAnimals.TryGetValue(animal, out List<IPackAnimal> pAnimals))
-                    {
-                        pAnimals = new List<IPackAnimal>();
-                        packAnimals.Add(animal, pAnimals);
-                    }
-                    pAnimals.Add(entity as IPackAnimal);
-                }
-            }
-
-            // Link pack animals together
-            const int whileLoopLimit = 500;
-            foreach (var type in packAnimals)
-            {
-                var splits = (int)Math.Ceiling((double)type.Value.Count / Constants.ActorSettings.MaxPackSize);
-                for (int i = 0; i < splits; i++)
-                {
-                    var animals = type.Value.Take(Constants.ActorSettings.MaxPackSize).ToList();
-                    var leader = animals.TakeRandom(random);
-                    var centerPoint = leader.WorldPosition;
-                    foreach (var animal in animals)
-                    {
-                        var list = animal.PackMates ?? new List<IPackAnimal>();
-                        list.AddRange(type.Value.Where(a => !a.Equals(animal)));
-                        animal.PackMates = list;
-                        animal.Leader = leader;
-
-                        // Remove from list
-                        type.Value.Remove(animal);
-
-                        if (animal.Equals(leader)) continue;
-
-                        int whileLoopLimiter = 0;
-
-                        var newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5, customRandom: random);
-                        while (!MapConsole.World.CellWalkable(newPos.X, newPos.Y))
-                        {
-                            if (whileLoopLimiter >= whileLoopLimit)
-                            {
-                                newPos = spawnPositions.TakeRandom(random);
-                                break;
-                            }
-                            newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5, customRandom: random);
-                            whileLoopLimiter++;
-                        }
-
-                        var entity = ((Entity)animal);
-                        var wEntity = entity as IEntity;
-                        wEntity.WorldPosition = newPos;
-                        entity.IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(newPos.X, newPos.Y);
-                        if (entity.IsVisible)
-                        {
-                            animal.Position = MapConsole.World.WorldToScreenCoordinate(newPos.X, newPos.Y);
-                        }
-                    }
-                }
-            }
-        }
-
-        public void GenerateVillages()
-        {
-            var coords = GetCellCoords(Width / 2, Height / 2, a => a.Walkable).TakeRandom(2).ToList();
-            var village = new Village(coords.First(), 4, Color.Magenta);
-            village.Initialize(this);
-            _villages.Add(village);
-
-            village = new Village(coords.Last(), 4, Color.Orange);
-            village.Initialize(this);
-            _villages.Add(village);
-        }
-
+        
         /// <summary>
         /// The actual visual displayed cell
         /// </summary>
@@ -305,17 +188,6 @@ namespace Mordred.WorldGen
         public IEnumerable<WorldCell> GetCells(IEnumerable<Point> points)
         {
             return base.GetCells(points.Select(a => (a.X, a.Y)));
-        }
-
-        public IEnumerable<(int x, int y)> GetViewPortWorldCoordinates()
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    yield return ScreenToWorldCoordinate(x, y);
-                }
-            }
         }
 
         public void HideObstructedCells()

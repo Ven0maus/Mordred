@@ -1,9 +1,15 @@
 ﻿using Mordred.Config;
 using Mordred.Config.WorldGenConfig;
+using Mordred.Entities.Animals;
+using Mordred.Entities;
+using Mordred.Graphics.Consoles;
+using SadConsole.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Venomaus.FlowVitae.Chunking;
 using Venomaus.FlowVitae.Procedural;
+using SadRogue.Primitives;
 
 namespace Mordred.WorldGen
 {
@@ -73,6 +79,125 @@ namespace Mordred.WorldGen
                     }
                 }
             }
+        }
+
+        public static void GenerateWildLife(int chunkX, int chunkY)
+        {
+            var world = MapConsole.World;
+            var random = new Random(world.GetChunkSeed(chunkX, chunkY));
+            var wildLifeCount = random.Next(Constants.WorldSettings.WildLife.MinWildLifePerChunk, Constants.WorldSettings.WildLife.MaxWildLifePerChunk + 1);
+            var (x, y) = (chunkX + world.ChunkWidth / 2, chunkY + world.ChunkHeight / 2);
+            var spawnPositions = world.GetCellCoords(x, y, a => a.Walkable).ToList();
+
+            // Get all classes that inherit from PassiveAnimal / PredatorAnimal
+            var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
+            var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().ToList();
+
+            // Divide wildlife into passive and predators based on percentage
+            int predators = (int)Math.Round((double)wildLifeCount / 100 * Constants.WorldSettings.WildLife.PercentagePredators);
+
+            var packAnimals = new Dictionary<Type, List<IPackAnimal>>();
+            // Automatic selection of all predators
+            for (int i = 0; i < predators; i++)
+            {
+                var animal = predatorAnimals.TakeRandom(random);
+                var pos = spawnPositions.TakeRandom(random);
+                spawnPositions.Remove(pos);
+                var entity = EntitySpawner.Spawn(animal, pos, random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
+
+                if (typeof(IPackAnimal).IsAssignableFrom(animal))
+                {
+                    if (!packAnimals.TryGetValue(animal, out List<IPackAnimal> pAnimals))
+                    {
+                        pAnimals = new List<IPackAnimal>();
+                        packAnimals.Add(animal, pAnimals);
+                    }
+                    pAnimals.Add(entity as IPackAnimal);
+                }
+            }
+
+            int nonPredators = wildLifeCount - predators;
+            // Automatic selection of passive animals
+            for (int i = 0; i < nonPredators; i++)
+            {
+                var animal = passiveAnimals.TakeRandom(random);
+                var pos = spawnPositions.TakeRandom(random);
+                spawnPositions.Remove(pos);
+                var entity = EntitySpawner.Spawn(animal, pos, random.Next(0, 2) == 1 ? Gender.Male : Gender.Female);
+
+                if (typeof(IPackAnimal).IsAssignableFrom(animal))
+                {
+                    if (!packAnimals.TryGetValue(animal, out List<IPackAnimal> pAnimals))
+                    {
+                        pAnimals = new List<IPackAnimal>();
+                        packAnimals.Add(animal, pAnimals);
+                    }
+                    pAnimals.Add(entity as IPackAnimal);
+                }
+            }
+
+            // Link pack animals together
+            const int whileLoopLimit = 500;
+            foreach (var type in packAnimals)
+            {
+                var splits = (int)Math.Ceiling((double)type.Value.Count / Constants.ActorSettings.MaxPackSize);
+                for (int i = 0; i < splits; i++)
+                {
+                    var animals = type.Value.Take(Constants.ActorSettings.MaxPackSize).ToList();
+                    var leader = animals.TakeRandom(random);
+                    var centerPoint = leader.WorldPosition;
+                    foreach (var animal in animals)
+                    {
+                        var list = animal.PackMates ?? new List<IPackAnimal>();
+                        list.AddRange(type.Value.Where(a => !a.Equals(animal)));
+                        animal.PackMates = list;
+                        animal.Leader = leader;
+
+                        // Remove from list
+                        type.Value.Remove(animal);
+
+                        if (animal.Equals(leader)) continue;
+
+                        int whileLoopLimiter = 0;
+
+                        var newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5, customRandom: random);
+                        while (!MapConsole.World.CellWalkable(newPos.X, newPos.Y))
+                        {
+                            if (whileLoopLimiter >= whileLoopLimit)
+                            {
+                                newPos = spawnPositions.TakeRandom(random);
+                                break;
+                            }
+                            newPos = centerPoint.GetRandomCoordinateWithinSquareRadius(5, customRandom: random);
+                            whileLoopLimiter++;
+                        }
+
+                        var entity = ((Entity)animal);
+                        var wEntity = entity as IEntity;
+                        wEntity.WorldPosition = newPos;
+                        entity.IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(newPos.X, newPos.Y);
+                        if (entity.IsVisible)
+                        {
+                            animal.Position = MapConsole.World.WorldToScreenCoordinate(newPos.X, newPos.Y);
+                        }
+                    }
+                }
+            }
+        }
+
+        public void GenerateVillages()
+        {
+            // TODO: Make it procedural
+            var world = MapConsole.World;
+            var villages = new List<Village>(Constants.VillageSettings.MaxVillages);
+            var coords = world.GetCellCoords(world.Width / 2, world.Height / 2, a => a.Walkable).TakeRandom(2).ToList();
+            var village = new Village(coords.First(), 4, Color.Magenta);
+            village.Initialize(world);
+            villages.Add(village);
+
+            village = new Village(coords.Last(), 4, Color.Orange);
+            village.Initialize(world);
+            villages.Add(village);
         }
     }
 }
