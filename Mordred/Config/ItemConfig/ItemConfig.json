@@ -4,7 +4,7 @@
       "id" : 0,
       "glyph" : "W",
       "name" : "Wood",
-	  "foreground" : "Brown",
+	    "foreground" : "Brown",
       "background" : "Black",
       "droppedBy" : ["2|10:20"]
     },
@@ -12,7 +12,7 @@
       "id" : 1,
       "glyph" : "S",
       "name" : "Stone",
-	  "foreground" : "DarkGray",
+	    "foreground" : "DarkGray",
       "background" : "Black",
       "droppedBy" : ["3|10:15"]
     },
@@ -20,11 +20,11 @@
       "id" : 2,
       "glyph" : "°",
       "name" : "Berries",
-	  "foreground" : "Pink",
+	    "foreground" : "Pink",
       "background" : "Black",
       "edible" : true,
       "edibleWorth" : 3.5,
       "droppedBy" : ["7|10:20"]
-    },
+    }
   ]
 }
