@@ -72,6 +72,7 @@ namespace Mordred.Entities
             var entities = Entities.ToArray().OfType<T>();
             foreach (var entity in entities)
             {
+                if (!Entities.Contains(entity)) continue;
                 if (criteria.Invoke(entity))
                 {
                     Destroy(entity);
