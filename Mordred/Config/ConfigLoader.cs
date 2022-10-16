@@ -23,6 +23,11 @@ namespace Mordred.Config
             .SelectMany(a => a.Value)
             .ToDictionary(a => a.CellType, a => a);
 
+        public static IEnumerable<WorldCellObject> GetProceduralTerrains()
+        {
+            return _terrainData.cells.Where(a => a.spawnChance > 0);
+        }
+
         /// <summary>
         /// Returns the config object of the terrain id
         /// </summary>
@@ -32,6 +37,11 @@ namespace Mordred.Config
         {
             return _terrainCellConfig.TryGetValue(terrainId, out var cell) ? cell : 
                 throw new Exception("Invalid terrain id: " + terrainId);
+        }
+
+        public static int GetRandomWorldCellTypeByTerrain(int terrainId, Random customRandom = null)
+        {
+            return TerrainCells[terrainId].TakeRandom(customRandom).CellType;
         }
 
         /// <summary>

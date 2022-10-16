@@ -1,6 +1,7 @@
 ﻿using Mordred.Config;
 using Mordred.Config.WorldGenConfig;
 using System;
+using System.Linq;
 using Venomaus.FlowVitae.Chunking;
 using Venomaus.FlowVitae.Procedural;
 
@@ -10,11 +11,13 @@ namespace Mordred.WorldGen
     {
         public int Seed { get; }
         private readonly OpenSimplex2F _simplex;
+        private readonly WorldCellObject[] _proceduralTerrain;
 
         public ProceduralGeneration(int seed)
         {
             Seed = seed;
             _simplex = new OpenSimplex2F(seed);
+            _proceduralTerrain = ConfigLoader.GetProceduralTerrains().ToArray();
         }
 
         public (int[] chunkCells, IChunkData chunkData) Generate(int seed, int width, int height, (int x, int y) chunkCoordinate)
@@ -44,29 +47,29 @@ namespace Mordred.WorldGen
             return (chunk, null);
         }
 
-        private static void GenerateLands(Random random, int[] chunk, int width, int height, double[] simplexNoise)
+        private void GenerateLands(Random random, int[] chunk, int width, int height, double[] simplexNoise)
         {
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
                     if ((x == 0 || y == 0 || x == width - 1 || y == height - 1) && Constants.GameSettings.DebugMode)
+                    {
                         chunk[y * width + x] = ConfigLoader.GetNewTerrainCell((int)WorldTiles.Border, x, y).CellType;
-                    else if (simplexNoise[y * width + x] >= 0.75f && simplexNoise[y * width + x] <= 1f)
-                    {
-                        // Mountains
-                        chunk[y * width + x] = ConfigLoader.GetNewTerrainCell((int)WorldTiles.Mountain, x, y).CellType;
+                        continue;
                     }
-                    else
+
+                    foreach (var terrain in _proceduralTerrain.OrderByDescending(a => a.spawnChance))
                     {
-                        // Tree, berrybush or grass
-                        int chance = random.Next(0, 100);
-                        if (chance < 1)
-                            chunk[y * width + x] = ConfigLoader.GetNewTerrainCell((int)WorldTiles.BerryBush, x, y).CellType;
-                        else if (chance < 3)
-                            chunk[y * width + x] = ConfigLoader.GetNewTerrainCell((int)WorldTiles.Tree, x, y).CellType;
-                        else
-                            chunk[y * width + x] = ConfigLoader.GetNewTerrainCell((int)WorldTiles.Grass, x, y).CellType;
+                        var maxLayer = terrain.maxSpawnLayer == 1 ? 1.1 : terrain.maxSpawnLayer;
+                        if (simplexNoise[y * width + x] >= terrain.minSpawnLayer &&
+                            simplexNoise[y * width + x] < maxLayer)
+                        {
+                            if (random.Next(0, 100) < terrain.spawnChance)
+                            {
+                                chunk[y * width + x] = ConfigLoader.GetRandomWorldCellTypeByTerrain(terrain.id);
+                            }
+                        }
                     }
                 }
             }

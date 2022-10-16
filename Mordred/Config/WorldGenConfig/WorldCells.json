@@ -20,7 +20,10 @@
       "background": "Transparent",
       "transparent": true,
       "walkable": true,
-      "layer": "terrain"
+      "layer": "terrain",
+      "spawnChance": 100,
+      "minSpawnLayer": 0,
+      "maxSpawnLayer": 0.8
     },
     {
       "id": 2,
@@ -48,7 +51,10 @@
       "background": "Transparent",
       "transparent": false,
       "walkable": false,
-      "layer": "terrain"
+      "layer": "terrain",
+      "spawnChance": 100,
+      "minSpawnLayer": 0.8,
+      "maxSpawnLayer": 1
     },
     {
       "id": 4,
