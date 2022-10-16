@@ -13,13 +13,37 @@ namespace Mordred.Config
 {
     public class ConfigLoader
     {
+        private const string WorldCellsConfigPath = "Config\\WorldGenConfig\\WorldCells.json";
+        private static readonly TerrainObject _terrainData = JsonConvert.DeserializeObject<TerrainObject>(File.ReadAllText(WorldCellsConfigPath));
+        private static readonly Dictionary<int, WorldCellObject> _terrainCellConfig = _terrainData.cells.ToDictionary(a => a.id, a => a);
+
         public static readonly Dictionary<int, WorldItem> Items = LoadWorldItems();
         public static readonly Dictionary<int, WorldCell[]> TerrainCells = LoadWorldCells();
         public static readonly Dictionary<int, WorldCell> WorldCells = TerrainCells
             .SelectMany(a => a.Value)
             .ToDictionary(a => a.CellType, a => a);
 
-        public static WorldCell GetCellConfig(int type, int x, int y, bool clone = true, Random customRandom = null)
+        /// <summary>
+        /// Returns the config object of the terrain id
+        /// </summary>
+        /// <param name="terrainId"></param>
+        /// <returns></returns>
+        public static WorldCellObject GetConfigForTerrain(int terrainId)
+        {
+            return _terrainCellConfig.TryGetValue(terrainId, out var cell) ? cell : 
+                throw new Exception("Invalid terrain id: " + terrainId);
+        }
+
+        /// <summary>
+        /// Get a new world cell of the given world cell type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="clone"></param>
+        /// <param name="customRandom"></param>
+        /// <returns></returns>
+        public static WorldCell GetNewWorldCell(int type, int x, int y, bool clone = true, Random customRandom = null)
         {
             var cell = clone ? WorldCells[type].Clone() : WorldCells[type];
             cell.X = x;
@@ -27,7 +51,16 @@ namespace Mordred.Config
             return cell;
         }
 
-        public static WorldCell GetRandomTerrainCell(int type, int x, int y, bool clone = true, Random customRandom = null)
+        /// <summary>
+        /// Get a new random world cell, based on the given terrain type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="clone"></param>
+        /// <param name="customRandom"></param>
+        /// <returns></returns>
+        public static WorldCell GetNewTerrainCell(int type, int x, int y, bool clone = true, Random customRandom = null)
         {
             var cell = clone ? TerrainCells[type].TakeRandom(customRandom).Clone() : TerrainCells[type].TakeRandom(customRandom);
             cell.X = x;
@@ -37,12 +70,10 @@ namespace Mordred.Config
 
         private static Dictionary<int, WorldCell[]> LoadWorldCells()
         {
-            var json = File.ReadAllText("Config\\WorldGenConfig\\WorldCells.json");
-            var worldCellObjects = JsonConvert.DeserializeObject<TerrainObject>(json);
             var dictionary = new Dictionary<int, WorldCell[]>();
             var layers = ((WorldLayer[])Enum.GetValues(typeof(WorldLayer))).ToDictionary(a => a.ToString(), a => a, StringComparer.OrdinalIgnoreCase);
             int uniqueCellId = 0;
-            foreach (var cell in worldCellObjects.cells)
+            foreach (var cell in _terrainData.cells)
             {
                 var foregroundColor = GetColorByString(cell.foreground);
                 var backgroundColor = GetColorByString(cell.background);
@@ -53,13 +84,13 @@ namespace Mordred.Config
                 }
                 var cells = new List<WorldCell>
                 {
-                    new WorldCell(cell.id, uniqueCellId, foregroundColor, backgroundColor, cell.name, glyph, (int)layers[cell.layer], cell.walkable, cell.transparent, cell.isResource)
+                    new WorldCell(cell.id, uniqueCellId, foregroundColor, backgroundColor, cell.name, glyph, (int)layers[cell.layer], cell.walkable, cell.transparent)
                 };
                 foreach (var aGlyph in additionalGlyphs ?? new List<int>())
                 {
                     uniqueCellId++;
                     var newColor = Color.Lerp(foregroundColor, Game.Random.Next(0, 2) == 1 ? Color.Black : Color.White, (float)Game.Random.Next(1, 4) / 10);
-                    cells.Add(new WorldCell(cell.id, uniqueCellId, newColor, backgroundColor, cell.name, aGlyph, (int)layers[cell.layer], cell.walkable, cell.transparent, cell.isResource));
+                    cells.Add(new WorldCell(cell.id, uniqueCellId, newColor, backgroundColor, cell.name, aGlyph, (int)layers[cell.layer], cell.walkable, cell.transparent));
                 }
                 dictionary.Add(cell.id, cells.ToArray());
                 uniqueCellId++;

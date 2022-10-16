@@ -33,16 +33,13 @@ namespace Mordred.WorldGen
         /// The name of the cell
         /// </summary>
         public string Name { get; private set; }
-        /// <summary>
-        /// Is the cell considered a regrowable resource
-        /// </summary>
-        public bool IsResource { get; private set; }
+
         public int X { get; set; }
         public int Y { get; set; }
 
         public WorldCell() { }
 
-        public WorldCell(int terrainId, int cellId, Color foreground, Color background, string name, int glyph, int layer, bool walkable, bool transparent, bool isResource) : 
+        public WorldCell(int terrainId, int cellId, Color foreground, Color background, string name, int glyph, int layer, bool walkable, bool transparent) : 
             base(foreground, background, glyph)
         {
             TerrainId = terrainId;
@@ -51,7 +48,6 @@ namespace Mordred.WorldGen
             Walkable = walkable;
             SeeThrough = transparent;
             Layer = layer;
-            IsResource = isResource;
         }
 
         public WorldCell(WorldCell original) : base(original.Foreground, original.Background, original.Glyph)
@@ -65,7 +61,6 @@ namespace Mordred.WorldGen
             SeeThrough = original.SeeThrough;
             Layer = original.Layer;
             IsVisible = original.IsVisible;
-            IsResource = original.IsResource;
         }
 
         public new WorldCell Clone()

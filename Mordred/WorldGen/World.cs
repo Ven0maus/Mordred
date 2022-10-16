@@ -110,7 +110,7 @@ namespace Mordred.WorldGen
         protected override WorldCell Convert(int x, int y, int cellType)
         {
             // Get custom cell
-            var cell = ConfigLoader.GetCellConfig(cellType, x, y);
+            var cell = ConfigLoader.GetNewWorldCell(cellType, x, y);
             if (cell == null) return base.Convert(x, y, cellType);
             cell.X = x;
             cell.Y = y;

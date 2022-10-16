@@ -86,7 +86,8 @@ namespace Mordred.Entities.Actions.Implementations
                 {
                     foreach (var animal in packAnimal.PackMates.OfType<Animal>())
                     {
-                        if (animal.CurrentAction is PredatorAction pa && pa._currentPrey == _currentPrey)
+                        if (animal.CurrentAction is PredatorAction pa && (pa.Canceled ||
+                            (pa._currentPrey != null && pa._currentPrey.Equals(_currentPrey))))
                             continue;
 
                         animal.CurrentAction?.Cancel();
@@ -142,7 +143,8 @@ namespace Mordred.Entities.Actions.Implementations
 
                 // We have reached the entity, attack the entity
                 _currentPrey.DealDamage(predator.AttackDamage, predator);
-                Debug.WriteLine($"{predator.Name} just attacked {_currentPrey.Name} for {predator.AttackDamage}");
+                if (Constants.GameSettings.DebugMode)
+                    Debug.WriteLine($"{predator.Name} just attacked {_currentPrey.Name} for {predator.AttackDamage}");
 
                 // 35% chance to stun prey for 3 to 8 game ticks
                 if (_currentPrey.Alive && Game.Random.Next(0, 100) < 40)

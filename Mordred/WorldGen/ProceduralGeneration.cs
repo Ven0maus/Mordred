@@ -51,22 +51,22 @@ namespace Mordred.WorldGen
                 for (int x = 0; x < width; x++)
                 {
                     if ((x == 0 || y == 0 || x == width - 1 || y == height - 1) && Constants.GameSettings.DebugMode)
-                        chunk[y * width + x] = ConfigLoader.GetRandomTerrainCell((int)WorldTiles.Border, x, y).CellType;
+                        chunk[y * width + x] = ConfigLoader.GetNewTerrainCell((int)WorldTiles.Border, x, y).CellType;
                     else if (simplexNoise[y * width + x] >= 0.75f && simplexNoise[y * width + x] <= 1f)
                     {
                         // Mountains
-                        chunk[y * width + x] = ConfigLoader.GetRandomTerrainCell((int)WorldTiles.Mountain, x, y).CellType;
+                        chunk[y * width + x] = ConfigLoader.GetNewTerrainCell((int)WorldTiles.Mountain, x, y).CellType;
                     }
                     else
                     {
                         // Tree, berrybush or grass
                         int chance = random.Next(0, 100);
-                        if (chance <= 1)
-                            chunk[y * width + x] = ConfigLoader.GetRandomTerrainCell((int)WorldTiles.BerryBush, x, y).CellType;
-                        else if (chance <= 7)
-                            chunk[y * width + x] = ConfigLoader.GetRandomTerrainCell((int)WorldTiles.Tree, x, y).CellType;
+                        if (chance < 1)
+                            chunk[y * width + x] = ConfigLoader.GetNewTerrainCell((int)WorldTiles.BerryBush, x, y).CellType;
+                        else if (chance < 3)
+                            chunk[y * width + x] = ConfigLoader.GetNewTerrainCell((int)WorldTiles.Tree, x, y).CellType;
                         else
-                            chunk[y * width + x] = ConfigLoader.GetRandomTerrainCell((int)WorldTiles.Grass, x, y).CellType;
+                            chunk[y * width + x] = ConfigLoader.GetNewTerrainCell((int)WorldTiles.Grass, x, y).CellType;
                     }
                 }
             }

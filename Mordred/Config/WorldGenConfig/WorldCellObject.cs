@@ -14,7 +14,16 @@ namespace Mordred.Config.WorldGenConfig
         public string layer;
         public bool transparent;
         public bool walkable;
-        public bool isResource;
+
+        // World gen
+        public int spawnChance; // 0-100%
+        public float minSpawnLayer; // Inclusive
+        public float maxSpawnLayer; // Exclusive
+        public int[] spawnOnTerrain;
+
+        // Resource regrowth
+        public bool renawable;
+        public int minResourceAmount;
     }
 
     [Serializable]

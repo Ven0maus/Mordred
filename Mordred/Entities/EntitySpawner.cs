@@ -1,7 +1,6 @@
 ﻿using Mordred.Graphics.Consoles;
 using SadConsole.Entities;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 

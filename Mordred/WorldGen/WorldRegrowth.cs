@@ -1,4 +1,6 @@
-﻿using Mordred.Entities;
+﻿using Mordred.Config;
+using Mordred.Config.WorldGenConfig;
+using Mordred.Entities;
 using Mordred.Entities.Animals;
 using Mordred.Graphics.Consoles;
 using System;
@@ -92,13 +94,14 @@ namespace Mordred.WorldGen
         {
             var chunkCellPositions = World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y);
             var resourceCells = World.GetCells(chunkCellPositions)
-                .Where(a => a.IsResource)
-                .GroupBy(a => a.TerrainId);
+                .GroupBy(a => a.TerrainId)
+                .Where(a => ConfigLoader.GetConfigForTerrain(a.Key).renawable);
             foreach (var group in resourceCells)
             {
+                var terrainConfig = ConfigLoader.GetConfigForTerrain(group.Key);
                 var amount = group.Count();
-                if (amount < Constants.WorldSettings.Resources.MinResourcePerChunk)
-                    RegrowResource(chunkCoordinate, group.Key, amount);
+                if (amount < terrainConfig.minResourceAmount)
+                    RegrowResource(chunkCoordinate, terrainConfig, amount);
             }
         }
 
@@ -107,10 +110,27 @@ namespace Mordred.WorldGen
             // TODO
         }
 
-        private static void RegrowResource((int x, int y) chunkCoordinate, int terrainId, int currentAmount)
+        private static void RegrowResource((int x, int y) chunkCoordinate, WorldCellObject terrainConfig, int currentAmount)
         {
-            var chunkCells = World.GetCells(World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y));
-            
+            // Don't regrow for unloaded chunk, (it could have unloaded in the meantime)
+            if (!World.IsChunkLoaded(chunkCoordinate.x, chunkCoordinate.y)) return;
+
+            var minAmount = terrainConfig.minResourceAmount;
+            var neededAmount = minAmount - currentAmount;
+            var spawnsOnTerrain = terrainConfig.spawnOnTerrain.ToHashSet();
+
+            var newCells = World.GetCells(World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y))
+                .Where(a => spawnsOnTerrain.Contains(a.TerrainId))
+                .TakeRandom(neededAmount)
+                .Select(cell =>
+                {
+                    return ConfigLoader.GetNewTerrainCell(terrainConfig.id, cell.X, cell.Y);
+                }).ToArray(); // Remove ToArray once debugging is succesful
+
+            World.SetCells(newCells);
+
+            System.Diagnostics.Debug.WriteLine("Found only " + currentAmount + " of " + terrainConfig.name + " in the chunk "+chunkCoordinate+".");
+            System.Diagnostics.Debug.WriteLine("Added " + newCells.Length + " cells of " + terrainConfig.name + " to the chunk "+chunkCoordinate +".");
         }
     }
 }

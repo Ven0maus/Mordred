@@ -61,7 +61,8 @@ namespace Mordred.Entities.Actions.Implementations
             int damage = actor is PredatorAnimal pA ? pA.AttackDamage : Game.Random.Next(5, 13);
             var name = _defendee.CurrentAttacker.Name;
             _defendee.CurrentAttacker.DealDamage(damage, actor);
-            Debug.WriteLine($"{actor.Name} retaliated against {name} for: {damage} damage.");
+            if (Constants.GameSettings.DebugMode)
+                Debug.WriteLine($"{actor.Name} retaliated against {name} for: {damage} damage.");
 
             // Chance for attacker to lose interest when
             if (_defendee.CurrentAttacker.Health <= ((_defendee.CurrentAttacker.MaxHealth / 100f) * 25) && Game.Random.Next(0, 100) < 25)
