@@ -9,7 +9,7 @@ namespace Mordred.Entities.Animals
     public abstract class PredatorAnimal : Animal
     {
         public Actor CurrentlyAttacking;
-        public int AttackDamage = 15;
+        public virtual int AttackDamage { get; protected set; } = 15;
 
         /// <summary>
         /// Default 2 seconds
@@ -39,8 +39,7 @@ namespace Mordred.Entities.Animals
                     {
                         if (!packMate.HasActionOfType<DefendAction>())
                         {
-                            if (packMate.CurrentAction != null)
-                                packMate.CurrentAction.Cancel();
+                            packMate.CurrentAction?.Cancel();
                             packMate.AddAction(new DefendAction(this), true, false);
                             Debug.WriteLine($"Assigned a pack DefendAction to {packMate.Name} to defend from {attacker.Name}");
                         }
@@ -51,7 +50,7 @@ namespace Mordred.Entities.Animals
 
         public void Eat(Actor prey)
         {
-            if (prey.CarcassFoodPercentage == 0)
+            if (prey.CarcassFoodPercentage <= 0)
             {
                 prey.DestroyCarcass();
                 return;
@@ -79,11 +78,15 @@ namespace Mordred.Entities.Animals
             int foodToPercentage = (int)Math.Round((float)percentageToFood / foodWorth);
             prey.CarcassFoodPercentage = foodToPercentage;
 
-            Debug.WriteLine($"Only {prey.CarcassFoodPercentage} remains of the {prey.Name}.");
             if (prey.CarcassFoodPercentage <= 0)
             {
                 prey.CarcassFoodPercentage = 0;
                 prey.DestroyCarcass();
+                Debug.WriteLine($"Animal carcass was completely devoured for {prey.Name}.");
+            }
+            else
+            {
+                Debug.WriteLine($"Only {prey.CarcassFoodPercentage} remains of the {prey.Name}.");
             }
         }
 
