@@ -14,8 +14,19 @@
         {
             public const int ChunkWidth = 100;
             public const int ChunkHeight = 100;
-            public const int MinWildLifePerChunk = 4;
-            public const int MaxWildLifePerChunk = 10;
+            public const int RegrowthStatusCheckTimeInSeconds = 90;
+
+            public static class WildLife
+            {
+                public const int MinWildLifePerChunk = 4;
+                public const int MaxWildLifePerChunk = 10;
+                public const int PercentagePredators = 25;
+            }
+
+            public static class Resources
+            {
+                public const int MinResourcePerChunk = 20;
+            }
         }
 
         public static class ActorSettings

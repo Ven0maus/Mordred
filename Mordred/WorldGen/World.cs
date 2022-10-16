@@ -198,16 +198,16 @@ namespace Mordred.WorldGen
         public void GenerateWildLife(int chunkX, int chunkY)
         {
             var random = new Random(GetChunkSeed(chunkX, chunkY));
-            var wildLifeCount = random.Next(Constants.WorldSettings.MinWildLifePerChunk, Constants.WorldSettings.MaxWildLifePerChunk + 1);
-            var (x, y) = (chunkX + Constants.WorldSettings.ChunkWidth / 2, chunkY + Constants.WorldSettings.ChunkHeight / 2);
+            var wildLifeCount = random.Next(Constants.WorldSettings.WildLife.MinWildLifePerChunk, Constants.WorldSettings.WildLife.MaxWildLifePerChunk + 1);
+            var (x, y) = (chunkX + ChunkWidth / 2, chunkY + ChunkHeight / 2);
             var spawnPositions = GetCellCoords(x, y, a => a.Walkable).ToList();
 
             // Get all classes that inherit from PassiveAnimal / PredatorAnimal
             var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
             var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().ToList();
 
-            // 20% Predators 80% Passive
-            int predators = (int)Math.Round((double)wildLifeCount / 100 * 20);
+            // Divide wildlife into passive and predators based on percentage
+            int predators = (int)Math.Round((double)wildLifeCount / 100 * Constants.WorldSettings.WildLife.PercentagePredators);
 
             var packAnimals = new Dictionary<Type, List<IPackAnimal>>();
             // Automatic selection of all predators
@@ -389,7 +389,7 @@ namespace Mordred.WorldGen
                         cache.Add(a, GetCell(a.X, a.Y));
                     return neighborCell ?? cache[a];
                 });
-                if (neighbors.All(a => !a.Transparent) && cell.CellType != 8)
+                if (neighbors.All(a => !a.SeeThrough) && cell.CellType != 8)
                 {
                     cell.IsVisible = false;
                     SetCell(cell);

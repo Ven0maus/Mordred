@@ -14,6 +14,7 @@ namespace Mordred.Config.WorldGenConfig
         public string layer;
         public bool transparent;
         public bool walkable;
+        public bool isResource;
     }
 
     [Serializable]

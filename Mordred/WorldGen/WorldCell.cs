@@ -9,7 +9,13 @@ namespace Mordred.WorldGen
     /// </summary>
     public class WorldCell : ColoredGlyph, ICell<int>
     {
-        public int TerrainId { get; set; }
+        /// <summary>
+        /// The type of terrain this cell belongs to
+        /// </summary>
+        public int TerrainId { get; private set; }
+        /// <summary>
+        /// The unique cell type based on the terrain
+        /// </summary>
         public int CellType { get; set; }
         /// <summary>
         /// Can entities walk on this cell
@@ -18,7 +24,7 @@ namespace Mordred.WorldGen
         /// <summary>
         /// Can other cells be seen through this cell
         /// </summary>
-        public bool Transparent { get; set; }
+        public bool SeeThrough { get; set; }
         /// <summary>
         /// The layer this cell is build on
         /// </summary>
@@ -27,31 +33,39 @@ namespace Mordred.WorldGen
         /// The name of the cell
         /// </summary>
         public string Name { get; private set; }
+        /// <summary>
+        /// Is the cell considered a regrowable resource
+        /// </summary>
+        public bool IsResource { get; private set; }
         public int X { get; set; }
         public int Y { get; set; }
 
         public WorldCell() { }
 
-        public WorldCell(int terrainId, int cellId, Color foreground, Color background, string name, int glyph, int layer, bool walkable, bool transparent) : 
+        public WorldCell(int terrainId, int cellId, Color foreground, Color background, string name, int glyph, int layer, bool walkable, bool transparent, bool isResource) : 
             base(foreground, background, glyph)
         {
+            TerrainId = terrainId;
             CellType = cellId;
             Name = name;
             Walkable = walkable;
-            Transparent = transparent;
+            SeeThrough = transparent;
             Layer = layer;
+            IsResource = isResource;
         }
 
         public WorldCell(WorldCell original) : base(original.Foreground, original.Background, original.Glyph)
         {
             X = original.X;
             Y = original.Y;
+            TerrainId = original.TerrainId;
             CellType = original.CellType;
             Name = original.Name;
             Walkable = original.Walkable;
-            Transparent = original.Transparent;
+            SeeThrough = original.SeeThrough;
             Layer = original.Layer;
             IsVisible = original.IsVisible;
+            IsResource = original.IsResource;
         }
 
         public new WorldCell Clone()

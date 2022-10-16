@@ -9,7 +9,8 @@
       "background": "Transparent",
       "transparent": false,
       "walkable": false,
-      "layer": "terrain"
+      "layer": "terrain",
+      "isResource": false
     },
     {
       "id": 1,
@@ -20,7 +21,8 @@
       "background": "Transparent",
       "transparent": true,
       "walkable": true,
-      "layer": "terrain"
+      "layer": "terrain",
+      "isResource": false
     },
     {
       "id": 2,
@@ -31,7 +33,8 @@
       "background": "Transparent",
       "transparent": false,
       "walkable": false,
-      "layer": "objects"
+      "layer": "objects",
+      "isResource": true
     },
     {
       "id": 3,
@@ -42,7 +45,8 @@
       "background": "Transparent",
       "transparent": false,
       "walkable": false,
-      "layer": "terrain"
+      "layer": "terrain",
+      "isResource": false
     },
     {
       "id": 4,
@@ -53,7 +57,8 @@
       "background": "Transparent",
       "transparent": false,
       "walkable": false,
-      "layer": "objects"
+      "layer": "objects",
+      "isResource": false
     },
     {
       "id": 5,
@@ -64,7 +69,8 @@
       "background": "Transparent",
       "transparent": false,
       "walkable": false,
-      "layer": "objects"
+      "layer": "objects",
+      "isResource": false
     },
     {
       "id": 6,
@@ -75,7 +81,8 @@
       "background": "Transparent",
       "transparent": false,
       "walkable": false,
-      "layer": "objects"
+      "layer": "objects",
+      "isResource": true
     },
     {
       "id": 7,
@@ -86,7 +93,8 @@
       "background": "Grey",
       "transparent": false,
       "walkable": true,
-      "layer": "terrain"
+      "layer": "terrain",
+      "isResource": false
     }
   ]
 }
