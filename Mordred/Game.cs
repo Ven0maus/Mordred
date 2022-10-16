@@ -1,4 +1,5 @@
 ﻿using Mordred.Graphics;
+using SadConsole;
 using System;
 
 namespace Mordred
@@ -16,6 +17,8 @@ namespace Mordred
 
         static void Main()
         {
+            SetSettings();
+
             // Setup the engine and create the main window.
             SadConsole.Game.Create(Constants.GameSettings.GameWindowWidth, Constants.GameSettings.GameWindowHeight);
 
@@ -55,6 +58,13 @@ namespace Mordred
 
             // Set container as the current/main screen
             SadConsole.Game.Instance.Screen = Container;
+        }
+
+        private static void SetSettings()
+        {
+            Settings.WindowTitle = "Mordred";
+            Settings.ResizeMode = Settings.WindowResizeOptions.Stretch;
+            Settings.AllowWindowResize = true;
         }
     }
 }
