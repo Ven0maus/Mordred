@@ -9,24 +9,20 @@ namespace Mordred.WorldGen
     public class ProceduralGeneration : IProceduralGen<int, WorldCell>
     {
         public int Seed { get; }
+        private readonly OpenSimplex2F _simplex;
 
         public ProceduralGeneration(int seed)
         {
             Seed = seed;
+            _simplex = new OpenSimplex2F(seed);
         }
 
         public (int[] chunkCells, IChunkData chunkData) Generate(int seed, int width, int height, (int x, int y) chunkCoordinate)
         {
             var random = new Random(seed);
             var chunk = new int[width * height];
-            GenerateLands(random, chunk, width, height, chunkCoordinate);
-            return (chunk, null);
-        }
 
-        public void GenerateLands(Random random, int[] chunk, int width, int height, (int x, int y) chunkCoordinate)
-        {
-            // Idk, need to rework..
-            var simplex1 = new OpenSimplex2F(Seed);
+            // Some basic simplex noise. Idk, need to rework..
             var simplexNoise = new double[width * height];
             for (int y = 0; y < height; y++)
             {
@@ -36,13 +32,20 @@ namespace Mordred.WorldGen
                     int chunkY = chunkCoordinate.y + y;
                     double nx = (double)chunkX / width - 0.5d;
                     double ny = (double)chunkY / height - 0.5d;
-                    simplexNoise[y * width + x] = simplex1.Noise2(nx, ny);
+                    simplexNoise[y * width + x] = _simplex.Noise2(nx, ny);
                 }
             }
 
             // Normalize
             simplexNoise = OpenSimplex2F.Normalize(simplexNoise);
 
+            // Generate based on simplex noise created above
+            GenerateLands(random, chunk, width, height, simplexNoise);
+            return (chunk, null);
+        }
+
+        private static void GenerateLands(Random random, int[] chunk, int width, int height, double[] simplexNoise)
+        {
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
