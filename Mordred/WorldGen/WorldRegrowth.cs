@@ -56,15 +56,7 @@ namespace Mordred.WorldGen
                 return;
             }
 
-            var minWildLife = Constants.WorldSettings.WildLife.MinWildLifePerChunk;
             var totalWildLife = entityChunk.Count();
-            if (totalWildLife < minWildLife)
-            {
-                // Under the minimum for all wild life
-                RegrowWildLife();
-                return;
-            }
-
             var predators = entityChunk.OfType<PredatorAnimal>().Count();
             var minPercentagePredators = (int)((double)totalWildLife / 100 * Constants.WorldSettings.WildLife.PercentagePredators);
             if (predators < minPercentagePredators)
@@ -82,6 +74,14 @@ namespace Mordred.WorldGen
                 // Should we exterminate some predators, through disease etc?
                 // Or should we spawn much stronger predators to hunt down the tree?
                 // TODO: Investigate
+            }
+
+            var minWildLife = Constants.WorldSettings.WildLife.MinWildLifePerChunk;
+            if (totalWildLife < minWildLife)
+            {
+                // Under the minimum for all wild life
+                RegrowWildLife();
+                return;
             }
         }
 
