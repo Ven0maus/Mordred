@@ -13,7 +13,7 @@ namespace Mordred.WorldGen
     /// </summary>
     public class WorldRegrowth
     {
-        private static int _ticksUntilStatusCheck = Constants.WorldSettings.RegrowthStatusCheckTimeInSeconds;
+        private static int _ticksUntilStatusCheck = Constants.WorldSettings.RegrowthStatusCheckTimeInSeconds * Game.TicksPerSecond;
         /// <summary>
         /// Checks and regrows what is required by the world standards
         /// </summary>
@@ -24,7 +24,7 @@ namespace Mordred.WorldGen
                 _ticksUntilStatusCheck--;
                 return;
             }
-            _ticksUntilStatusCheck = Constants.WorldSettings.RegrowthStatusCheckTimeInSeconds;
+            _ticksUntilStatusCheck = Constants.WorldSettings.RegrowthStatusCheckTimeInSeconds * Game.TicksPerSecond;
 
             _ = Task.Factory.StartNew(() =>
             {
