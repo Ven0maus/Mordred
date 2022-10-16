@@ -135,7 +135,7 @@ namespace Mordred.WorldGen
             return cell;
         }
 
-        public static void GenerateLands(Random random, int[] chunk, int width, int height)
+        public static void GenerateLands(Random random, int[] chunk, int width, int height, (int x, int y) chunkCoordinate)
         {
             // Idk, need to rework..
             var simplex1 = new OpenSimplex2F(random.Next(-500000, 500000));
