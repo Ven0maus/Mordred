@@ -12,9 +12,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Venomaus.FlowVitae.Basics;
-using Venomaus.FlowVitae.Basics.Chunking;
-using Venomaus.FlowVitae.Basics.Procedural;
+using Venomaus.FlowVitae.Grids;
+using Venomaus.FlowVitae.Chunking;
+using Venomaus.FlowVitae.Procedural;
 using Venomaus.FlowVitae.Helpers;
 
 namespace Mordred.WorldGen
@@ -34,8 +34,6 @@ namespace Mordred.WorldGen
             .SelectMany(a => a.Value)
             .ToDictionary(a => a.CellType, a => a);
 
-
-
         private readonly MapConsole MapConsole;
         private readonly List<Village> _villages;
         private readonly List<CellEffect> _cellEffects;
@@ -45,7 +43,7 @@ namespace Mordred.WorldGen
             get { return _villages; }
         }
 
-        private bool _worldInitialized = false;
+        private readonly bool _worldInitialized = false;
         private readonly ConcurrentHashSet<Point> _chunkEntitiesLoaded;
 
         public World(int width, int height) : base(width, height, 

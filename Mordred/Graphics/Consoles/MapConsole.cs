@@ -4,7 +4,7 @@ using SadConsole;
 using SadConsole.Entities;
 using SadRogue.Primitives;
 using System.Linq;
-using Venomaus.FlowVitae.Basics;
+using Venomaus.FlowVitae.Grids;
 
 namespace Mordred.Graphics.Consoles
 {
