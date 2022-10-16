@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace Mordred.Entities
 {
-    public abstract class Actor : Entity, IEntity
+    public abstract class Actor : Entity, IEntity, IEquatable<Entity>, IEquatable<Actor>
     {
         public Inventory Inventory { get; private set; }
         public IAction CurrentAction { get; private set; }
@@ -383,6 +383,16 @@ namespace Mordred.Entities
             if (_actorActionsQueue.Any(a => a.GetType() == typeof(T))) return true;
             if (CurrentAction != null && CurrentAction.GetType() == typeof(T)) return true;
             return false;
+        }
+
+        public bool Equals(Entity other)
+        {
+            return other != null && Position.Equals(other.Position);
+        }
+
+        public bool Equals(Actor other)
+        {
+            return other != null && Position.Equals(other.Position);
         }
     }
 }
