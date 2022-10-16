@@ -7,8 +7,6 @@ namespace Mordred.GameObjects.ItemInventory
 {
     public class Inventory
     {
-        public static readonly Dictionary<int, WorldItem> ItemCache = ConfigLoader.LoadWorldItems();
-
         private readonly Dictionary<int, int> Items;
 
         public Inventory()
@@ -34,7 +32,7 @@ namespace Mordred.GameObjects.ItemInventory
         public WorldItem Take(int itemId)
         {
             if (!HasItem(itemId)) return null;
-            var item = ItemCache[itemId].Clone();
+            var item = ConfigLoader.Items[itemId].Clone();
             item.Amount = Items[itemId];
             Items.Remove(itemId);
             return item;
@@ -49,7 +47,7 @@ namespace Mordred.GameObjects.ItemInventory
         public WorldItem Take(int itemId, int amount)
         {
             if (!HasItem(itemId)) return null;
-            var item = ItemCache[itemId].Clone();
+            var item = ConfigLoader.Items[itemId].Clone();
             var current = Items[itemId];
             if (amount >= current)
             {

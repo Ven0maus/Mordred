@@ -1,4 +1,5 @@
-﻿using Mordred.Entities.Tribals;
+﻿using Mordred.Config;
+using Mordred.Entities.Tribals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
 using SadRogue.Primitives;
@@ -118,7 +119,7 @@ namespace Mordred.Entities.Actions.Implementations
             // Add x of the gatherable item to actor inventory
             foreach (var itemId in _currentItemsGathered)
             {
-                var dropRate = Inventory.ItemCache[itemId].GetDropRateForCellId(_currentCellGathered.Value);
+                var dropRate = ConfigLoader.Items[itemId].GetDropRateForCellId(_currentCellGathered.Value);
                 if (dropRate == null) continue;
                 actor.Inventory.Add(itemId, Game.Random.Next(dropRate.Min, dropRate.Max));
             }
@@ -137,7 +138,7 @@ namespace Mordred.Entities.Actions.Implementations
                     // Drop item(s) on the current standing tile
                     foreach (var itemId in _currentItemsGathered)
                     {
-                        var dropRate = Inventory.ItemCache[itemId].GetDropRateForCellId(_currentCellGathered.Value);
+                        var dropRate = ConfigLoader.Items[itemId].GetDropRateForCellId(_currentCellGathered.Value);
                         if (dropRate == null) continue;
                         var item = actor.Inventory.Take(itemId, Game.Random.Next(dropRate.Min, dropRate.Max));
                         item.WorldPosition = actor.WorldPosition;

@@ -13,7 +13,29 @@ namespace Mordred.Config
 {
     public class ConfigLoader
     {
-        public static Dictionary<int, WorldCell[]> LoadWorldCells()
+        public static readonly Dictionary<int, WorldItem> Items = LoadWorldItems();
+        public static readonly Dictionary<int, WorldCell[]> TerrainCells = LoadWorldCells();
+        public static readonly Dictionary<int, WorldCell> WorldCells = TerrainCells
+            .SelectMany(a => a.Value)
+            .ToDictionary(a => a.CellType, a => a);
+
+        public static WorldCell GetCellConfig(int type, int x, int y, bool clone = true, Random customRandom = null)
+        {
+            var cell = clone ? WorldCells[type].Clone() : WorldCells[type];
+            cell.X = x;
+            cell.Y = y;
+            return cell;
+        }
+
+        public static WorldCell GetRandomTerrainCell(int type, int x, int y, bool clone = true, Random customRandom = null)
+        {
+            var cell = clone ? TerrainCells[type].TakeRandom(customRandom).Clone() : TerrainCells[type].TakeRandom(customRandom);
+            cell.X = x;
+            cell.Y = y;
+            return cell;
+        }
+
+        private static Dictionary<int, WorldCell[]> LoadWorldCells()
         {
             var json = File.ReadAllText("Config\\WorldGenConfig\\WorldCells.json");
             var worldCellObjects = JsonConvert.DeserializeObject<TerrainObject>(json);

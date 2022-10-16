@@ -1,4 +1,5 @@
-﻿using Mordred.Entities;
+﻿using Mordred.Config;
+using Mordred.Entities;
 using Mordred.Entities.Animals;
 using Mordred.Entities.Tribals;
 using Mordred.GameObjects.ItemInventory;
@@ -72,7 +73,7 @@ namespace Mordred.WorldGen
             foreach (var housePosition in housePositions)
             {
                 HousePositions.Add(housePosition);
-                var cell = World.GetRandomTerrainCell(6, housePosition.X, housePosition.Y);
+                var cell = ConfigLoader.GetRandomTerrainCell(6, housePosition.X, housePosition.Y);
                 cell.Foreground = Color;
                 world.SetCell(cell, true);
             }

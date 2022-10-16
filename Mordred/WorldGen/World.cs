@@ -14,8 +14,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Venomaus.FlowVitae.Grids;
 using Venomaus.FlowVitae.Chunking;
-using Venomaus.FlowVitae.Procedural;
 using Venomaus.FlowVitae.Helpers;
+using Venomaus.FlowVitae.Procedural;
 
 namespace Mordred.WorldGen
 {
@@ -29,11 +29,6 @@ namespace Mordred.WorldGen
 
     public class World : GridBase<int, WorldCell>
     {
-        public static readonly Dictionary<int, WorldCell[]> TerrainCells = ConfigLoader.LoadWorldCells();
-        public static readonly Dictionary<int, WorldCell> WorldCells = TerrainCells
-            .SelectMany(a => a.Value)
-            .ToDictionary(a => a.CellType, a => a);
-
         private readonly MapConsole MapConsole;
         private readonly List<Village> _villages;
         private readonly List<CellEffect> _cellEffects;
@@ -46,10 +41,13 @@ namespace Mordred.WorldGen
         private readonly bool _worldInitialized = false;
         private readonly ConcurrentHashSet<Point> _chunkEntitiesLoaded;
 
-        public World(int width, int height) : base(width, height, 
-            Constants.WorldSettings.ChunkWidth, Constants.WorldSettings.ChunkHeight, new ProceduralGenerator<int, WorldCell>(1000, GenerateLands))
+        public int WorldSeed { get; }
+
+        public World(int width, int height, int worldSeed) : base(width, height, 
+            Constants.WorldSettings.ChunkWidth, Constants.WorldSettings.ChunkHeight, new ProceduralGeneration(worldSeed))
         {
             // Get map console reference
+            WorldSeed = worldSeed;
             MapConsole = Game.Container.GetConsole<MapConsole>();
             OnCellUpdate += MapConsole.OnCellUpdate;
             OnChunkUnload += UnloadEntities;
@@ -112,72 +110,14 @@ namespace Mordred.WorldGen
         protected override WorldCell Convert(int x, int y, int cellType)
         {
             // Get custom cell
-            var cell = GetCellConfig(cellType, x, y);
+            var cell = ConfigLoader.GetCellConfig(cellType, x, y);
             if (cell == null) return base.Convert(x, y, cellType);
             cell.X = x;
             cell.Y = y;
             return cell;
         }
 
-        public static WorldCell GetCellConfig(int type, int x, int y, bool clone = true, Random customRandom = null)
-        {
-            var cell = clone ? WorldCells[type].Clone() : WorldCells[type];
-            cell.X = x;
-            cell.Y = y;
-            return cell;
-        }
 
-        public static WorldCell GetRandomTerrainCell(int type, int x, int y, bool clone = true, Random customRandom = null)
-        {
-            var cell = clone ? TerrainCells[type].TakeRandom(customRandom).Clone() : TerrainCells[type].TakeRandom(customRandom);
-            cell.X = x;
-            cell.Y = y;
-            return cell;
-        }
-
-        public static void GenerateLands(Random random, int[] chunk, int width, int height, (int x, int y) chunkCoordinate)
-        {
-            // Idk, need to rework..
-            var simplex1 = new OpenSimplex2F(random.Next(-500000, 500000));
-            var simplexNoise = new double[width * height];
-            for (int y=0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    double nx = (double)x / width - 0.5d;
-                    double ny = (double)y / height - 0.5d;
-                    simplexNoise[y * width + x] = simplex1.Noise2(nx, ny);
-                }
-            }
-
-            // Normalize
-            simplexNoise = OpenSimplex2F.Normalize(simplexNoise);
-
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    if ((x == 0 || y == 0 || x == width - 1 || y == height - 1) && Constants.GameSettings.DebugMode)
-                        chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Border, x, y).CellType;
-                    else if (simplexNoise[y * width + x] >= 0.75f && simplexNoise[y * width + x] <= 1f)
-                    {
-                        // Mountains
-                        chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Mountain, x, y).CellType;
-                    }
-                    else
-                    {
-                        // Tree, berrybush or grass
-                        int chance = random.Next(0, 100);
-                        if (chance <= 1)
-                            chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.BerryBush, x, y).CellType;
-                        else if (chance <= 7)
-                            chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Tree, x, y).CellType;
-                        else
-                            chunk[y * width + x] = GetRandomTerrainCell((int)WorldTiles.Grass, x, y).CellType;
-                    }
-                }
-            }
-        }
 
         public override void Center(int x, int y)
         {
@@ -353,7 +293,7 @@ namespace Mordred.WorldGen
         public List<int> GetItemIdDropsByCellId(Point coord)
         {
             var cellId = GetCell(coord.X, coord.Y).CellType;
-            var items = Inventory.ItemCache.Where(a => a.Value.DroppedBy != null && a.Value.IsDroppedBy(cellId))
+            var items = ConfigLoader.Items.Where(a => a.Value.DroppedBy != null && a.Value.IsDroppedBy(cellId))
                 .Select(a => a.Key)
                 .ToList();
             return items;

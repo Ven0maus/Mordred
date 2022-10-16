@@ -13,6 +13,7 @@ namespace Mordred.WorldGen
     /// </summary>
     public class WorldRegrowth
     {
+        private static World World = MapConsole.World;
         private static int _ticksUntilStatusCheck = Constants.WorldSettings.RegrowthStatusCheckTimeInSeconds * Game.TicksPerSecond;
         /// <summary>
         /// Checks and regrows what is required by the world standards
@@ -31,9 +32,9 @@ namespace Mordred.WorldGen
                 System.Diagnostics.Debug.WriteLine("Starting regrowth status checks.");
 
                 // Get all loaded chunk coordinates
-                var loadedChunkCoordinates = MapConsole.World.GetLoadedChunkCoordinates();
+                var loadedChunkCoordinates = World.GetLoadedChunkCoordinates();
                 var entitiesPerChunk = EntitySpawner.Entities.ToArray()
-                    .GroupBy(a => MapConsole.World.GetChunkCoordinate(a.Position.X, a.Position.Y))
+                    .GroupBy(a => World.GetChunkCoordinate(a.Position.X, a.Position.Y))
                     .ToArray();
                 var comparer = new TupleComparer<int>();
                 foreach (var chunkCoordinate in loadedChunkCoordinates)
@@ -89,15 +90,15 @@ namespace Mordred.WorldGen
 
         private static void ResourceStatusCheck((int x, int y) chunkCoordinate)
         {
-            var chunkCellPositions = MapConsole.World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y);
-            var resourceCells = MapConsole.World.GetCells(chunkCellPositions)
+            var chunkCellPositions = World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y);
+            var resourceCells = World.GetCells(chunkCellPositions)
                 .Where(a => a.IsResource)
                 .GroupBy(a => a.TerrainId);
             foreach (var group in resourceCells)
             {
                 var amount = group.Count();
                 if (amount < Constants.WorldSettings.Resources.MinResourcePerChunk)
-                    RegrowResource(chunkCoordinate, group.Key);
+                    RegrowResource(chunkCoordinate, group.Key, amount);
             }
         }
 
@@ -106,9 +107,10 @@ namespace Mordred.WorldGen
             // TODO
         }
 
-        private static void RegrowResource((int x, int y) chunkCoordinate, int terrainId)
+        private static void RegrowResource((int x, int y) chunkCoordinate, int terrainId, int currentAmount)
         {
-            // TODO
+            var chunkCells = World.GetCells(World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y));
+            
         }
     }
 }

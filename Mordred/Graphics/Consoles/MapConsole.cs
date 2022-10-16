@@ -33,7 +33,7 @@ namespace Mordred.Graphics.Consoles
 
         public void InitializeWorld()
         {
-            World = new World(Width, Height);
+            World = new World(Width, Height, 1000);
             //World.GenerateVillages();
 
             // Spawn player

@@ -1,4 +1,5 @@
-﻿using Mordred.Entities.Tribals;
+﻿using Mordred.Config;
+using Mordred.Entities.Tribals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.Graphics.Consoles;
@@ -22,7 +23,7 @@ namespace Mordred.Entities.Actions.Implementations
         {
             if (base.Execute(actor)) return true;
 
-            var edibles = Inventory.ItemCache.Where(a => a.Value is EdibleItem).Select(a => (int?)a.Key).ToList();
+            var edibles = ConfigLoader.Items.Where(a => a.Value is EdibleItem).Select(a => (int?)a.Key).ToList();
             var items = actor.Inventory.Peek()
                 .Where(a => edibles.Contains(a.Key))
                 .OrderByDescending(a => a.Value)
@@ -33,7 +34,7 @@ namespace Mordred.Entities.Actions.Implementations
             var edible = items.FirstOrDefault();
             if (edible != null)
             {
-                var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache[edible.EdibleId] as EdibleItem).EdibleWorth);
+                var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (ConfigLoader.Items[edible.EdibleId] as EdibleItem).EdibleWorth);
                 EatEdibles(actor, edible.EdibleId, amount);
                 return true;
             }
@@ -50,7 +51,7 @@ namespace Mordred.Entities.Actions.Implementations
                 if (edible != null)
                 {
                     // Add action to collect item from house
-                    var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache.First(a => a.Key == edible.EdibleId).Value as EdibleItem).EdibleWorth);
+                    var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (ConfigLoader.Items.First(a => a.Key == edible.EdibleId).Value as EdibleItem).EdibleWorth);
                     actor.AddAction(new VillageItemInteractionAction(edible.EdibleId, amount, VillageItemInteractionAction.Interaction.Take));
 
                     // Add another eat task after this task
@@ -67,7 +68,7 @@ namespace Mordred.Entities.Actions.Implementations
                 if (actor is Human tribal)
                 {
                     // Add action to collect item from house
-                    var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (Inventory.ItemCache.First(a => a.Key == closestEdible.Value.Value).Value as EdibleItem).EdibleWorth);
+                    var amount = (int)Math.Ceiling((Constants.ActorSettings.DefaultMaxHunger - actor.Hunger) / (ConfigLoader.Items.First(a => a.Key == closestEdible.Value.Value).Value as EdibleItem).EdibleWorth);
                     actor.AddAction(new VillageItemInteractionAction(closestEdible.Value.Value, amount, VillageItemInteractionAction.Interaction.Take));
                 }
                 actor.AddAction(new EatAction());
@@ -79,7 +80,7 @@ namespace Mordred.Entities.Actions.Implementations
 
         private List<KeyValuePair<Point, int>?> GetEdibleCells(Actor actor)
         {
-            var cellIds = Inventory.ItemCache.Where(a => a.Value is EdibleItem edible && edible.DroppedBy != null)
+            var cellIds = ConfigLoader.Items.Where(a => a.Value is EdibleItem edible && edible.DroppedBy != null)
                 .Select(a => new { a.Value, EdibleId = a.Value.Id })
                 .ToList();
             var kvps = new List<KeyValuePair<Point, int>?>();
