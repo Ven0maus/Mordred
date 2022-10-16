@@ -134,6 +134,7 @@ namespace Mordred.Entities
 
         private void HandleActions(object sender, EventArgs args)
         {
+            // TODO: Investigate if we should somehow introduce threading for actions?
             if (CurrentAction == null)
             {
                 if (_actorActionsQueue.Count > 0)
