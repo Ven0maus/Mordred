@@ -86,13 +86,12 @@ namespace Mordred.Entities.Actions.Implementations
                 {
                     foreach (var animal in packAnimal.PackMates.OfType<Animal>())
                     {
-                        if (animal.CurrentAction is PredatorAction pa && (pa.Canceled ||
-                            (pa._currentPrey != null && pa._currentPrey.Equals(_currentPrey))))
-                            continue;
+                        if (animal.HasActionOfType<PredatorAction>()) continue;
 
                         animal.CurrentAction?.Cancel();
                         animal.AddAction(new PredatorAction(_currentPrey, predator.TimeBetweenAttacksInTicks), true, true);
-                        Debug.WriteLine("Added pack PredatorAction for: " + animal.Name);
+                        if (Constants.GameSettings.DebugMode)
+                            Debug.WriteLine("Added pack PredatorAction for: " + animal.Name);
                     }
                 }
             }

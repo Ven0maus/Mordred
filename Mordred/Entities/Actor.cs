@@ -393,7 +393,7 @@ namespace Mordred.Entities
                 MapConsole.World.AddEffect(new Bleed(neighbor, Game.Random.Next(4, 7)));
         }
 
-        protected bool HasActionOfType<T>() where T : IAction
+        public bool HasActionOfType<T>() where T : IAction
         {
             if (_actorActionsQueue.Any(a => a.GetType() == typeof(T))) return true;
             if (CurrentAction != null && CurrentAction.GetType() == typeof(T)) return true;
