@@ -16,7 +16,7 @@ namespace Mordred.WorldGen
         public ProceduralGeneration(int seed)
         {
             Seed = seed;
-            _simplex = new OpenSimplex2F(seed);
+            _simplex = new OpenSimplex2F(Seed);
             _proceduralTerrain = ConfigLoader.GetProceduralTerrains().ToArray();
         }
 

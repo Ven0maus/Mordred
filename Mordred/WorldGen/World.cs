@@ -61,7 +61,10 @@ namespace Mordred.WorldGen
 
             Game.GameTick += HandleEffects;
             _worldInitialized = true;
+        }
 
+        public void Initialize()
+        {
             // Re-initialize the starter chunks
             ClearCache();
         }
