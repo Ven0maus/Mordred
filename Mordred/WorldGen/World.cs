@@ -1,9 +1,11 @@
 ﻿using Mordred.Config;
+using Mordred.Config.WorldGenConfig;
 using Mordred.Entities;
 using Mordred.Entities.Animals;
 using Mordred.GameObjects.Effects;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
+using Mordred.Helpers;
 using SadConsole.Entities;
 using SadRogue.Primitives;
 using System;
@@ -25,18 +27,6 @@ namespace Mordred.WorldGen
         ENTITIES
     }
 
-    public enum WorldTiles
-    {
-        Void = 0,
-        Grass = 1,
-        Tree = 2,
-        Mountain = 3,
-        Wall = 4,
-        House = 5,
-        BerryBush = 6,
-        Border = 7
-    }
-
     public class World : GridBase<int, WorldCell>
     {
         public static readonly Dictionary<int, WorldCell[]> TerrainCells = ConfigLoader.LoadWorldCells();
@@ -56,7 +46,7 @@ namespace Mordred.WorldGen
         }
 
         private bool _worldInitialized = false;
-        private readonly HashSet<Point> _chunkEntitiesLoaded;
+        private readonly ConcurrentHashSet<Point> _chunkEntitiesLoaded;
 
         public World(int width, int height) : base(width, height, 
             Constants.WorldSettings.ChunkWidth, Constants.WorldSettings.ChunkHeight, new ProceduralGenerator<int, WorldCell>(1000, GenerateLands))

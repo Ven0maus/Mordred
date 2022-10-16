@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Mordred
+namespace Mordred.Helpers
 {
     internal static class Fnv1a
     {
