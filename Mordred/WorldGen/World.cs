@@ -154,7 +154,7 @@ namespace Mordred.WorldGen
             return GetCell(x, y).Walkable;
         }
 
-        public IEnumerable<Point> GetCellCoords(int startX, int startY, Func<WorldCell, bool> criteria)
+        public IEnumerable<Point> GetCellCoordsFromCenter(int startX, int startY, Func<WorldCell, bool> criteria)
         {
             var sX = startX - Constants.WorldSettings.ChunkWidth / 2;
             var sY = startY - Constants.WorldSettings.ChunkHeight / 2;

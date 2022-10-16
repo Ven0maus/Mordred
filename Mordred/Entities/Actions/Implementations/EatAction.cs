@@ -87,7 +87,7 @@ namespace Mordred.Entities.Actions.Implementations
             
             foreach (var id in cellIds)
             {
-                var coords = MapConsole.World.GetCellCoords(actor.WorldPosition.X, actor.WorldPosition.Y, a => id.Value.IsDroppedBy(a.CellType));
+                var coords = MapConsole.World.GetCellCoordsFromCenter(actor.WorldPosition.X, actor.WorldPosition.Y, a => id.Value.IsDroppedBy(a.CellType));
                 kvps.AddRange(coords.Select(a => new KeyValuePair<Point, int>?(new KeyValuePair<Point, int>(a, id.EdibleId))));
             }
             return kvps;

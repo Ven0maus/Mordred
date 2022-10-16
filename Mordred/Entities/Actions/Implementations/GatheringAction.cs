@@ -56,7 +56,7 @@ namespace Mordred.Entities.Actions.Implementations
 
             if (_gatherables == null)
             {
-                _gatherables = MapConsole.World.GetCellCoords(actor.WorldPosition.X, actor.WorldPosition.Y, a => a.CellType == _cellsToGather[0]).ToList();
+                _gatherables = MapConsole.World.GetCellCoordsFromCenter(actor.WorldPosition.X, actor.WorldPosition.Y, a => a.CellType == _cellsToGather[0]).ToList();
             }
 
             // Update gatherables

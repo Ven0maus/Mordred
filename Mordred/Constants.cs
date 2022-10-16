@@ -52,7 +52,7 @@
 
         public static class VillageSettings
         {
-            public const int MaxVillages = 4;
+            public const int MaxVillagesPerChunk = 1;
             public const int MaxItemStack = 64;
             public const int HumansPerHouse = 2;
         }

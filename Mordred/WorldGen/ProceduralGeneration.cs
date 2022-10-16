@@ -10,6 +10,7 @@ using System.Linq;
 using Venomaus.FlowVitae.Chunking;
 using Venomaus.FlowVitae.Procedural;
 using SadRogue.Primitives;
+using SadConsole.UI;
 
 namespace Mordred.WorldGen
 {
@@ -87,7 +88,7 @@ namespace Mordred.WorldGen
             var random = new Random(world.GetChunkSeed(chunkX, chunkY));
             var wildLifeCount = random.Next(Constants.WorldSettings.WildLife.MinWildLifePerChunk, Constants.WorldSettings.WildLife.MaxWildLifePerChunk + 1);
             var (x, y) = (chunkX + world.ChunkWidth / 2, chunkY + world.ChunkHeight / 2);
-            var spawnPositions = world.GetCellCoords(x, y, a => a.Walkable).ToList();
+            var spawnPositions = world.GetCellCoordsFromCenter(x, y, a => a.Walkable).ToList();
 
             // Get all classes that inherit from PassiveAnimal / PredatorAnimal
             var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
@@ -185,19 +186,23 @@ namespace Mordred.WorldGen
             }
         }
 
-        public void GenerateVillages()
+        public static void GenerateVillages(int chunkX, int chunkY)
         {
-            // TODO: Make it procedural
             var world = MapConsole.World;
-            var villages = new List<Village>(Constants.VillageSettings.MaxVillages);
-            var coords = world.GetCellCoords(world.Width / 2, world.Height / 2, a => a.Walkable).TakeRandom(2).ToList();
-            var village = new Village(coords.First(), 4, Color.Magenta);
-            village.Initialize(world);
-            villages.Add(village);
+            var random = new Random(world.GetChunkSeed(chunkX, chunkY));
+            var villagesToCreate = random.Next(0, Constants.VillageSettings.MaxVillagesPerChunk + 1);
+            if (villagesToCreate == 0) return;
 
-            village = new Village(coords.Last(), 4, Color.Orange);
-            village.Initialize(world);
-            villages.Add(village);
+            // TODO: Store villages per chunk somewhere? Do i need access to it to continue building/expanding?
+            var villages = new List<Village>(villagesToCreate);
+            var walkableCoords = world.GetCellCoordsFromCenter(chunkX + world.ChunkWidth / 2, chunkY + world.ChunkHeight / 2, a => a.Walkable);
+            for (int i=0; i < villagesToCreate; i++)
+            {
+                var coord = walkableCoords.TakeRandom(random);
+                var village = new Village(coord, 5, Color.MonoGameOrange);
+                village.Initialize(world);
+                villages.Add(village);
+            }
         }
     }
 }
