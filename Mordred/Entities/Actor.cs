@@ -77,7 +77,7 @@ namespace Mordred.Entities
             Game.GameTick += HandleActions;
         }
 
-        public bool IsOnScreen(Point position)
+        protected static bool IsOnScreen(Point position)
         {
             return MapConsole.World.IsWorldCoordinateOnViewPort(position.X, position.Y);
         }
@@ -256,7 +256,7 @@ namespace Mordred.Entities
         private int _rottingCounter = 0;
         private void StartActorDecayProcess(object sender, EventArgs args)
         {
-            // Initial freshness of the corpse
+            // Initial freshness of the corpse, skeleton decay takes twice as long as rotting
             int ticksToRot = SkeletonDecaying ? (Constants.ActorSettings.SecondsBeforeCorpsRots * 2 * Game.TicksPerSecond) : (Constants.ActorSettings.SecondsBeforeCorpsRots * Game.TicksPerSecond);
             if (_rottingCounter < ticksToRot)
             {
@@ -293,10 +293,7 @@ namespace Mordred.Entities
             }
 
             // Unset tick event
-            Game.GameTick -= StartActorDecayProcess;
-
-            // Destroy the skeleton corpse
-            EntitySpawner.Destroy(this);
+            DestroyCarcass();
         }
 
         public virtual void Eat(EdibleItem edible, int amount)
@@ -322,14 +319,16 @@ namespace Mordred.Entities
                     DealDamage(2, this);
 
                 // Health regeneration rate when not in combat
-                if (_healthRegenTicks >= HealthRegenerationTickRate && CurrentAction is not ICombatAction)
+                if (_healthRegenTicks >= HealthRegenerationTickRate && CurrentAction is not ICombatAction && Health < MaxHealth)
                 {
                     _healthRegenTicks = 0;
-                    if (Hunger >= (MaxHunger / 100 * Constants.ActorSettings.DefaultPercentageHungerHealthRegen) && Health < MaxHealth)
+                    var minHungerPercentage = (int)((float)MaxHunger / 100 * Constants.ActorSettings.DefaultPercentageHungerHealthRegen);
+                    if (Hunger >= minHungerPercentage)
                         Health++;
                 }
 
-                if (Hunger <= (MaxHunger / 100 * 35) && !HasActionOfType<EatAction>() && !HasActionOfType<PredatorAction>())
+                if (Hunger <= (int)((float)MaxHunger / 100 * Constants.ActorSettings.LookForFoodAtHungerPercentage) && 
+                    !HasActionOfType<EatAction>() && !HasActionOfType<PredatorAction>())
                 {
                     if (this is PredatorAnimal predator)
                     {

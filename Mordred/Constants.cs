@@ -32,7 +32,7 @@
         public static class ActorSettings
         {
             public const int DefaultHungerTickRate = 10;
-            public const int DefaultHealthRegenerationTickRate = 30;
+            public const int DefaultHealthRegenerationTickRate = 12;
             public const int DefaultPercentageHungerHealthRegen = 70;
             public const int DefaultMaxHunger = 100;
             public const int SecondsBeforeCorpsRots = 180;
@@ -42,6 +42,7 @@
             public const int MaxPackSize = 4;
             public const int PathingWidth = 40;
             public const int PathingHeight = 20;
+            public static int LookForFoodAtHungerPercentage = 30;
         }
 
         public static class ActionSettings
