@@ -105,6 +105,20 @@
       "transparent": false,
       "walkable": true,
       "layer": "terrain"
+    },
+    {
+      "id": 8,
+      "glyph": "~",
+      "additionalGlyphs": ["-", "="],
+      "name": "Water",
+      "foreground": "Cyan",
+      "background": "Blue",
+      "transparent": true,
+      "walkable": false,
+      "layer": "terrain",
+      "spawnChance": 100,
+      "minSpawnLayer": 0,
+      "maxSpawnLayer": 0.03
     }
   ]
 }
