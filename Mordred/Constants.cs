@@ -39,6 +39,7 @@
             public const int BleedChanceFromAttack = 35;
             public const float DefaultSecondsPerBleeding = 1.5f;
             public const int StopBleedingAfterSeconds = 15;
+            public const int HowLongInCombatInSeconds = 10;
             public const int MaxPackSize = 4;
             public const int PathingWidth = 40;
             public const int PathingHeight = 20;

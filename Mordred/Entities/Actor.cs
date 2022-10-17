@@ -55,6 +55,10 @@ namespace Mordred.Entities
 
         public int CarcassFoodPercentage = 100;
 
+        private int _combatTimer = 0;
+
+        public bool InCombat { get { return CurrentAttacker != null || _combatTimer != 0; } }
+
         public Actor CurrentAttacker { get; set; }
         #endregion
 
@@ -134,6 +138,20 @@ namespace Mordred.Entities
 
         private void HandleActions(object sender, EventArgs args)
         {
+            // Handle in combat checker
+            if (CurrentAttacker != null)
+            {
+                if (_combatTimer < (Constants.ActorSettings.HowLongInCombatInSeconds * Constants.GameSettings.TimePerTickInSeconds))
+                {
+                    _combatTimer++;
+                }
+                else
+                {
+                    _combatTimer = 0;
+                    CurrentAttacker = null;
+                }
+            }
+
             // TODO: Investigate if we should somehow introduce threading for actions?
             if (CurrentAction == null)
             {
@@ -154,7 +172,9 @@ namespace Mordred.Entities
         }
 
         protected virtual void OnAttacked(int damage, Actor attacker)
-        { }
+        {
+            _combatTimer = 0;
+        }
 
         public virtual void DealDamage(int damage, Actor attacker)
         {
@@ -216,6 +236,8 @@ namespace Mordred.Entities
                         causeOfDeath = "Bleeding";
                     else if (Hunger <= 0 && Bleeding)
                         causeOfDeath = "Mix of bleeding and starvation";
+                    else if (InCombat)
+                        causeOfDeath = "Combat";
                     else
                         causeOfDeath = "Unknown cause of death.";
                 }
