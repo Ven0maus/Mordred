@@ -8,17 +8,29 @@ namespace Mordred.Entities
 {
     public class EntitySpawner
     {
-        public readonly static List<IEntity> Entities = new();
+        private static readonly List<IEntity> _entities = new();
+        public static IReadOnlyList<IEntity> Entities 
+        {
+            get 
+            {
+                lock (_entitiesLock)
+                {
+                    return _entities;
+                }
+            } 
+        }
 
-        public readonly static List<Entity> EntitiesToBeAdded = new();
-        public readonly static List<Entity> EntitiesToBeRemoved = new();
+        private static readonly object _entitiesLock = new();
+
+        public static readonly List<Entity> EntitiesToBeAdded = new();
+        public static readonly List<Entity> EntitiesToBeRemoved = new();
 
         private static readonly object _addLock = new();
         private static void Add(Entity entity)
         {
             lock(_addLock)
             {
-                Entities.Add((IEntity)entity);
+                _entities.Add((IEntity)entity);
                 EntitiesToBeAdded.Add(entity);
             }
         }
@@ -28,7 +40,7 @@ namespace Mordred.Entities
         {
             lock (_removeLock)
             {
-                Entities.Remove((IEntity)entity);
+                _entities.Remove((IEntity)entity);
                 EntitiesToBeRemoved.Add(entity);
             }
         }
