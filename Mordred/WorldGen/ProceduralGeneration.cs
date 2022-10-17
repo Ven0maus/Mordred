@@ -61,7 +61,7 @@ namespace Mordred.WorldGen
                 {
                     if ((x == 0 || y == 0 || x == width - 1 || y == height - 1) && Constants.GameSettings.DebugMode)
                     {
-                        chunk[y * width + x] = ConfigLoader.GetRandomWorldCellTypeByTerrain((int)WorldTiles.Border);
+                        chunk[y * width + x] = ConfigLoader.GetRandomWorldCellTypeByTerrain(7);
                         continue;
                     }
 
