@@ -81,24 +81,21 @@ namespace Mordred.WorldGen
             }
         }
 
-        public static void GenerateWildLife(int chunkX, int chunkY)
+        public static void GenerateWildLife((int x, int y) chunkCoordinates, int passiveAmount, int predatorAmount, Random random = null)
         {
             var world = MapConsole.World;
-            var random = new Random(world.GetChunkSeed(chunkX, chunkY));
-            var wildLifeCount = random.Next(Constants.WorldSettings.WildLife.MinWildLifePerChunk, Constants.WorldSettings.WildLife.MaxWildLifePerChunk + 1);
-            var (x, y) = (chunkX + world.ChunkWidth / 2, chunkY + world.ChunkHeight / 2);
+            random ??= new Random(world.GetChunkSeed(chunkCoordinates.x, chunkCoordinates.y));
+            
+            var (x, y) = (chunkCoordinates.x + world.ChunkWidth / 2, chunkCoordinates.y + world.ChunkHeight / 2);
             var spawnPositions = world.GetCellCoordsFromCenter(x, y, a => a.Walkable).ToList();
 
             // Get all classes that inherit from PassiveAnimal / PredatorAnimal
             var passiveAnimals = ReflectiveEnumerator.GetEnumerableOfType<PassiveAnimal>().ToList();
             var predatorAnimals = ReflectiveEnumerator.GetEnumerableOfType<PredatorAnimal>().ToList();
 
-            // Divide wildlife into passive and predators based on percentage
-            int predators = (int)Math.Round((double)wildLifeCount / 100 * Constants.WorldSettings.WildLife.PercentagePredators);
-
             var packAnimals = new Dictionary<Type, List<IPackAnimal>>();
             // Automatic selection of all predators
-            for (int i = 0; i < predators; i++)
+            for (int i = 0; i < predatorAmount; i++)
             {
                 var animal = predatorAnimals.TakeRandom(random);
                 var pos = spawnPositions.TakeRandom(random);
@@ -116,7 +113,7 @@ namespace Mordred.WorldGen
                 }
             }
 
-            int nonPredators = wildLifeCount - predators;
+            int nonPredators = passiveAmount;
             // Automatic selection of passive animals
             for (int i = 0; i < nonPredators; i++)
             {
@@ -183,6 +180,16 @@ namespace Mordred.WorldGen
                     }
                 }
             }
+        }
+
+        public static void GenerateWildLife(int chunkX, int chunkY)
+        {
+            var random = new Random(MapConsole.World.GetChunkSeed(chunkX, chunkY));
+            var wildLifeCount = random.Next(Constants.WorldSettings.WildLife.MinWildLifePerChunk, Constants.WorldSettings.WildLife.MaxWildLifePerChunk + 1);
+            int predators = (int)Math.Round((double)wildLifeCount / 100 * Constants.WorldSettings.WildLife.PercentagePredators);
+            int passives = wildLifeCount - predators;
+
+            GenerateWildLife((chunkX, chunkY), passives, predators, random);
         }
 
         public static void GenerateVillages(int chunkX, int chunkY)

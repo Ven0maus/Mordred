@@ -120,7 +120,8 @@ namespace Mordred.WorldGen
 
         private static void RegrowWildLife((int x, int y) chunkCoordinate, int passives, int predators)
         {
-            // TODO
+            ProceduralGeneration.GenerateWildLife(chunkCoordinate, passives, predators, Game.Random);
+            System.Diagnostics.Debug.WriteLine("Spawned: " + passives + " passive animals and " + predators + " predatorial animals.");
         }
 
         private static void RegrowResource((int x, int y) chunkCoordinate, WorldCellObject terrainConfig, int currentAmount)
