@@ -126,7 +126,7 @@ namespace Mordred.WorldGen
             if (!_worldInitialized) return;
 
             // Adjust entity visibiltiy when off screen
-            foreach (var entity in EntitySpawner.Entities.ToArray())
+            foreach (var entity in EntitySpawner.Entities)
             {
                 entity.IsVisible = IsWorldCoordinateOnViewPort(entity.WorldPosition.X, entity.WorldPosition.Y);
                 if (entity.IsVisible)

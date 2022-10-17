@@ -35,7 +35,7 @@ namespace Mordred.WorldGen
 
                 // Get all loaded chunk coordinates
                 var loadedChunkCoordinates = World.GetLoadedChunkCoordinates();
-                var entitiesPerChunk = EntitySpawner.Entities.ToArray()
+                var entitiesPerChunk = EntitySpawner.Entities
                     .GroupBy(a => World.GetChunkCoordinate(a.Position.X, a.Position.Y))
                     .ToArray();
                 var comparer = new TupleComparer<int>();

@@ -9,18 +9,8 @@ namespace Mordred.Entities
     public class EntitySpawner
     {
         private static readonly List<IEntity> _entities = new();
-        public static IReadOnlyList<IEntity> Entities 
-        {
-            get 
-            {
-                lock (_entitiesLock)
-                {
-                    return _entities;
-                }
-            } 
-        }
-
-        private static readonly object _entitiesLock = new();
+        // Returns a shallow copy of the internal list
+        public static IReadOnlyList<IEntity> Entities { get { return _entities.ToList(); } }
 
         public static readonly List<Entity> EntitiesToBeAdded = new();
         public static readonly List<Entity> EntitiesToBeRemoved = new();
@@ -74,10 +64,11 @@ namespace Mordred.Entities
 
         public static void DestroyAll<T>(Predicate<T> criteria) where T : IEntity
         {
-            var entities = Entities.ToArray().OfType<T>();
+            var currentEntities = Entities;
+            var entities = currentEntities.OfType<T>();
             foreach (var entity in entities)
             {
-                if (!Entities.Contains(entity)) continue;
+                if (!currentEntities.Contains(entity)) continue;
                 if (criteria.Invoke(entity))
                 {
                     Destroy(entity);
