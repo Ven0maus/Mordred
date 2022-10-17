@@ -22,28 +22,23 @@
                 public const int MaxWildLifePerChunk = 10;
                 public const int PercentagePredators = 25;
             }
-
-            public static class Resources
-            {
-                public const int MinResourcePerChunk = 20;
-            }
         }
 
         public static class ActorSettings
         {
-            public const int DefaultHungerTickRate = 10;
-            public const int DefaultHealthRegenerationTickRate = 12;
+            public const int DefaultHungerTickRateInSeconds = 3;
+            public const int DefaultHealthRegenTickRateInSeconds = 3;
             public const int DefaultPercentageHungerHealthRegen = 70;
             public const int DefaultMaxHunger = 100;
             public const int SecondsBeforeCorpsRots = 180;
-            public const int BleedChanceFromAttack = 35;
+            public const int BleedChanceFromAttack = 25;
             public const float DefaultSecondsPerBleeding = 1.5f;
             public const int StopBleedingAfterSeconds = 15;
             public const int HowLongInCombatInSeconds = 10;
             public const int MaxPackSize = 4;
             public const int PathingWidth = 40;
             public const int PathingHeight = 20;
-            public static int LookForFoodAtHungerPercentage = 30;
+            public const int LookForFoodAtHungerPercentage = 40;
         }
 
         public static class ActionSettings

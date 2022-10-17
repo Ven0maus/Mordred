@@ -7,7 +7,6 @@ namespace Mordred.Entities.Animals
         public Deer(Point position, Gender gender) : base(Color.SaddleBrown, 'D', gender, 80) 
         {
             WorldPosition = position;
-            HungerTickRate = 6;
         }
     }
 }

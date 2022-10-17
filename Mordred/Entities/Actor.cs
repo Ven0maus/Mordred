@@ -49,8 +49,6 @@ namespace Mordred.Entities
         public bool Rotting { get; private set; } = false;
         public bool SkeletonDecaying { get; private set; } = false;
 
-        public int HungerTickRate = Constants.ActorSettings.DefaultHungerTickRate;
-        public int HealthRegenerationTickRate = Constants.ActorSettings.DefaultHealthRegenerationTickRate;
         private int _hungerTicks = 0, _healthRegenTicks = 0, _bleedingCounterTicks = 0, _bleedingForTicks = 0;
 
         public int CarcassFoodPercentage = 100;
@@ -333,7 +331,7 @@ namespace Mordred.Entities
         /// <param name="args"></param>
         protected virtual void GameTick(object sender, EventArgs args)
         {
-            if (_hungerTicks >= HungerTickRate)
+            if (_hungerTicks >= (Constants.ActorSettings.DefaultHungerTickRateInSeconds * Constants.GameSettings.TimePerTickInSeconds))
             {
                 _hungerTicks = 0;
                 if (Hunger > 0)
@@ -342,7 +340,7 @@ namespace Mordred.Entities
                     DealDamage(2, this);
 
                 // Health regeneration rate when not in combat
-                if (_healthRegenTicks >= HealthRegenerationTickRate && CurrentAction is not ICombatAction && Health < MaxHealth)
+                if (_healthRegenTicks >= (Constants.ActorSettings.DefaultHealthRegenTickRateInSeconds * Constants.GameSettings.TimePerTickInSeconds) && CurrentAction is not ICombatAction && Health < MaxHealth)
                 {
                     _healthRegenTicks = 0;
                     var minHungerPercentage = (int)((float)MaxHunger / 100 * Constants.ActorSettings.DefaultPercentageHungerHealthRegen);

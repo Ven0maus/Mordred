@@ -27,7 +27,6 @@ namespace Mordred.Entities.Animals
         {
             PackMates = new List<Sheep>();
             WorldPosition = position;
-            HungerTickRate = 6;
         }
     }
 }

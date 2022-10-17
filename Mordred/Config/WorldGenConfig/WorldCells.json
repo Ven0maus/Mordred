@@ -40,7 +40,7 @@
       "maxSpawnLayer": 0.8,
       "spawnOnTerrain": [ 1 ],
       "renawable": true,
-      "minResourceAmount": 30
+      "minResourceAmount": 20
     },
     {
       "id": 3,
@@ -88,12 +88,12 @@
       "transparent": false,
       "walkable": false,
       "layer": "objects",
-      "spawnChance": 1,
+      "spawnChance": 2,
       "minSpawnLayer": 0.2,
       "maxSpawnLayer": 0.8,
       "spawnOnTerrain": [ 1 ],
       "renawable": true,
-      "minResourceAmount": 20
+      "minResourceAmount": 30
     },
     {
       "id": 7,

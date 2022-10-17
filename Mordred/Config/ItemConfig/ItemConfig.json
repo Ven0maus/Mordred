@@ -24,7 +24,7 @@
       "background" : "Black",
       "edible" : true,
       "edibleWorth" : 3.5,
-      "droppedBy" : ["7|10:20"]
+      "droppedBy" : ["6|10:20"]
     }
   ]
 }

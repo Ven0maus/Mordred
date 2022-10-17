@@ -7,7 +7,6 @@ namespace Mordred.Entities.Animals.Passive
         public Boar(Point position, Gender gender) : base(Color.LightSeaGreen, 'b', gender, 75)
         {
             WorldPosition = position;
-            HungerTickRate = 8;
         }
     }
 }
