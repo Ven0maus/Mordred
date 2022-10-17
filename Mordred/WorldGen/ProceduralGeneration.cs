@@ -10,7 +10,6 @@ using System.Linq;
 using Venomaus.FlowVitae.Chunking;
 using Venomaus.FlowVitae.Procedural;
 using SadRogue.Primitives;
-using SadConsole.UI;
 
 namespace Mordred.WorldGen
 {
@@ -24,7 +23,7 @@ namespace Mordred.WorldGen
         {
             Seed = seed;
             _simplex = new OpenSimplex2F(Seed);
-            _proceduralTerrain = ConfigLoader.GetProceduralTerrains().ToArray();
+            _proceduralTerrain = ConfigLoader.GetTerrains(a => a.spawnChance > 0).ToArray();
         }
 
         public (int[] chunkCells, IChunkData chunkData) Generate(int seed, int width, int height, (int x, int y) chunkCoordinate)

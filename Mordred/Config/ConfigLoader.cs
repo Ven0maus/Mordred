@@ -23,9 +23,9 @@ namespace Mordred.Config
             .SelectMany(a => a.Value)
             .ToDictionary(a => a.CellType, a => a);
 
-        public static IEnumerable<WorldCellObject> GetProceduralTerrains()
+        public static IEnumerable<WorldCellObject> GetTerrains(Func<WorldCellObject, bool> predicate)
         {
-            return _terrainData.cells.Where(a => a.spawnChance > 0);
+            return _terrainData.cells.Where(predicate);
         }
 
         /// <summary>

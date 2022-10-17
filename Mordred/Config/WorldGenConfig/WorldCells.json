@@ -35,7 +35,7 @@
       "transparent": false,
       "walkable": false,
       "layer": "objects",
-      "spawnChance": 3,
+      "spawnChance": 0,
       "minSpawnLayer": 0.2,
       "maxSpawnLayer": 0.8,
       "spawnOnTerrain": [ 1 ],

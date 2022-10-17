@@ -4,6 +4,7 @@ using Mordred.Entities;
 using Mordred.Entities.Animals;
 using Mordred.Graphics.Consoles;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Venomaus.FlowVitae.Helpers;
@@ -15,7 +16,7 @@ namespace Mordred.WorldGen
     /// </summary>
     public class WorldRegrowth
     {
-        private static World World = MapConsole.World;
+        private static World World { get { return MapConsole.World; } }
         private static int _ticksUntilStatusCheck = Constants.WorldSettings.RegrowthStatusCheckTimeInSeconds * Game.TicksPerSecond;
         /// <summary>
         /// Checks and regrows what is required by the world standards
@@ -34,7 +35,7 @@ namespace Mordred.WorldGen
                 System.Diagnostics.Debug.WriteLine("Starting regrowth status checks.");
 
                 // Get all loaded chunk coordinates
-                var loadedChunkCoordinates = World.GetLoadedChunkCoordinates();
+                var loadedChunkCoordinates = World.GetLoadedChunkCoordinates().ToArray();
                 var entitiesPerChunk = EntitySpawner.Entities
                     .GroupBy(a => World.GetChunkCoordinate(a.Position.X, a.Position.Y))
                     .ToArray();
@@ -92,16 +93,21 @@ namespace Mordred.WorldGen
 
         private static void ResourceStatusCheck((int x, int y) chunkCoordinate)
         {
+            // TODO: Find bug that always sets one cell still after run
             var chunkCellPositions = World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y);
+            var renawableCells = ConfigLoader.GetTerrains(a => a.renawable)
+                .Where(a => a.renawable)
+                .ToDictionary(a => a.id, a => a);
             var resourceCells = World.GetCells(chunkCellPositions)
                 .GroupBy(a => a.TerrainId)
-                .Where(a => ConfigLoader.GetConfigForTerrain(a.Key).renawable);
-            foreach (var group in resourceCells)
+                .Where(a => renawableCells.ContainsKey(a.Key))
+                .ToArray();
+            foreach (var cell in renawableCells)
             {
-                var terrainConfig = ConfigLoader.GetConfigForTerrain(group.Key);
-                var amount = group.Count();
-                if (amount < terrainConfig.minResourceAmount)
-                    RegrowResource(chunkCoordinate, terrainConfig, amount);
+                var group = resourceCells.FirstOrDefault(a => a.Key == cell.Key);
+                var amount = group == null ? 0 : group.Count();
+                if (amount < cell.Value.minResourceAmount)
+                    RegrowResource(chunkCoordinate, cell.Value, amount);
             }
         }
 
@@ -130,7 +136,7 @@ namespace Mordred.WorldGen
             World.SetCells(newCells);
 
             System.Diagnostics.Debug.WriteLine("Found only " + currentAmount + " of " + terrainConfig.name + " in the chunk "+chunkCoordinate+".");
-            System.Diagnostics.Debug.WriteLine("Added " + newCells.Length + " cells of " + terrainConfig.name + " to the chunk "+chunkCoordinate +".");
+            System.Diagnostics.Debug.WriteLine("Added " + newCells.Length + " cells to the chunk.");
         }
     }
 }
