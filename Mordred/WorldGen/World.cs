@@ -151,6 +151,7 @@ namespace Mordred.WorldGen
 
         public bool CellWalkable(int x, int y)
         {
+            if (!IsChunkLoaded(x, y)) return false;
             return GetCell(x, y).Walkable;
         }
 
