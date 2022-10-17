@@ -90,8 +90,6 @@ namespace Mordred.Entities.Actions.Implementations
 
                         animal.CurrentAction?.Cancel();
                         animal.AddAction(new PredatorAction(_currentPrey, predator.TimeBetweenAttacksInTicks), true, true);
-                        if (Constants.GameSettings.DebugMode)
-                            Debug.WriteLine("Added pack PredatorAction for: " + animal.Name);
                     }
                 }
             }
@@ -142,8 +140,6 @@ namespace Mordred.Entities.Actions.Implementations
 
                 // We have reached the entity, attack the entity
                 _currentPrey.DealDamage(predator.AttackDamage, predator);
-                if (Constants.GameSettings.DebugMode)
-                    Debug.WriteLine($"{predator.Name} just attacked {_currentPrey.Name} for {predator.AttackDamage}");
 
                 // 35% chance to stun prey for 3 to 8 game ticks
                 if (_currentPrey.Alive && Game.Random.Next(0, 100) < 40)

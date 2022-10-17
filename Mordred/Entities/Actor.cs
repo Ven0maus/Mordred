@@ -320,8 +320,6 @@ namespace Mordred.Entities
         {
             if (!Alive) return;
             Hunger += (int)Math.Round(amount * edible.EdibleWorth);
-            if (Constants.GameSettings.DebugMode)
-                Debug.WriteLine("[" + Name + "] just ate ["+ edible.Name +"] for: " + (int)Math.Round(amount * edible.EdibleWorth) + " hunger value.");
         }
 
         /// <summary>
@@ -359,8 +357,6 @@ namespace Mordred.Entities
                                 CurrentAction.Cancel();
 
                             AddAction(new PredatorAction(predator.TimeBetweenAttacksInTicks), true);
-                            if (Constants.GameSettings.DebugMode)
-                                Debug.WriteLine("Added PredatorAction for: " + Name);
                         }
                     }
                     else

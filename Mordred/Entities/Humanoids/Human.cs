@@ -73,8 +73,6 @@ namespace Mordred.Entities.Tribals
                 da.ActionCompleted += ResetStateOnCompletionOrCanceled;
                 da.ActionCanceled += ResetStateOnCompletionOrCanceled;
                 AddAction(da, true, false);
-                if (Constants.GameSettings.DebugMode)
-                    Debug.WriteLine($"Assigned a DefendAction to {Name} to defend from {attacker.Name}");
 
                 // Let tribals know who to attack
                 foreach (var tribal in Village.Humans)
@@ -87,8 +85,6 @@ namespace Mordred.Entities.Tribals
                         daTribe.ActionCompleted += ResetStateOnCompletionOrCanceled;
                         daTribe.ActionCanceled += ResetStateOnCompletionOrCanceled;
                         tribal.AddAction(daTribe, true, false);
-                        if (Constants.GameSettings.DebugMode)
-                            Debug.WriteLine($"Assigned a tribe DefendAction to {tribal.Name} to defend from {attacker.Name}");
                     }
                 }
             }

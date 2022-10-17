@@ -30,8 +30,6 @@ namespace Mordred.Entities.Animals
                 if (CurrentAction != null)
                     CurrentAction.Cancel();
                 AddAction(new DefendAction(), true, false);
-                if (Constants.GameSettings.DebugMode)
-                    Debug.WriteLine($"Assigned a DefendAction to {Name} to defend from {attacker.Name}");
 
                 // Let pack know who to attack
                 if (this is IPackAnimal packAnimal)
@@ -42,8 +40,6 @@ namespace Mordred.Entities.Animals
                         {
                             packMate.CurrentAction?.Cancel();
                             packMate.AddAction(new DefendAction(this), true, false);
-                            if (Constants.GameSettings.DebugMode)
-                                Debug.WriteLine($"Assigned a pack DefendAction to {packMate.Name} to defend from {attacker.Name}");
                         }
                     }
                 }

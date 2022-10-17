@@ -77,37 +77,6 @@ namespace Mordred.WorldGen
                 cell.Foreground = Color;
                 world.SetCell(cell, true);
             }
-
-            if (Constants.GameSettings.DebugMode)
-            {
-                // Draw border around the village boundaries
-                var borderCells = positions
-                    .GetBorderCoords(CustomBorderCriteria);
-                _villageAreaCache = null;
-                foreach (var borderCell in borderCells)
-                {
-                    var cell = MapConsole.World.GetCell(borderCell.X, borderCell.Y);
-                    cell.Background = Color.LightYellow;
-                    world.SetCell(cell, true);
-                }
-            }
-        }
-
-        private Point[] _villageAreaCache;
-        private bool CustomBorderCriteria(Point coord)
-        {
-            if (_villageAreaCache == null)
-            {
-                _villageAreaCache = MapConsole.World.Villages.Where(a => a != this)
-                .SelectMany(a => a.WorldPosition
-                    .GetCirclePositions(Radius)
-                    .Where(a => MapConsole.World.InBounds(a.X, a.Y)))
-                    .ToArray();
-            }
-
-            return (MapConsole.World.GetCell(coord.X, coord.Y).Walkable ||
-                    HousePositions.Contains(coord)) &&
-                    !_villageAreaCache.Any(a => a == coord);
         }
 
         private void SpawnVillagers(int amount)

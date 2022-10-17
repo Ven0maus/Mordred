@@ -30,13 +30,7 @@ namespace Mordred.WorldGen
     public class World : GridBase<int, WorldCell>
     {
         private readonly MapConsole MapConsole;
-        private readonly List<Village> _villages;
         private readonly List<CellEffect> _cellEffects;
-        
-        public IReadOnlyList<Village> Villages
-        {
-            get { return _villages; }
-        }
 
         private readonly bool _worldInitialized = false;
         private readonly ConcurrentHashSet<Point> _chunkEntitiesLoaded;
