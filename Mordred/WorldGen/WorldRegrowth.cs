@@ -4,7 +4,6 @@ using Mordred.Entities;
 using Mordred.Entities.Animals;
 using Mordred.Graphics.Consoles;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Venomaus.FlowVitae.Helpers;
@@ -93,7 +92,6 @@ namespace Mordred.WorldGen
 
         private static void ResourceStatusCheck((int x, int y) chunkCoordinate)
         {
-            // TODO: Find bug that always sets one cell still after run
             var chunkCellPositions = World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y);
             var renawableCells = ConfigLoader.GetTerrains(a => a.renawable)
                 .Where(a => a.renawable)
@@ -131,12 +129,9 @@ namespace Mordred.WorldGen
                 .Select(cell =>
                 {
                     return ConfigLoader.GetNewTerrainCell(terrainConfig.id, cell.X, cell.Y);
-                }).ToArray(); // Remove ToArray once debugging is succesful
+                });
 
             World.SetCells(newCells);
-
-            System.Diagnostics.Debug.WriteLine("Found only " + currentAmount + " of " + terrainConfig.name + " in the chunk "+chunkCoordinate+".");
-            System.Diagnostics.Debug.WriteLine("Added " + newCells.Length + " cells to the chunk.");
         }
     }
 }

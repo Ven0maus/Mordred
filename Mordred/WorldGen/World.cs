@@ -179,8 +179,8 @@ namespace Mordred.WorldGen
         /// <returns></returns>
         public List<int> GetItemIdDropsByCellId(Point coord)
         {
-            var cellId = GetCell(coord.X, coord.Y).CellType;
-            var items = ConfigLoader.Items.Where(a => a.Value.DroppedBy != null && a.Value.IsDroppedBy(cellId))
+            var terrainId = GetCell(coord.X, coord.Y).TerrainId;
+            var items = ConfigLoader.Items.Where(a => a.Value.DroppedBy != null && a.Value.IsDroppedBy(terrainId))
                 .Select(a => a.Key)
                 .ToList();
             return items;

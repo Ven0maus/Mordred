@@ -67,10 +67,10 @@ namespace Mordred.GameObjects.ItemInventory.Items
             return dropRate;
         }
 
-        public bool IsDroppedBy(int cellId)
+        public bool IsDroppedBy(int terrainId)
         {
             if (DroppedBy == null) return false;
-            return DroppedBy.ContainsKey(cellId);
+            return DroppedBy.ContainsKey(terrainId);
         }
 
         public IEnumerable<int> GetCellDropIds()

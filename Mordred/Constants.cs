@@ -14,7 +14,7 @@
         {
             public const int ChunkWidth = 100;
             public const int ChunkHeight = 100;
-            public const int RegrowthStatusCheckTimeInSeconds = 10;
+            public const int RegrowthStatusCheckTimeInSeconds = 90;
 
             public static class WildLife
             {
