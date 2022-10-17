@@ -10,31 +10,33 @@ namespace Mordred.Entities
     {
         public readonly static List<IEntity> Entities = new();
 
+        public readonly static List<Entity> EntitiesToBeAdded = new();
+        public readonly static List<Entity> EntitiesToBeRemoved = new();
+
         private static readonly object _addLock = new();
-        private static void Add(IEntity entity)
+        private static void Add(Entity entity)
         {
             lock(_addLock)
             {
-                Entities.Add(entity);
+                Entities.Add((IEntity)entity);
+                EntitiesToBeAdded.Add(entity);
             }
         }
 
         private static readonly object _removeLock = new();
-        private static void Remove(IEntity entity)
+        private static void Remove(Entity entity)
         {
             lock (_removeLock)
             {
-                Entities.Remove(entity);
+                Entities.Remove((IEntity)entity);
+                EntitiesToBeRemoved.Add(entity);
             }
         }
 
         public static T Spawn<T>(params object[] args) where T : Entity, IEntity
         {
             var entity = (T)Activator.CreateInstance(typeof(T), args);
-            while (MapConsole.Instance.Children.IsLocked) { }
-            MapConsole.Instance.Children.Add(entity);
             Add(entity);
-            MapConsole.Instance.EntityRenderer.Add(entity);
             return entity;
         }
 
@@ -42,28 +44,20 @@ namespace Mordred.Entities
         {
             if (entity != typeof(Entity) && !entity.IsSubclassOf(typeof(Entity))) return null;
             var entityObj = (Entity)Activator.CreateInstance(entity, args);
-            while (MapConsole.Instance.Children.IsLocked) { }
-            MapConsole.Instance.Children.Add(entityObj);
-            Add((IEntity)entityObj);
-            MapConsole.Instance.EntityRenderer.Add(entityObj);
+            Add(entityObj);
             return entityObj;
         }
 
         public static void Spawn(IEntity entity)
         {
             while (MapConsole.Instance.Children.IsLocked) { }
-            MapConsole.Instance.Children.Add((Entity)entity);
-            Add(entity);
-            MapConsole.Instance.EntityRenderer.Add((Entity)entity);
+            Add((Entity)entity);
         }
 
         public static void Destroy(IEntity entity)
         {
             entity.UnSubscribe();
-            Remove(entity);
-            MapConsole.Instance.EntityRenderer.Remove((Entity)entity);
-            while (MapConsole.Instance.Children.IsLocked) { }
-            MapConsole.Instance.Children.Remove((Entity)entity);
+            Remove((Entity)entity);
         }
 
         public static void DestroyAll<T>(Predicate<T> criteria) where T : IEntity
