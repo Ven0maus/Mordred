@@ -31,7 +31,7 @@
             public const int DefaultPercentageHungerHealthRegen = 70;
             public const int DefaultMaxHunger = 100;
             public const int SecondsBeforeCorpsRots = 180;
-            public const int BleedChanceFromAttack = 25;
+            public const int BleedChanceFromAttack = 30;
             public const float DefaultSecondsPerBleeding = 1.5f;
             public const int StopBleedingAfterSeconds = 15;
             public const int HowLongInCombatInSeconds = 10;
