@@ -65,7 +65,7 @@ namespace Mordred.Entities
             Name = GetType().Name;
 
             MaxHunger = Constants.ActorSettings.DefaultMaxHunger;
-            Hunger = Game.Random.Next(35, MaxHunger + 1);
+            Hunger = Game.Random.Next(50, MaxHunger + 1);
 
             MaxHealth = health;
             Health = health;
@@ -139,7 +139,7 @@ namespace Mordred.Entities
             // Handle in combat checker
             if (CurrentAttacker != null)
             {
-                if (_combatTimer < (Constants.ActorSettings.HowLongInCombatInSeconds * Constants.GameSettings.TimePerTickInSeconds))
+                if (_combatTimer < (Constants.ActorSettings.HowLongInCombatInSeconds * Game.TicksPerSecond))
                 {
                     _combatTimer++;
                 }
@@ -331,7 +331,7 @@ namespace Mordred.Entities
         /// <param name="args"></param>
         protected virtual void GameTick(object sender, EventArgs args)
         {
-            if (_hungerTicks >= (Constants.ActorSettings.DefaultHungerTickRateInSeconds * Constants.GameSettings.TimePerTickInSeconds))
+            if (_hungerTicks >= (Constants.ActorSettings.DefaultHungerTickRateInSeconds * Game.TicksPerSecond))
             {
                 _hungerTicks = 0;
                 if (Hunger > 0)
@@ -340,7 +340,7 @@ namespace Mordred.Entities
                     DealDamage(2, this);
 
                 // Health regeneration rate when not in combat
-                if (_healthRegenTicks >= (Constants.ActorSettings.DefaultHealthRegenTickRateInSeconds * Constants.GameSettings.TimePerTickInSeconds) && CurrentAction is not ICombatAction && Health < MaxHealth)
+                if (_healthRegenTicks >= (Constants.ActorSettings.DefaultHealthRegenTickRateInSeconds * Game.TicksPerSecond) && CurrentAction is not ICombatAction && Health < MaxHealth)
                 {
                     _healthRegenTicks = 0;
                     var minHungerPercentage = (int)((float)MaxHunger / 100 * Constants.ActorSettings.DefaultPercentageHungerHealthRegen);
