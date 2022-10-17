@@ -179,14 +179,14 @@ namespace Mordred.Entities
             if (!Alive) return;
             Health -= damage;
 
+            if (Alive)
+                CurrentAttacker = attacker;
+            else
+                CurrentAttacker = null;
+
             // Handle attacker assignment
             if (!attacker.Equals(this))
             {
-                if (Alive)
-                    CurrentAttacker = attacker;
-                else
-                    CurrentAttacker = null;
-
                 if (attacker is PredatorAnimal predator)
                 {
                     if (Alive)
