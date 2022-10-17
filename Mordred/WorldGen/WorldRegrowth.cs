@@ -53,27 +53,24 @@ namespace Mordred.WorldGen
         private static void WildLifeStatusCheck((int x, int y) chunkCoordinate, 
             IGrouping<(int x, int y), IEntity>[] entitiesPerChunk, TupleComparer<int> comparer)
         {
+            var minReq = Constants.WorldSettings.WildLife.MinWildLifePerChunk;
+            var minPredators = (int)((double)minReq / 100 * 25);
+            var minPassives = minReq - minPredators;
             var entityChunk = entitiesPerChunk.FirstOrDefault(a => comparer.Equals(a.Key, chunkCoordinate));
             if (entityChunk == null)
             {
                 // No entities for this chunk??
-                RegrowWildLife(chunkCoordinate);
+                RegrowWildLife(chunkCoordinate, minPassives, minPredators);
                 return;
             }
 
             var totalWildLife = entityChunk.Count();
             var predators = entityChunk.OfType<PredatorAnimal>().Count();
-            var minPercentagePredators = (int)((double)totalWildLife / 100 * Constants.WorldSettings.WildLife.PercentagePredators);
-            if (predators < minPercentagePredators)
-            {
-                // Not enough predators
-                RegrowWildLife(chunkCoordinate);
-                return;
-            }
-
             var passive = entityChunk.OfType<PassiveAnimal>().Count();
+            var minPercentagePredators = (int)((double)totalWildLife / 100 * Constants.WorldSettings.WildLife.PercentagePredators);
+
             int maxPredators = (int)((double)passive / 100 * Constants.WorldSettings.WildLife.PercentagePredators);
-            if (predators > (passive + maxPredators))
+            if (predators > maxPredators)
             {
                 // Too many predators
                 // Should we exterminate some predators, through disease etc?
@@ -81,11 +78,23 @@ namespace Mordred.WorldGen
                 // TODO: Investigate
             }
 
-            var minWildLife = Constants.WorldSettings.WildLife.MinWildLifePerChunk;
-            if (totalWildLife < minWildLife)
+            if (predators < minPercentagePredators && passive < minPassives)
             {
-                // Under the minimum for all wild life
-                RegrowWildLife(chunkCoordinate);
+                // Not enough predators & passives
+                RegrowWildLife(chunkCoordinate, minPassives - passive, minPercentagePredators - predators);
+                return;
+            }
+            
+            if (predators < minPercentagePredators)
+            {
+                // Not enough predators
+                RegrowWildLife(chunkCoordinate, 0, minPercentagePredators - predators);
+                return;
+            }
+            else if (passive < minPassives)
+            {
+                // Not enough passives
+                RegrowWildLife(chunkCoordinate, minPassives - passive, 0);
                 return;
             }
         }
@@ -109,7 +118,7 @@ namespace Mordred.WorldGen
             }
         }
 
-        private static void RegrowWildLife((int x, int y) chunkCoordinate)
+        private static void RegrowWildLife((int x, int y) chunkCoordinate, int passives, int predators)
         {
             // TODO
         }
@@ -123,6 +132,7 @@ namespace Mordred.WorldGen
             var neededAmount = minAmount - currentAmount;
             var spawnsOnTerrain = terrainConfig.spawnOnTerrain.ToHashSet();
 
+            // TODO: Add growing stages for plants and trees
             var newCells = World.GetCells(World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y))
                 .Where(a => spawnsOnTerrain.Contains(a.TerrainId))
                 .TakeRandom(neededAmount)
