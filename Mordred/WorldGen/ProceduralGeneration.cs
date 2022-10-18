@@ -61,7 +61,7 @@ namespace Mordred.WorldGen
                 {
                     if ((x == 0 || y == 0 || x == width - 1 || y == height - 1) && Constants.GameSettings.DebugMode)
                     {
-                        chunk[y * width + x] = ConfigLoader.GetRandomWorldCellTypeByTerrain(7);
+                        chunk[y * width + x] = ConfigLoader.GetRandomWorldCellTypeByTerrain(7, random);
                         continue;
                     }
 
@@ -73,12 +73,30 @@ namespace Mordred.WorldGen
                         {
                             if (random.Next(0, 100) < terrain.spawnChance)
                             {
-                                chunk[y * width + x] = ConfigLoader.GetRandomWorldCellTypeByTerrain(terrain.id);
+                                chunk[y * width + x] = ConfigLoader.GetRandomWorldCellTypeByTerrain(terrain.id, random);
                             }
                         }
                     }
                 }
             }
+
+            // TODO: Revisit this to solve border problem with !InBounds being on the border, but next tile is see through
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    var neighbors = new Point(x, y)
+                        .Get4Neighbors()
+                        .Count(a => !InBounds(a.X, a.Y, width, height) || !ConfigLoader.WorldCells[chunk[a.Y * width + a.X]].SeeThrough);
+                    if (neighbors == 4)
+                        chunk[y * width + x] = ConfigLoader.GetRandomWorldCellTypeByTerrain(0, random);
+                }
+            }
+        }
+        
+        private static bool InBounds(int x, int y, int width, int height)
+        {
+            return x >= 0 && y >= 0 && x < width && y < height;
         }
 
         public static void GenerateWildLife((int x, int y) chunkCoordinates, int passiveAmount, int predatorAmount, Random random = null)

@@ -239,9 +239,6 @@ namespace Mordred.Entities
                     else
                         causeOfDeath = "Unknown cause of death.";
                 }
-
-                // Debugging
-                Debug.WriteLine(Name + " has died from: " + (diedBySelf ? causeOfDeath : attacker.Name));
             }
 
             // Call virtual method
@@ -294,7 +291,6 @@ namespace Mordred.Entities
                 _rottingCounter = 0;
                 CarcassFoodPercentage = 0;
                 Rotting = true;
-                Debug.WriteLine("[" + Name + "] just started rotting.");
                 return;
             }
 
@@ -308,7 +304,6 @@ namespace Mordred.Entities
                 _rottingCounter = 0;
                 SkeletonDecaying = true;
                 Rotting = false;
-                Debug.WriteLine("[" + Name + "] just started bone decaying.");
                 return;
             }
 
@@ -386,8 +381,6 @@ namespace Mordred.Entities
                     return;
                 }
                 int bleedDamage = (int)Math.Ceiling((double)Health / 100 * 10);
-
-                Debug.WriteLine($"{Name}: just bled for {bleedDamage} damage. Only {Health} health remains.");
 
                 DealDamage(bleedDamage, this);
                 AddBleedEffect();

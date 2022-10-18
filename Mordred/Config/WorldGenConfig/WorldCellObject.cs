@@ -12,7 +12,7 @@ namespace Mordred.Config.WorldGenConfig
         public string foreground;
         public string background;
         public string layer;
-        public bool transparent;
+        public bool seeThrough;
         public bool walkable;
 
         // World gen

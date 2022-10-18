@@ -71,8 +71,6 @@ namespace Mordred.Entities.Animals
             }
             totalEaten = Hunger - totalEaten;
 
-            Debug.WriteLine($"{Name} just ate a {prey.Name} for {totalEaten} hunger value.");
-
             int foodToPercentage = (int)Math.Round((float)percentageToFood / foodWorth);
             prey.CarcassFoodPercentage = foodToPercentage;
 
@@ -80,11 +78,6 @@ namespace Mordred.Entities.Animals
             {
                 prey.CarcassFoodPercentage = 0;
                 prey.DestroyCarcass();
-                Debug.WriteLine($"Animal carcass was completely devoured for {prey.Name}.");
-            }
-            else
-            {
-                Debug.WriteLine($"Only {prey.CarcassFoodPercentage} remains of the {prey.Name}.");
             }
         }
 

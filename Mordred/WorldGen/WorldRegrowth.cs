@@ -31,8 +31,6 @@ namespace Mordred.WorldGen
 
             _ = Task.Factory.StartNew(() =>
             {
-                System.Diagnostics.Debug.WriteLine("Starting regrowth status checks.");
-
                 // Get all loaded chunk coordinates
                 var loadedChunkCoordinates = World.GetLoadedChunkCoordinates().ToArray();
                 var entitiesPerChunk = EntitySpawner.Entities

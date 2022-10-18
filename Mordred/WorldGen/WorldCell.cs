@@ -39,9 +39,18 @@ namespace Mordred.WorldGen
 
         public WorldCell() { }
 
-        public WorldCell(int terrainId, int cellId, Color foreground, Color background, string name, int glyph, int layer, bool walkable, bool transparent) : 
+        private readonly bool _isAdditional = false;
+
+        public WorldCell(int terrainId, int cellId, Color foreground, Color background, string name, int glyph, int layer, bool walkable, bool transparent, bool isAdditional = false) : 
             base(foreground, background, glyph)
         {
+            _isAdditional = isAdditional;
+
+            if (Foreground == Color.Transparent && Background == Color.Transparent)
+            {
+                IsVisible = false;
+            }
+
             TerrainId = terrainId;
             CellType = cellId;
             Name = name;
@@ -52,6 +61,7 @@ namespace Mordred.WorldGen
 
         public WorldCell(WorldCell original) : base(original.Foreground, original.Background, original.Glyph)
         {
+            _isAdditional = original._isAdditional;
             X = original.X;
             Y = original.Y;
             TerrainId = original.TerrainId;
@@ -61,6 +71,12 @@ namespace Mordred.WorldGen
             SeeThrough = original.SeeThrough;
             Layer = original.Layer;
             IsVisible = original.IsVisible;
+
+            if (IsVisible && _isAdditional)
+            {
+                var newColor = Color.Lerp(Foreground, Game.Random.Next(0, 2) == 1 ? Color.Black : Color.White, (float)Game.Random.Next(1, 4) / 10);
+                Foreground = newColor;
+            }
         }
 
         public new WorldCell Clone()
