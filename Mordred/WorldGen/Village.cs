@@ -68,9 +68,10 @@ namespace Mordred.WorldGen
             var positions = WorldPosition
                 .GetCirclePositions(Radius)
                 .ToList();
+            var dominatingType = MapConsole.World.GetDominatingTerrain(positions, a => a.Walkable);
             foreach  (var pos in positions)
             {
-                world.SetCell(pos.X, pos.Y, ConfigLoader.GetRandomWorldCellTypeByTerrain(1, _random));
+                world.SetCell(pos.X, pos.Y, ConfigLoader.GetRandomWorldCellTypeByTerrain(dominatingType, _random));
             }
 
             // Spawn the village house(s)

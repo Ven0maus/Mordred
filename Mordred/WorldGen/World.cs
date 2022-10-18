@@ -125,6 +125,17 @@ namespace Mordred.WorldGen
                 }
             }
         }
+
+        public int GetDominatingTerrain(IEnumerable<Point> positions, Func<WorldCell, bool> criteria = null)
+        {
+            var cells = GetCells(positions);
+            if (criteria != null)
+                cells = cells.Where(criteria);
+            return cells
+                .GroupBy(a => a.CellType)
+                .OrderByDescending(a => a.Key)
+                .First().First().TerrainId;
+        }
         
         /// <summary>
         /// The actual visual displayed cell
