@@ -5,6 +5,7 @@ using Mordred.Entities.Tribals;
 using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
 using SadRogue.Primitives;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -32,11 +33,15 @@ namespace Mordred.WorldGen
         public readonly List<Point> HousePositions;
         public readonly List<Human> Humans;
 
-        public Village(Point position, int radius, Color color)
+        private readonly Random _random;
+
+        public Village(Point position, int radius, Color color, Random random)
         {
             WorldPosition = position;
             Color = color;
             Radius = radius;
+
+            _random = random;
 
             Inventory = new Inventory();
             HousePositions = new List<Point>();
@@ -65,7 +70,7 @@ namespace Mordred.WorldGen
                 .ToList();
             foreach  (var pos in positions)
             {
-                world.SetCell(pos.X, pos.Y, ConfigLoader.GetRandomWorldCellTypeByTerrain(1));
+                world.SetCell(pos.X, pos.Y, ConfigLoader.GetRandomWorldCellTypeByTerrain(1, _random));
             }
 
             // Spawn the village house(s)
@@ -73,7 +78,7 @@ namespace Mordred.WorldGen
             foreach (var housePosition in housePositions)
             {
                 HousePositions.Add(housePosition);
-                var cell = ConfigLoader.GetNewTerrainCell(5, housePosition.X, housePosition.Y);
+                var cell = ConfigLoader.GetNewTerrainCell(5, housePosition.X, housePosition.Y, customRandom: _random);
                 cell.Foreground = Color;
                 world.SetCell(cell);
             }
@@ -90,7 +95,7 @@ namespace Mordred.WorldGen
             int males = 0;
             for (int i=0; i < amount; i++)
             {
-                var housePos = housePositions.TakeRandom();
+                var housePos = housePositions.TakeRandom(_random);
                 var pos = housePos
                     .GetCirclePositions(3)
                     .Where(a => MapConsole.World.CellWalkable(a.X, a.Y) && a != housePos)

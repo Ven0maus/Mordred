@@ -203,7 +203,7 @@ namespace Mordred.WorldGen
             // TODO: Store villages per chunk somewhere? Do i need access to it to continue building/expanding?
             var walkableCoords = world.GetCellCoordsFromCenter(chunkX + world.ChunkWidth / 2, chunkY + world.ChunkHeight / 2, a => a.Walkable);
             var coord = walkableCoords.TakeRandom(random);
-            var village = new Village(coord, 5, Color.MonoGameOrange);
+            var village = new Village(coord, 5, Color.MonoGameOrange, random);
             village.Initialize(world);
         }
     }
