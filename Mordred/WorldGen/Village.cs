@@ -65,7 +65,7 @@ namespace Mordred.WorldGen
                 .ToList();
             foreach  (var pos in positions)
             {
-                world.SetCell(pos.X, pos.Y, 1);
+                world.SetCell(pos.X, pos.Y, ConfigLoader.GetRandomWorldCellTypeByTerrain(1));
             }
 
             // Spawn the village house(s)
@@ -73,9 +73,9 @@ namespace Mordred.WorldGen
             foreach (var housePosition in housePositions)
             {
                 HousePositions.Add(housePosition);
-                var cell = ConfigLoader.GetNewTerrainCell(6, housePosition.X, housePosition.Y);
+                var cell = ConfigLoader.GetNewTerrainCell(5, housePosition.X, housePosition.Y);
                 cell.Foreground = Color;
-                world.SetCell(cell, true);
+                world.SetCell(cell);
             }
         }
 

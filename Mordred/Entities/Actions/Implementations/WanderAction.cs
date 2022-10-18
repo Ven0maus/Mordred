@@ -76,11 +76,13 @@ namespace Mordred.Entities.Actions.Implementations
                 }
 
                 // Don't go for too long paths
+                /*
                 if (_path.Length > 20)
                 {
                     ActionCompleted?.Invoke(this, actor);
                     return false;
                 }
+                */
             }
             var result = Wander(actor);
             if (result)

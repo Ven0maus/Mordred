@@ -1,15 +1,15 @@
 ﻿using Mordred.Config;
 using Mordred.Config.WorldGenConfig;
-using Mordred.Entities.Animals;
 using Mordred.Entities;
+using Mordred.Entities.Animals;
 using Mordred.Graphics.Consoles;
 using SadConsole.Entities;
+using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Venomaus.FlowVitae.Chunking;
 using Venomaus.FlowVitae.Procedural;
-using SadRogue.Primitives;
 
 namespace Mordred.WorldGen
 {
@@ -196,19 +196,15 @@ namespace Mordred.WorldGen
         {
             var world = MapConsole.World;
             var random = new Random(world.GetChunkSeed(chunkX, chunkY));
-            var villagesToCreate = random.Next(0, Constants.VillageSettings.MaxVillagesPerChunk + 1);
-            if (villagesToCreate == 0) return;
+            var spawnChance = random.Next(0, 100);
+            if (spawnChance >= Constants.VillageSettings.VillageSpawnChange) 
+                return;
 
             // TODO: Store villages per chunk somewhere? Do i need access to it to continue building/expanding?
-            var villages = new List<Village>(villagesToCreate);
             var walkableCoords = world.GetCellCoordsFromCenter(chunkX + world.ChunkWidth / 2, chunkY + world.ChunkHeight / 2, a => a.Walkable);
-            for (int i=0; i < villagesToCreate; i++)
-            {
-                var coord = walkableCoords.TakeRandom(random);
-                var village = new Village(coord, 5, Color.MonoGameOrange);
-                village.Initialize(world);
-                villages.Add(village);
-            }
+            var coord = walkableCoords.TakeRandom(random);
+            var village = new Village(coord, 5, Color.MonoGameOrange);
+            village.Initialize(world);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Mordred.Entities.Animals;
 using Mordred.Entities.Tribals;
 using System;
-using System.Diagnostics;
 
 namespace Mordred.Entities.Actions.Implementations
 {

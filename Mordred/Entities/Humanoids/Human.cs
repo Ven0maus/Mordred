@@ -4,7 +4,6 @@ using Mordred.Entities.Animals;
 using Mordred.WorldGen;
 using SadRogue.Primitives;
 using System;
-using System.Diagnostics;
 
 namespace Mordred.Entities.Tribals
 {
@@ -32,7 +31,7 @@ namespace Mordred.Entities.Tribals
         public Human(Village village, Point housePosition, Point actorPosition, Color color, Gender gender, int health = 100) : base(color, Color.Black, 'T', health)
         {
             HousePosition = housePosition;
-            Position = actorPosition;
+            WorldPosition = actorPosition;
             IsVisible = IsOnScreen(actorPosition);
             Village = village;
             CurrentState = State.Idle;

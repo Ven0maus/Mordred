@@ -1,6 +1,5 @@
 ﻿using Mordred.Config;
 using Mordred.Entities.Tribals;
-using Mordred.GameObjects.ItemInventory;
 using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.Graphics.Consoles;
 using SadRogue.Primitives;

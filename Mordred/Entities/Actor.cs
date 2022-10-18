@@ -9,7 +9,6 @@ using SadConsole.Entities;
 using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Mordred.Entities

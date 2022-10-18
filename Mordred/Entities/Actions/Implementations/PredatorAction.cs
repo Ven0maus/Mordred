@@ -2,7 +2,6 @@
 using Mordred.Entities.Tribals;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Mordred.Entities.Actions.Implementations

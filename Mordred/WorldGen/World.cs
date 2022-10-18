@@ -1,21 +1,16 @@
 ﻿using Mordred.Config;
-using Mordred.Config.WorldGenConfig;
 using Mordred.Entities;
-using Mordred.Entities.Animals;
 using Mordred.GameObjects.Effects;
-using Mordred.GameObjects.ItemInventory;
 using Mordred.Graphics.Consoles;
 using Mordred.Helpers;
-using SadConsole.Entities;
 using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Venomaus.FlowVitae.Grids;
 using Venomaus.FlowVitae.Chunking;
+using Venomaus.FlowVitae.Grids;
 using Venomaus.FlowVitae.Helpers;
-using Venomaus.FlowVitae.Procedural;
 
 namespace Mordred.WorldGen
 {
@@ -68,6 +63,7 @@ namespace Mordred.WorldGen
             {
                 if (_chunkEntitiesLoaded.Contains((args.ChunkX, args.ChunkY))) return;
                 ProceduralGeneration.GenerateWildLife(args.ChunkX, args.ChunkY);
+                ProceduralGeneration.GenerateVillages(args.ChunkX, args.ChunkY);
                 _chunkEntitiesLoaded.Add((args.ChunkX, args.ChunkY));
             }).ConfigureAwait(false);
         }

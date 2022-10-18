@@ -1,7 +1,6 @@
 ﻿using Mordred.Entities.Actions.Implementations;
 using SadRogue.Primitives;
 using System;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Mordred.Entities.Animals
