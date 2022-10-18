@@ -1,5 +1,4 @@
-﻿using Mordred.Graphics.Consoles;
-using SadConsole.Entities;
+﻿using SadConsole.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +51,6 @@ namespace Mordred.Entities
 
         public static void Spawn(IEntity entity)
         {
-            while (MapConsole.Instance.Children.IsLocked) { }
             Add((Entity)entity);
         }
 
