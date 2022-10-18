@@ -99,7 +99,8 @@ namespace Mordred.Config
                 foreach (var aGlyph in additionalGlyphs ?? new List<int>())
                 {
                     uniqueCellId++;
-                    cells.Add(new WorldCell(cell.id, uniqueCellId, foregroundColor, backgroundColor, cell.name, aGlyph, (int)layers[cell.layer], cell.walkable, cell.seeThrough, true));
+                    var newColor = Color.Lerp(foregroundColor, Game.Random.Next(0, 2) == 1 ? Color.Black : Color.White, (float)Game.Random.Next(1, 4) / 10);
+                    cells.Add(new WorldCell(cell.id, uniqueCellId, newColor, backgroundColor, cell.name, aGlyph, (int)layers[cell.layer], cell.walkable, cell.seeThrough, true));
                 }
                 dictionary.Add(cell.id, cells.ToArray());
                 uniqueCellId++;
