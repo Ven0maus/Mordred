@@ -1,16 +1,19 @@
 ﻿using Mordred.Graphics.Consoles;
 using Mordred.WorldGen;
 using SadRogue.Primitives;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Mordred.GameObjects.Effects
 {
     public class Bleed : CellEffect
     {
-        private readonly WorldCell _cell;
-        private readonly Color _startColor, _originColorBg, _originColorFg;
+        private readonly Color _startColor;
         private readonly float _amountPerTick;
         private float _amount;
+
+        private static readonly WorldLayer[] _affectedLayers = new[] { WorldLayer.TERRAIN, WorldLayer.OBJECTS };
+        private readonly Dictionary<WorldLayer, BleedCellInfo> _layerCells = new();
 
         public Bleed(Point position, int time, bool inSeconds = true) 
             : base(position, time, inSeconds)
@@ -24,27 +27,51 @@ namespace Mordred.GameObjects.Effects
             }
 
             // Retrieve cell and store its state
-            _cell = WorldWindow.World.GetCell(WorldLayer.TERRAIN, WorldPosition.X, WorldPosition.Y);
-            _originColorFg = _cell.Foreground;
-            _originColorBg = _cell.Background;
-            _startColor = Color.Lerp(Color.DarkRed, Color.Transparent, 0.15f);
+            foreach (var layer in _affectedLayers)
+            {
+                var cell = WorldWindow.World.GetCell(layer, WorldPosition.X, WorldPosition.Y);
+                _layerCells.Add(layer, new BleedCellInfo(cell));
+            }
 
+            _startColor = Color.Lerp(Color.DarkRed, Color.Transparent, 0.15f);
             _amountPerTick = 1f / TicksRemaining;
         }
 
         public override void Effect()
         {
             _amount += _amountPerTick;
-            _cell.Foreground = Color.Lerp(_startColor, _originColorFg, _amount);
-            _cell.Background = Color.Lerp(_startColor, _originColorBg, _amount);
-            WorldWindow.World.SetCell(WorldLayer.TERRAIN, _cell);
+            foreach (var layer in _affectedLayers)
+            {
+                var cellInfo = _layerCells[layer];
+                var cell = cellInfo.Cell;
+                cell.Foreground = Color.Lerp(_startColor, cellInfo.OriginColorFg, _amount);
+                cell.Background = Color.Lerp(_startColor, cellInfo.OriginColorBg, _amount);
+                WorldWindow.World.SetCell(layer, cell);
+            }
         }
 
         public override void EffectEnd()
         {
-            _cell.Foreground = _originColorFg;
-            _cell.Background = _originColorBg;
-            WorldWindow.World.SetCell(WorldLayer.TERRAIN, _cell);
+            foreach (var layer in _affectedLayers)
+            {
+                var cellInfo = _layerCells[layer];
+                var cell = cellInfo.Cell;
+                cell.Foreground = cellInfo.OriginColorFg;
+                cell.Background = cellInfo.OriginColorBg;
+                WorldWindow.World.SetCell(layer, cell);
+            }
+        }
+
+        struct BleedCellInfo
+        {
+            public readonly Color OriginColorBg, OriginColorFg;
+            public readonly WorldCell Cell;
+            public BleedCellInfo(WorldCell cell)
+            {
+                Cell = cell;
+                OriginColorBg = cell.Background;
+                OriginColorFg = cell.Foreground;
+            }
         }
     }
 }
