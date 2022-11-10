@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Venomaus.FlowVitae.Chunking;
-using Venomaus.FlowVitae.Procedural;
+using Venomaus.FlowVitae.Chunking.Generators;
 
 namespace Mordred.WorldGen
 {

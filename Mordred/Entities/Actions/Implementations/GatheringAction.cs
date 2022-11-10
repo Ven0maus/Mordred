@@ -139,6 +139,7 @@ namespace Mordred.Entities.Actions.Implementations
                     {
                         var dropRate = ConfigLoader.Items[itemId].GetDropRateForCellId(_currentCellGathered.Value);
                         if (dropRate == null) continue;
+                        // TODO: Revisit because it should not take random amount, but the actual gathered amount
                         var item = actor.Inventory.Take(itemId, Game.Random.Next(dropRate.Min, dropRate.Max));
                         item.WorldPosition = actor.WorldPosition;
                         item.IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(actor.WorldPosition.X, actor.WorldPosition.Y);

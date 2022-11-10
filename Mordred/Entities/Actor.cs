@@ -222,22 +222,6 @@ namespace Mordred.Entities
 
                 // Trigger death event
                 OnActorDeath?.Invoke(this, attacker);
-
-                string causeOfDeath = "";
-                bool diedBySelf = attacker.Equals(this);
-                if (diedBySelf)
-                {
-                    if (Hunger <= 0 && !Bleeding)
-                        causeOfDeath = "Starvation";
-                    else if (Hunger > 0 && Bleeding)
-                        causeOfDeath = "Bleeding";
-                    else if (Hunger <= 0 && Bleeding)
-                        causeOfDeath = "Mix of bleeding and starvation";
-                    else if (InCombat)
-                        causeOfDeath = "Combat";
-                    else
-                        causeOfDeath = "Unknown cause of death.";
-                }
             }
 
             // Call virtual method

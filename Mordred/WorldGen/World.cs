@@ -136,19 +136,6 @@ namespace Mordred.WorldGen
                 .OrderByDescending(a => a.Key)
                 .First().First().TerrainId;
         }
-        
-        /// <summary>
-        /// The actual visual displayed cell
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        public override WorldCell GetCell(int x, int y)
-        {
-            var cell = base.GetCell(x, y);
-            if (cell == null) return null;
-            return cell;
-        }
 
         public bool CellWalkable(int x, int y)
         {
@@ -190,33 +177,6 @@ namespace Mordred.WorldGen
         public IEnumerable<WorldCell> GetCells(IEnumerable<Point> points)
         {
             return base.GetCells(points.Select(a => (a.X, a.Y)));
-        }
-
-        public void HideObstructedCells()
-        {
-            // Rework this to skip neighbors that go off the screen
-            var viewPortWorldPositions = GetCells(GetViewPortWorldCoordinates());
-            var cache = viewPortWorldPositions.ToDictionary(a => (a.X, a.Y));
-            foreach (var cell in viewPortWorldPositions)
-            {
-                var neighborPositions = new Point(cell.X, cell.Y).Get4Neighbors();
-                var neighbors = neighborPositions.Select(a =>
-                {
-                    if (!cache.TryGetValue(a, out WorldCell neighborCell))
-                        cache.Add(a, GetCell(a.X, a.Y));
-                    return neighborCell ?? cache[a];
-                });
-                if (neighbors.All(a => !a.SeeThrough) && cell.CellType != 8)
-                {
-                    cell.IsVisible = false;
-                    SetCell(cell);
-                }
-                else
-                {
-                    cell.IsVisible = true;
-                    SetCell(cell);
-                }
-            }
         }
     }
 }
