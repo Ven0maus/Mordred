@@ -1,0 +1,44 @@
+﻿{
+  "cells": [
+    {
+      "glyph": "*",
+      "additionalGlyphs": null,
+      "name": "Tree",
+      "foreground": "LightGreen",
+      "background": "Transparent",
+      "seeThrough": false,
+      "walkable": false,
+      "spawnChance": 1,
+      "minSpawnLayer": 0.2,
+      "maxSpawnLayer": 0.8,
+      "spawnOnTerrain": [ 1 ],
+      "renawable": true,
+      "minResourceAmount": 20
+    },
+    {
+      "code": "_vhouse01",
+      "glyph": "&",
+      "additionalGlyphs": null,
+      "name": "House",
+      "foreground": "Orange",
+      "background": "Transparent",
+      "seeThrough": false,
+      "walkable": false
+    },
+    {
+      "glyph": "+",
+      "additionalGlyphs": null,
+      "name": "BerryBush",
+      "foreground": "Pink",
+      "background": "Transparent",
+      "seeThrough": false,
+      "walkable": false,
+      "spawnChance": 2,
+      "minSpawnLayer": 0.2,
+      "maxSpawnLayer": 0.8,
+      "spawnOnTerrain": [ 1 ],
+      "renawable": true,
+      "minResourceAmount": 30
+    }
+  ]
+}

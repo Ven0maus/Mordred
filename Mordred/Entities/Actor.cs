@@ -28,9 +28,9 @@ namespace Mordred.Entities
             set 
             { 
                 _worldPosition = value;
-                IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(_worldPosition.X, _worldPosition.Y);
+                IsVisible = WorldWindow.World.IsWorldCoordinateOnViewPort(_worldPosition.X, _worldPosition.Y);
                 if (IsVisible)
-                    Position = MapConsole.World.WorldToScreenCoordinate(_worldPosition.X, _worldPosition.Y);
+                    Position = WorldWindow.World.WorldToScreenCoordinate(_worldPosition.X, _worldPosition.Y);
             }
         }
 
@@ -80,7 +80,7 @@ namespace Mordred.Entities
 
         protected static bool IsOnScreen(Point position)
         {
-            return MapConsole.World.IsWorldCoordinateOnViewPort(position.X, position.Y);
+            return WorldWindow.World.IsWorldCoordinateOnViewPort(position.X, position.Y);
         }
 
         public void AddAction(IAction action, bool prioritize = false, bool addDuplicateTask = true)
@@ -113,13 +113,13 @@ namespace Mordred.Entities
 
             var nextStep = path.TakeStep();
             if (nextStep == null) return false;
-            if (MapConsole.World.CellWalkable(nextStep.Value.X, nextStep.Value.Y))
+            if (WorldWindow.World.CellWalkable(nextStep.Value.X, nextStep.Value.Y))
             {
                 WorldPosition = nextStep.Value;
-                IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(WorldPosition.X, WorldPosition.Y);
+                IsVisible = WorldWindow.World.IsWorldCoordinateOnViewPort(WorldPosition.X, WorldPosition.Y);
                 if (IsVisible)
                 {
-                    Position = MapConsole.World.WorldToScreenCoordinate(WorldPosition.X, WorldPosition.Y);
+                    Position = WorldWindow.World.WorldToScreenCoordinate(WorldPosition.X, WorldPosition.Y);
                 }
                 return true;
             }
@@ -382,7 +382,7 @@ namespace Mordred.Entities
                 .TakeRandom(Game.Random.Next(1, 4))
                 .Append(WorldPosition);
             foreach (var neighbor in cellsToApplyBleedEffectTo)
-                MapConsole.World.AddEffect(new Bleed(neighbor, Game.Random.Next(4, 7)));
+                WorldWindow.World.AddEffect(new Bleed(neighbor, Game.Random.Next(4, 7)));
         }
 
         public bool HasActionOfType<T>() where T : IAction

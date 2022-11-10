@@ -17,7 +17,7 @@ namespace Mordred.Graphics
 
         public void InitializeConsoles()
         {
-            Consoles.Add(new MapConsole(Width, Height));
+            Consoles.Add(new WorldWindow(Width, Height));
 
             // Add all consoles as children of the container
             foreach (var console in Consoles)
@@ -26,7 +26,7 @@ namespace Mordred.Graphics
 
         public void InitializeGame()
         {
-            var mapConsole = GetConsole<MapConsole>();
+            var mapConsole = GetConsole<WorldWindow>();
             mapConsole.InitializeWorld();
         }
 

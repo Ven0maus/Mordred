@@ -18,13 +18,11 @@ namespace Mordred.WorldGen
     {
         TERRAIN,
         OBJECTS,
-        ITEMS,
-        ENTITIES
     }
 
-    public class World : GridBase<int, WorldCell>
+    public class World
     {
-        private readonly MapConsole MapConsole;
+        private readonly WorldWindow MapConsole;
         private readonly List<CellEffect> _cellEffects;
 
         private readonly bool _worldInitialized = false;
@@ -32,20 +30,58 @@ namespace Mordred.WorldGen
 
         public int WorldSeed { get; }
 
-        public World(int width, int height, int worldSeed) : base(width, height, 
-            Constants.WorldSettings.ChunkWidth, Constants.WorldSettings.ChunkHeight, new ProceduralGeneration(worldSeed))
+        private bool _useThreading = true;
+        public bool UseThreading
+        {
+            get { return _useThreading; }
+            set 
+            { 
+                _useThreading = value;
+                _terrainMap.UseThreading = value;
+                _objectMap.UseThreading = value;
+            }
+        }
+
+        public int ChunkWidth { get; private set; }
+        public int ChunkHeight { get; private set; }
+
+        // The maps that represent the game world
+        private readonly Grid<int, WorldCell> _terrainMap;
+        private readonly Grid<int, WorldCell> _objectMap;
+
+        public World(int width, int height, int worldSeed)
         {
             // Get map console reference
             WorldSeed = worldSeed;
-            MapConsole = Game.Container.GetConsole<MapConsole>();
-            OnCellUpdate += MapConsole.OnCellUpdate;
-            OnChunkUnload += UnloadEntities;
-            OnChunkLoad += LoadEntities;
-            RaiseOnlyOnCellTypeChange = false;
+            MapConsole = Game.Container.GetConsole<WorldWindow>();
 
             // Initialize the arrays
             _cellEffects = new List<CellEffect>();
             _chunkEntitiesLoaded = new();
+
+            // Initialize object layer
+            _terrainMap = new Grid<int, WorldCell>(width, height, Constants.WorldSettings.ChunkWidth, Constants.WorldSettings.ChunkHeight,
+                new ProceduralGeneration(worldSeed, WorldLayer.TERRAIN));
+            _objectMap = new Grid<int, WorldCell>(width, height, Constants.WorldSettings.ChunkWidth, Constants.WorldSettings.ChunkHeight,
+                new ProceduralGeneration(worldSeed, WorldLayer.OBJECTS));
+
+            // Set properties
+            ChunkWidth = _terrainMap.ChunkWidth;
+            ChunkHeight = _terrainMap.ChunkHeight;
+
+            // Set custom converters for tile conversion
+            _terrainMap.SetCustomConverter(Converter);
+            _objectMap.SetCustomConverter(Converter);
+
+            // Subscribe events
+            _terrainMap.OnChunkLoad += LoadEntities;
+            _terrainMap.OnChunkUnload += UnloadEntities;
+            _terrainMap.OnCellUpdate += MapConsole.OnTerrainUpdate;
+            _objectMap.OnCellUpdate += MapConsole.OnObjectUpdate;
+
+            // Terrain properties
+            _terrainMap.RaiseOnlyOnCellTypeChange = false;
+            _objectMap.RaiseOnlyOnCellTypeChange = false;
 
             Game.GameTick += HandleEffects;
             _worldInitialized = true;
@@ -54,7 +90,8 @@ namespace Mordred.WorldGen
         public void Initialize()
         {
             // Re-initialize the starter chunks
-            ClearCache();
+            _terrainMap.ClearCache();
+            _objectMap.ClearCache();
         }
 
         private void LoadEntities(object sender, ChunkUpdateArgs args)
@@ -99,19 +136,35 @@ namespace Mordred.WorldGen
             _cellEffects.RemoveAll(a => a.TicksRemaining <= 0 || a.Completed);
         }
 
-        protected override WorldCell Convert(int x, int y, int cellType)
+        private WorldCell Converter(int x, int y, int cellType)
         {
+            // Return a default tile
+            if (cellType == Constants.WorldSettings.VoidTile)
+            {
+                return new WorldCell 
+                { 
+                    X = x, 
+                    Y = y, 
+                    CellType = cellType, 
+                    Walkable = true, 
+                    IsVisible = false, 
+                    SeeThrough = true 
+                };
+            }
+
             // Get custom cell
             var cell = ConfigLoader.GetNewWorldCell(cellType, x, y);
-            if (cell == null) return base.Convert(x, y, cellType);
+            if (cell == null) 
+                return new WorldCell() { X = x, Y = y, CellType = cellType };
             cell.X = x;
             cell.Y = y;
             return cell;
         }
 
-        public override void Center(int x, int y)
+        public void Center(int x, int y)
         {
-            base.Center(x, y);
+            _terrainMap.Center(x, y);
+            _objectMap.Center(x, y);
 
             if (!_worldInitialized) return;
 
@@ -126,24 +179,24 @@ namespace Mordred.WorldGen
             }
         }
 
-        public int GetDominatingTerrain(IEnumerable<Point> positions, Func<WorldCell, bool> criteria = null)
+        public int GetDominatingCell(WorldLayer layer, IEnumerable<Point> positions, Func<WorldCell, bool> criteria = null)
         {
-            var cells = GetCells(positions);
+            var cells = GetCells(layer, positions);
             if (criteria != null)
                 cells = cells.Where(criteria);
             return cells
-                .GroupBy(a => a.CellType)
+                .GroupBy(a => a.TerrainId)
                 .OrderByDescending(a => a.Key)
-                .First().First().TerrainId;
+                .First().Key;
         }
 
         public bool CellWalkable(int x, int y)
         {
-            if (!IsChunkLoaded(x, y)) return false;
-            return GetCell(x, y).Walkable;
+            if (!_terrainMap.IsChunkLoaded(x, y)) return false;
+            return GetCell(WorldLayer.TERRAIN, x, y).Walkable && GetCell(WorldLayer.OBJECTS, x, y).Walkable;
         }
 
-        public IEnumerable<Point> GetCellCoordsFromCenter(int startX, int startY, Func<WorldCell, bool> criteria)
+        public IEnumerable<Point> GetCellCoordsFromCenter(WorldLayer layer, int startX, int startY, Func<WorldCell, bool> criteria)
         {
             var sX = startX - Constants.WorldSettings.ChunkWidth / 2;
             var sY = startY - Constants.WorldSettings.ChunkHeight / 2;
@@ -153,8 +206,9 @@ namespace Mordred.WorldGen
             {
                 for (int x = sX; x < eX; x++)
                 {
-                    if (!IsChunkLoaded(x, y)) continue;
-                    if (criteria.Invoke(GetCell(x, y)))
+                    if (!_terrainMap.IsChunkLoaded(x, y)) continue;
+                    var cell = GetCell(layer, x, y);
+                    if (criteria.Invoke(cell))
                         yield return (x, y);
                 }
             }
@@ -167,16 +221,101 @@ namespace Mordred.WorldGen
         /// <returns></returns>
         public List<int> GetItemIdDropsByCellId(Point coord)
         {
-            var terrainId = GetCell(coord.X, coord.Y).TerrainId;
+            var terrainId = GetCell(WorldLayer.OBJECTS, coord.X, coord.Y).TerrainId;
             var items = ConfigLoader.Items.Where(a => a.Value.DroppedBy != null && a.Value.IsDroppedBy(terrainId))
                 .Select(a => a.Key)
                 .ToList();
             return items;
         }
 
-        public IEnumerable<WorldCell> GetCells(IEnumerable<Point> points)
+        public IEnumerable<WorldCell> GetCells(WorldLayer layer, IEnumerable<Point> points)
         {
-            return base.GetCells(points.Select(a => (a.X, a.Y)));
+            var map = GetMapLayer(layer);
+            return map.GetCells(points.Select(a => (a.X, a.Y)));
+        }
+
+        public IEnumerable<WorldCell> GetCells(WorldLayer layer, IEnumerable<(int x, int y)> points)
+        {
+            var map = GetMapLayer(layer);
+            return map.GetCells(points);
+        }
+
+        public WorldCell GetCell(WorldLayer layer, int x, int y)
+        {
+            var map = GetMapLayer(layer);
+            return map.GetCell(x, y);
+        }
+
+        public void SetCell(WorldLayer layer, int x, int y, int cellType)
+        {
+            var map = GetMapLayer(layer);
+            map.SetCell(x, y, cellType);
+        }
+
+        public void SetCell(WorldLayer layer, WorldCell cell)
+        {
+            var map = GetMapLayer(layer);
+            map.SetCell(cell);
+        }
+
+        public void ClearCell(WorldLayer layer, int x, int y)
+        {
+            var map = GetMapLayer(layer);
+            map.SetCell(x, y, -1);
+        }
+
+        private Grid<int, WorldCell> GetMapLayer(WorldLayer layer)
+        {
+            switch (layer)
+            {
+                case WorldLayer.TERRAIN:
+                    return _terrainMap;
+                case WorldLayer.OBJECTS:
+                    return _objectMap;
+                default:
+                    throw new Exception("No map found for layer '"+layer+"'");
+            }
+        }
+
+        public Point WorldToScreenCoordinate(int x, int y)
+        {
+            return _terrainMap.WorldToScreenCoordinate(x, y);
+        }
+
+        public bool IsWorldCoordinateOnViewPort(int x, int y)
+        {
+            return _terrainMap.IsWorldCoordinateOnViewPort(x, y);
+        }
+
+        public int GetChunkSeed(int x, int y)
+        {
+            return _terrainMap.GetChunkSeed(x, y);
+        }
+
+        public IEnumerable<(int x, int y)> GetLoadedChunkCoordinates()
+        {
+            return _terrainMap.GetLoadedChunkCoordinates();
+        }
+
+        public IEnumerable<(int x, int y)> GetChunkCellCoordinates(int x, int y)
+        {
+            return _terrainMap.GetChunkCellCoordinates(x, y);
+        }
+
+        public (int x, int y) GetChunkCoordinate(int x, int y)
+        {
+            return _terrainMap.GetChunkCoordinate(x, y);
+        }
+
+        public bool IsChunkLoaded(int x, int y)
+        {
+            return _terrainMap.IsChunkLoaded(x, y);
+        }
+
+        public void SetCells(WorldLayer layer, IEnumerable<WorldCell> newCells)
+        {
+            var map = GetMapLayer(layer);
+            map.SetCells(newCells);
         }
     }
 }

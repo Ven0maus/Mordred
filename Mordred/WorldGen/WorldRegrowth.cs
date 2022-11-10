@@ -15,7 +15,7 @@ namespace Mordred.WorldGen
     /// </summary>
     public class WorldRegrowth
     {
-        private static World World { get { return MapConsole.World; } }
+        private static World World { get { return WorldWindow.World; } }
         private static int _ticksUntilStatusCheck = Constants.WorldSettings.RegrowthStatusCheckTimeInSeconds * Game.TicksPerSecond;
         /// <summary>
         /// Checks and regrows what is required by the world standards
@@ -102,8 +102,8 @@ namespace Mordred.WorldGen
             var chunkCellPositions = World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y);
             var renawableCells = ConfigLoader.GetTerrains(a => a.renawable)
                 .Where(a => a.renawable)
-                .ToDictionary(a => a.id, a => a);
-            var resourceCells = World.GetCells(chunkCellPositions)
+                .ToDictionary(a => a.mainId, a => a);
+            var resourceCells = World.GetCells(WorldLayer.OBJECTS, chunkCellPositions)
                 .GroupBy(a => a.TerrainId)
                 .Where(a => renawableCells.ContainsKey(a.Key))
                 .ToArray();
@@ -131,15 +131,15 @@ namespace Mordred.WorldGen
             var spawnsOnTerrain = terrainConfig.spawnOnTerrain.ToHashSet();
 
             // TODO: Add growing stages for plants and trees
-            var newCells = World.GetCells(World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y))
+            var newCells = World.GetCells(WorldLayer.OBJECTS, World.GetChunkCellCoordinates(chunkCoordinate.x, chunkCoordinate.y))
                 .Where(a => spawnsOnTerrain.Contains(a.TerrainId))
                 .TakeRandom(neededAmount)
                 .Select(cell =>
                 {
-                    return ConfigLoader.GetNewTerrainCell(terrainConfig.id, cell.X, cell.Y);
+                    return ConfigLoader.GetNewTerrainCell(terrainConfig.mainId, cell.X, cell.Y);
                 });
 
-            World.SetCells(newCells);
+            World.SetCells(WorldLayer.OBJECTS, newCells);
         }
     }
 }

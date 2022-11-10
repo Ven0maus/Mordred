@@ -12,7 +12,7 @@ namespace Mordred.Entities
 
         private readonly bool _isStaticGrid;
 
-        public Player(Point position, bool isStaticGrid) : base(Color.Magenta, Color.Transparent, '@', 1)
+        public Player(Point position, bool isStaticGrid) : base(Color.Magenta, Color.Transparent, '@', 0)
         {
             Position = position;
             WorldPosition = position;
@@ -28,15 +28,14 @@ namespace Mordred.Entities
 
         public void MoveTowards(int x, int y, bool checkCanMove = true)
         {
-            var cell = MapConsole.World.GetCell(x, y);
-            if (cell == null || (checkCanMove && !cell.Walkable)) return;
+            if (checkCanMove && !WorldWindow.World.CellWalkable(x, y)) return;
             WorldPosition = new Point(x, y);
 
             // If we are on a static grid we don't need to center, but move the actual player coord on screen
             if (_isStaticGrid)
                 Position = WorldPosition;
             else
-                MapConsole.World.Center(WorldPosition.X, WorldPosition.Y);
+                WorldWindow.World.Center(WorldPosition.X, WorldPosition.Y);
         }
 
         public override bool ProcessKeyboard(Keyboard keyboard)

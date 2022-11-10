@@ -35,7 +35,7 @@ namespace Mordred.Entities
         private bool IsWalkable(Point point)
         {
             var pointOffset = ConvertFromArrayPosition(point.X, point.Y);
-            return MapConsole.World.CellWalkable(pointOffset.x, pointOffset.y);
+            return WorldWindow.World.CellWalkable(pointOffset.x, pointOffset.y);
         }
 
         private (int x, int y) ConvertToArrayPosition(int x, int y)

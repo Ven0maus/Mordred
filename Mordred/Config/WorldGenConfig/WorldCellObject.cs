@@ -1,17 +1,27 @@
-﻿using System;
+﻿using Mordred.WorldGen;
+using Newtonsoft.Json;
+using System;
 
 namespace Mordred.Config.WorldGenConfig
 {
     [Serializable]
     public class WorldCellObject
     {
-        public int id;
+        // Filled by the config loader
+        [JsonIgnore]
+        public int mainId;
+        [JsonIgnore]
+        public WorldLayer layer;
+
+        /// <summary>
+        /// A unique code that can be used in scripting to reference a specific object
+        /// </summary>
+        public string code;
         public string glyph;
         public string[] additionalGlyphs;
         public string name;
         public string foreground;
         public string background;
-        public string layer;
         public bool seeThrough;
         public bool walkable;
 

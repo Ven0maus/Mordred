@@ -12,7 +12,7 @@ namespace Mordred.WorldGen
         /// <summary>
         /// The type of terrain this cell belongs to
         /// </summary>
-        public int TerrainId { get; private set; }
+        public int TerrainId { get; private set; } = Constants.WorldSettings.VoidTile;
         /// <summary>
         /// The unique cell type based on the terrain
         /// </summary>
@@ -28,7 +28,7 @@ namespace Mordred.WorldGen
         /// <summary>
         /// The layer this cell is build on
         /// </summary>
-        public int Layer { get; private set; }
+        public WorldLayer Layer { get; private set; }
         /// <summary>
         /// The name of the cell
         /// </summary>
@@ -39,7 +39,7 @@ namespace Mordred.WorldGen
 
         public WorldCell() { }
 
-        public WorldCell(int terrainId, int cellId, Color foreground, Color background, string name, int glyph, int layer, bool walkable, bool transparent, bool isAdditional = false) : 
+        public WorldCell(int terrainId, int cellId, Color foreground, Color background, string name, int glyph, WorldLayer layer, bool walkable, bool transparent, bool isAdditional = false) : 
             base(foreground, background, glyph)
         {
             if (Foreground == Color.Transparent && Background == Color.Transparent)

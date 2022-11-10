@@ -16,6 +16,9 @@
     <None Update="Config\ItemConfig\ItemConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Config\WorldGenConfig\ObjectCells.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Config\WorldGenConfig\WorldCells.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

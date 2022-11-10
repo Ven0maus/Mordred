@@ -1,6 +1,7 @@
 ﻿using Mordred.Config;
 using Mordred.Entities.Tribals;
 using Mordred.Graphics.Consoles;
+using Mordred.WorldGen;
 using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace Mordred.Entities.Actions.Implementations
             _amount = _gatherables.Count;
             _gatherTickRate = gatherTickRate != null ? gatherTickRate.Value : Constants.ActionSettings.DefaultGatherTickRate;
             _cellsToGather = _gatherables
-                .Select(a => MapConsole.World.GetCell(a.X, a.Y).CellType)
+                .Select(a => WorldWindow.World.GetCell(WorldLayer.OBJECTS, a.X, a.Y).CellType)
                 .Distinct()
                 .ToArray();
             TribalState = Human.State.Gathering;
@@ -55,11 +56,11 @@ namespace Mordred.Entities.Actions.Implementations
 
             if (_gatherables == null)
             {
-                _gatherables = MapConsole.World.GetCellCoordsFromCenter(actor.WorldPosition.X, actor.WorldPosition.Y, a => a.CellType == _cellsToGather[0]).ToList();
+                _gatherables = WorldWindow.World.GetCellCoordsFromCenter(WorldLayer.OBJECTS, actor.WorldPosition.X, actor.WorldPosition.Y, a => a.CellType == _cellsToGather[0]).ToList();
             }
 
             // Update gatherables
-            _gatherables.RemoveAll(a => !_cellsToGather.Contains(MapConsole.World.GetCell(a.X, a.Y).CellType));
+            _gatherables.RemoveAll(a => !_cellsToGather.Contains(WorldWindow.World.GetCell(WorldLayer.OBJECTS, a.X, a.Y).CellType));
 
             if (_gatherables.Count == 0) return null;
 
@@ -109,11 +110,11 @@ namespace Mordred.Entities.Actions.Implementations
             _gatherCounter = 0;
 
             // Get correct items
-            _currentItemsGathered = MapConsole.World.GetItemIdDropsByCellId(CurrentGatherable.Value);
-            _currentCellGathered = MapConsole.World.GetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y).CellType;
+            _currentItemsGathered = WorldWindow.World.GetItemIdDropsByCellId(CurrentGatherable.Value);
+            _currentCellGathered = WorldWindow.World.GetCell(WorldLayer.OBJECTS, CurrentGatherable.Value.X, CurrentGatherable.Value.Y).CellType;
 
             // Replace gatherable by grass
-            MapConsole.World.SetCell(CurrentGatherable.Value.X, CurrentGatherable.Value.Y, 1);
+            WorldWindow.World.ClearCell(WorldLayer.OBJECTS, CurrentGatherable.Value.X, CurrentGatherable.Value.Y);
 
             // Add x of the gatherable item to actor inventory
             foreach (var itemId in _currentItemsGathered)
@@ -133,7 +134,7 @@ namespace Mordred.Entities.Actions.Implementations
             {
                 if (_deliveringItem)
                 {
-                    var mapConsole = Game.Container.GetConsole<MapConsole>();
+                    var mapConsole = Game.Container.GetConsole<WorldWindow>();
                     // Drop item(s) on the current standing tile
                     foreach (var itemId in _currentItemsGathered)
                     {
@@ -142,11 +143,11 @@ namespace Mordred.Entities.Actions.Implementations
                         // TODO: Revisit because it should not take random amount, but the actual gathered amount
                         var item = actor.Inventory.Take(itemId, Game.Random.Next(dropRate.Min, dropRate.Max));
                         item.WorldPosition = actor.WorldPosition;
-                        item.IsVisible = MapConsole.World.IsWorldCoordinateOnViewPort(actor.WorldPosition.X, actor.WorldPosition.Y);
+                        item.IsVisible = WorldWindow.World.IsWorldCoordinateOnViewPort(actor.WorldPosition.X, actor.WorldPosition.Y);
                         if (item.IsVisible)
                         {
                             // TODO: Revisit -> when entering screen how do we make it visible again?
-                            item.Position = MapConsole.World.WorldToScreenCoordinate(actor.WorldPosition.X, actor.WorldPosition.Y);
+                            item.Position = WorldWindow.World.WorldToScreenCoordinate(actor.WorldPosition.X, actor.WorldPosition.Y);
                         }
 
                         // Insert under the actor

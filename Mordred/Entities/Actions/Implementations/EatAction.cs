@@ -2,6 +2,7 @@
 using Mordred.Entities.Tribals;
 using Mordred.GameObjects.ItemInventory.Items;
 using Mordred.Graphics.Consoles;
+using Mordred.WorldGen;
 using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
@@ -86,7 +87,7 @@ namespace Mordred.Entities.Actions.Implementations
             
             foreach (var id in cellIds)
             {
-                var coords = MapConsole.World.GetCellCoordsFromCenter(actor.WorldPosition.X, actor.WorldPosition.Y, a => id.Value.IsDroppedBy(a.TerrainId));
+                var coords = WorldWindow.World.GetCellCoordsFromCenter(WorldLayer.OBJECTS, actor.WorldPosition.X, actor.WorldPosition.Y, a => id.Value.IsDroppedBy(a.TerrainId));
                 kvps.AddRange(coords.Select(a => new KeyValuePair<Point, int>?(new KeyValuePair<Point, int>(a, id.EdibleId))));
             }
             return kvps;

@@ -12,9 +12,11 @@
 
         public static class WorldSettings
         {
+            public const int Seed = 1000;
             public const int ChunkWidth = 100;
             public const int ChunkHeight = 100;
             public const int RegrowthStatusCheckTimeInSeconds = 90;
+            public const int VoidTile = -1;
 
             public static class WildLife
             {

@@ -16,7 +16,7 @@ namespace Mordred.GameObjects.Effects
             : base(position, time, inSeconds)
         {
             // Don't add another stack
-            if (MapConsole.World.GetCellEffects(position.X, position.Y)
+            if (WorldWindow.World.GetCellEffects(position.X, position.Y)
                 .Any(a => a.Equals(this)))
             {
                 Completed = true;
@@ -24,7 +24,7 @@ namespace Mordred.GameObjects.Effects
             }
 
             // Retrieve cell and store its state
-            _cell = MapConsole.World.GetCell(WorldPosition.X, WorldPosition.Y);
+            _cell = WorldWindow.World.GetCell(WorldLayer.TERRAIN, WorldPosition.X, WorldPosition.Y);
             _originColorFg = _cell.Foreground;
             _originColorBg = _cell.Background;
             _startColor = Color.Lerp(Color.DarkRed, Color.Transparent, 0.15f);
@@ -37,14 +37,14 @@ namespace Mordred.GameObjects.Effects
             _amount += _amountPerTick;
             _cell.Foreground = Color.Lerp(_startColor, _originColorFg, _amount);
             _cell.Background = Color.Lerp(_startColor, _originColorBg, _amount);
-            MapConsole.World.SetCell(_cell);
+            WorldWindow.World.SetCell(WorldLayer.TERRAIN, _cell);
         }
 
         public override void EffectEnd()
         {
             _cell.Foreground = _originColorFg;
             _cell.Background = _originColorBg;
-            MapConsole.World.SetCell(_cell);
+            WorldWindow.World.SetCell(WorldLayer.TERRAIN, _cell);
         }
     }
 }

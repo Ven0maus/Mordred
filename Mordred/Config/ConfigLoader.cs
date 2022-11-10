@@ -14,9 +14,11 @@ namespace Mordred.Config
     public class ConfigLoader
     {
         private const string WorldCellsConfigPath = "Config\\WorldGenConfig\\WorldCells.json";
-        private static readonly TerrainObject _terrainData = JsonConvert.DeserializeObject<TerrainObject>(File.ReadAllText(WorldCellsConfigPath));
-        private static readonly Dictionary<int, WorldCellObject> _terrainCellConfig = _terrainData.cells.ToDictionary(a => a.id, a => a);
+        private const string ObjectCellsConfigPath = "Config\\WorldGenConfig\\ObjectCells.json";
+        private static readonly TerrainObject _terrainData = new();
+        private static readonly Dictionary<int, WorldCellObject> _terrainCellConfig = new();
 
+        public static readonly Dictionary<string, int> TerrainCellsByCode = new(StringComparer.OrdinalIgnoreCase);
         public static readonly Dictionary<int, WorldItem> Items = LoadWorldItems();
         public static readonly Dictionary<int, WorldCell[]> TerrainCells = LoadWorldCells();
         public static readonly Dictionary<int, WorldCell> WorldCells = TerrainCells
@@ -26,6 +28,12 @@ namespace Mordred.Config
         public static IEnumerable<WorldCellObject> GetTerrains(Func<WorldCellObject, bool> predicate)
         {
             return _terrainData.cells.Where(predicate);
+        }
+
+        private static int _uniqueIdCount = 0;
+        private static int GetUniqueId()
+        {
+            return _uniqueIdCount++;
         }
 
         /// <summary>
@@ -78,11 +86,31 @@ namespace Mordred.Config
             return cell;
         }
 
+        public static WorldCell GetNewTerrainCell(string code, int x, int y, bool clone = true, Random customRandom = null)
+        {
+            if (!TerrainCellsByCode.TryGetValue(code, out var mainId))
+                throw new Exception("No cell with code '" + code + "' exists in the configuration.");
+            var cell = clone ? TerrainCells[mainId].TakeRandom(customRandom).Clone() : TerrainCells[mainId].TakeRandom(customRandom);
+            cell.X = x;
+            cell.Y = y;
+            return cell;
+        }
+
         private static Dictionary<int, WorldCell[]> LoadWorldCells()
         {
+            var worldCells = JsonConvert.DeserializeObject<TerrainObject>(File.ReadAllText(WorldCellsConfigPath));
+            var objectCells = JsonConvert.DeserializeObject<TerrainObject>(File.ReadAllText(ObjectCellsConfigPath));
+
+            // Set layers
+            foreach (var obj in worldCells.cells)
+                obj.layer = WorldLayer.TERRAIN;
+            foreach (var obj in objectCells.cells)
+                obj.layer = WorldLayer.OBJECTS;
+
+            var allCells = worldCells.cells.Concat(objectCells.cells);
+            _terrainData.cells = allCells.ToArray();
+
             var dictionary = new Dictionary<int, WorldCell[]>();
-            var layers = ((WorldLayer[])Enum.GetValues(typeof(WorldLayer))).ToDictionary(a => a.ToString(), a => a, StringComparer.OrdinalIgnoreCase);
-            int uniqueCellId = 0;
             foreach (var cell in _terrainData.cells)
             {
                 var foregroundColor = GetColorByString(cell.foreground);
@@ -92,18 +120,24 @@ namespace Mordred.Config
                 {
                     glyph = cell.glyph[0];
                 }
+                cell.mainId = GetUniqueId();
                 var cells = new List<WorldCell>
                 {
-                    new WorldCell(cell.id, uniqueCellId, foregroundColor, backgroundColor, cell.name, glyph, (int)layers[cell.layer], cell.walkable, cell.seeThrough)
+                    new WorldCell(cell.mainId, GetUniqueId(), foregroundColor, backgroundColor, cell.name, glyph, cell.layer, cell.walkable, cell.seeThrough)
                 };
                 foreach (var aGlyph in additionalGlyphs ?? new List<int>())
                 {
-                    uniqueCellId++;
                     var newColor = Color.Lerp(foregroundColor, Game.Random.Next(0, 2) == 1 ? Color.Black : Color.White, (float)Game.Random.Next(1, 4) / 10);
-                    cells.Add(new WorldCell(cell.id, uniqueCellId, newColor, backgroundColor, cell.name, aGlyph, (int)layers[cell.layer], cell.walkable, cell.seeThrough, true));
+                    cells.Add(new WorldCell(cell.mainId, GetUniqueId(), newColor, backgroundColor, cell.name, aGlyph, cell.layer, cell.walkable, cell.seeThrough, true));
                 }
-                dictionary.Add(cell.id, cells.ToArray());
-                uniqueCellId++;
+                if (!string.IsNullOrWhiteSpace(cell.code))
+                {
+                    if (TerrainCellsByCode.ContainsKey(cell.code))
+                        throw new Exception("A cell with code '" + cell.code + "' already exists.");
+                    TerrainCellsByCode.Add(cell.code, cell.mainId);
+                }
+                _terrainCellConfig.Add(cell.mainId, cell);
+                dictionary.Add(cell.mainId, cells.ToArray());
             }
             return dictionary;
         }
@@ -113,7 +147,6 @@ namespace Mordred.Config
             var json = File.ReadAllText("Config\\ItemConfig\\ItemConfig.json");
             var worldItemObjects = JsonConvert.DeserializeObject<ItemsObject>(json);
             var dictionary = new Dictionary<int, WorldItem>();
-            var layers = ((WorldLayer[])Enum.GetValues(typeof(WorldLayer))).ToDictionary(a => a.ToString(), a => a, StringComparer.OrdinalIgnoreCase);
             foreach (var item in worldItemObjects.items)
             {
                 var foregroundColor = GetColorByString(item.foreground);
@@ -121,13 +154,13 @@ namespace Mordred.Config
                 WorldItem itemToAdd;
                 if (item.edible)
                 {
-                    itemToAdd = new EdibleItem(item.id, item.name, item.edibleWorth, foregroundColor, backgroundColor, item.glyph[0], 0, item.droppedBy);
+                    itemToAdd = new EdibleItem(GetUniqueId(), item.name, item.edibleWorth, foregroundColor, backgroundColor, item.glyph[0], 0, item.droppedBy);
                 }
                 else
                 {
-                    itemToAdd = new WorldItem(item.id, item.name, foregroundColor, backgroundColor, item.glyph[0], 0, item.droppedBy);
+                    itemToAdd = new WorldItem(GetUniqueId(), item.name, foregroundColor, backgroundColor, item.glyph[0], 0, item.droppedBy);
                 }
-                dictionary.Add(item.id, itemToAdd);
+                dictionary.Add(itemToAdd.Id, itemToAdd);
             }
             return dictionary;
         }

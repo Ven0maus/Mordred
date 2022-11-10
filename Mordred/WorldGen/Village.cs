@@ -68,10 +68,10 @@ namespace Mordred.WorldGen
             var positions = WorldPosition
                 .GetCirclePositions(Radius)
                 .ToList();
-            var dominatingType = MapConsole.World.GetDominatingTerrain(positions, a => a.Walkable);
+            var dominatingType = WorldWindow.World.GetDominatingCell(WorldLayer.TERRAIN, positions, a => a.Walkable);
             foreach  (var pos in positions)
             {
-                world.SetCell(pos.X, pos.Y, ConfigLoader.GetRandomWorldCellTypeByTerrain(dominatingType, _random));
+                world.SetCell(WorldLayer.TERRAIN, pos.X, pos.Y, ConfigLoader.GetRandomWorldCellTypeByTerrain(dominatingType, _random));
             }
 
             // Spawn the village house(s)
@@ -79,9 +79,9 @@ namespace Mordred.WorldGen
             foreach (var housePosition in housePositions)
             {
                 HousePositions.Add(housePosition);
-                var cell = ConfigLoader.GetNewTerrainCell(5, housePosition.X, housePosition.Y, customRandom: _random);
+                var cell = ConfigLoader.GetNewTerrainCell("_vhouse01", housePosition.X, housePosition.Y, customRandom: _random);
                 cell.Foreground = Color;
-                world.SetCell(cell);
+                world.SetCell(WorldLayer.OBJECTS, cell);
             }
         }
 
@@ -99,7 +99,7 @@ namespace Mordred.WorldGen
                 var housePos = housePositions.TakeRandom(_random);
                 var pos = housePos
                     .GetCirclePositions(3)
-                    .Where(a => MapConsole.World.CellWalkable(a.X, a.Y) && a != housePos)
+                    .Where(a => WorldWindow.World.CellWalkable(a.X, a.Y) && a != housePos)
                     .TakeRandom();
                 housePositions.Remove(housePos);
 

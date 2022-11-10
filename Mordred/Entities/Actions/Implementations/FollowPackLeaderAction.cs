@@ -39,7 +39,7 @@ namespace Mordred.Entities.Actions.Implementations
             {
                 // Get a random coordinate within the leader's position 6 square radius
                 _randomCoordinate = packLeader.WorldPosition.GetRandomCoordinateWithinSquareRadius(5);
-                while (!MapConsole.World.CellWalkable(_randomCoordinate.X, _randomCoordinate.Y))
+                while (!WorldWindow.World.CellWalkable(_randomCoordinate.X, _randomCoordinate.Y))
                 {
                     if (_whileLoopLimiter >= _whileLoopLimit)
                     {
