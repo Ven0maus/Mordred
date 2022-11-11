@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Venomaus.FlowVitae.Chunking;
 using Venomaus.FlowVitae.Chunking.Generators;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Mordred.WorldGen
 {
@@ -39,7 +40,7 @@ namespace Mordred.WorldGen
             double lacunarity = 1.9;
 
             // Generate noise map based on simplex noise
-            var heightMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, scale, octaves, persistance, lacunarity, new Microsoft.Xna.Framework.Vector2(chunkCoordinate.x, chunkCoordinate.y));
+            var heightMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, scale, octaves, persistance, lacunarity, new Vector2(chunkCoordinate.x, chunkCoordinate.y));
 
             // Normalize between 0 and 1
             heightMap = OpenSimplex2F.Normalize(heightMap);
