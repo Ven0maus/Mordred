@@ -24,6 +24,13 @@ namespace Mordred.WorldGen
             return noise.Select(i => ((scaleRange * (i - valueMin)) / valueRange) + scaleMin).ToArray();
         }
 
+        public static double Normalize(double max, double min, double value, double scaleMin = 0, double scaleMax = 1)
+        {
+            double valueRange = max - min;
+            double scaleRange = scaleMax - scaleMin;
+            return ((scaleRange * (value - min)) / valueRange) + scaleMin;
+        }
+
         public OpenSimplex2F(long seed)
         {
             perm = new short[PSIZE];

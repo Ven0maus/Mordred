@@ -1,5 +1,6 @@
 ﻿using Vector2 = Microsoft.Xna.Framework.Vector2;
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace Mordred.WorldGen
 {
@@ -66,6 +67,36 @@ namespace Mordred.WorldGen
             }
 
             return noiseMap;
+        }
+
+        public static void Substract(int width, int height, double[] noise1, double[] noise2, Func<double, double> modifier = null)
+        {
+            for (int x=0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    var value = noise2[y * width + x];
+                    double substractModifier = 1f;
+                    if (modifier != null)
+                        substractModifier = modifier.Invoke(value);
+                    noise1[y * width + x] -= substractModifier * value;
+                }
+            }
+        }
+
+        public static double Lerp(double a, double b, double t)
+        {
+            return a + (b - a) * Clamp01(t);
+        }
+
+        private static double Clamp01(double value)
+        {
+            if (value < 0F)
+                return 0F;
+            else if (value > 1F)
+                return 1F;
+            else
+                return value;
         }
     }
 }
