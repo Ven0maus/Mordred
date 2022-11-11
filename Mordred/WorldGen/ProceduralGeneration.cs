@@ -33,25 +33,19 @@ namespace Mordred.WorldGen
             var random = new Random(seed);
             var chunk = new int[width * height];
 
-            // Some basic simplex noise. Idk, need to rework..
-            var simplexNoise = new double[width * height];
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    int chunkX = chunkCoordinate.x + x;
-                    int chunkY = chunkCoordinate.y + y;
-                    double nx = (double)chunkX / width - 0.5d;
-                    double ny = (double)chunkY / height - 0.5d;
-                    simplexNoise[y * width + x] = _simplex.Noise2(nx, ny);
-                }
-            }
+            double scale = 21;
+            int octaves = 1;
+            double persistance = 0.286f;
+            double lacunarity = 1.9;
 
-            // Normalize
-            simplexNoise = OpenSimplex2F.Normalize(simplexNoise);
+            // Generate noise map based on simplex noise
+            var heightMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, scale, octaves, persistance, lacunarity, new Microsoft.Xna.Framework.Vector2(chunkCoordinate.x, chunkCoordinate.y));
+
+            // Normalize between 0 and 1
+            heightMap = OpenSimplex2F.Normalize(heightMap);
 
             // Generate based on simplex noise created above
-            GenerateLands(random, chunk, width, height, simplexNoise);
+            GenerateLands(random, chunk, width, height, heightMap);
             return (chunk, null);
         }
 
