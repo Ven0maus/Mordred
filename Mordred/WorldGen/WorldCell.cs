@@ -1,6 +1,9 @@
-﻿using SadConsole;
+﻿using Mordred.Graphics.Consoles;
+using SadConsole;
+using SadConsole.UI.Controls;
 using SadRogue.Primitives;
 using Venomaus.FlowVitae.Cells;
+using AdjacencyRule = Venomaus.FlowVitae.Grids.AdjacencyRule;
 
 namespace Mordred.WorldGen
 {
@@ -13,10 +16,6 @@ namespace Mordred.WorldGen
         /// The type of terrain this cell belongs to
         /// </summary>
         public int TerrainId { get; private set; } = Constants.WorldSettings.VoidTile;
-        /// <summary>
-        /// The unique cell type based on the terrain
-        /// </summary>
-        public int CellType { get; set; }
         /// <summary>
         /// Can entities walk on this cell
         /// </summary>
@@ -33,9 +32,20 @@ namespace Mordred.WorldGen
         /// The name of the cell
         /// </summary>
         public string Name { get; private set; }
+        /// <summary>
+        /// The bitmask based on neighbor types
+        /// </summary>
+        public int BitMask
+        {
+            get { return GetBitMaskValue(); }
+        }
 
         public int X { get; set; }
         public int Y { get; set; }
+        /// <summary>
+        /// The unique cell type based on the terrain
+        /// </summary>
+        public int CellType { get; set; }
 
         public WorldCell() { }
 
@@ -66,6 +76,25 @@ namespace Mordred.WorldGen
             SeeThrough = original.SeeThrough;
             Layer = original.Layer;
             IsVisible = original.IsVisible;
+        }
+
+        private int GetBitMaskValue()
+        {
+            var neighbors = WorldWindow.World.GetNeighbors(Layer, X, Y, AdjacencyRule.FourWay);
+            int count = 0;
+            foreach (var neighbor in neighbors)
+            {
+                if (neighbor.TerrainId != TerrainId) continue;
+                if (neighbor.Y == Y + 1)
+                    count += 1;
+                else if (neighbor.X == X + 1)
+                    count += 2;
+                else if (neighbor.Y == Y - 1)
+                    count += 4;
+                else if (neighbor.X == X - 1)
+                    count += 8;
+            }
+            return count;
         }
 
         public new WorldCell Clone()

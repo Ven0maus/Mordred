@@ -28,7 +28,7 @@ namespace Mordred.Entities.Tribals
 
         public readonly Gender Gender;
 
-        public Human(Village village, Point housePosition, Point actorPosition, Color color, Gender gender, int health = 100) : base(color, Color.Black, 'T', health)
+        public Human(Village village, Point housePosition, Point actorPosition, Color color, Gender gender, int health = 100) : base(color, Color.Transparent, 'T', health)
         {
             HousePosition = housePosition;
             WorldPosition = actorPosition;

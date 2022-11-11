@@ -99,6 +99,9 @@ namespace Mordred.Graphics.Consoles
             // Spawn player
             SpawnPlayer();
 
+            // Initial world loading uses threading, after it can be adjusted
+            World.UseThreading = Constants.GameSettings.UseThreading;
+
             // Apply world regrowth monitor
             Game.GameTick += WorldRegrowth.CheckRegrowthStatus;
         }

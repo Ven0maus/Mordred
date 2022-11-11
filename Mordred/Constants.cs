@@ -4,6 +4,7 @@
     {
         public static class GameSettings
         {
+            public const bool UseThreading = true;
             public const bool DebugMode = false;
             public const int GameWindowWidth = 140;
             public const int GameWindowHeight = 50;

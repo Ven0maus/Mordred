@@ -6,11 +6,13 @@ using Mordred.Helpers;
 using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Venomaus.FlowVitae.Chunking;
 using Venomaus.FlowVitae.Grids;
 using Venomaus.FlowVitae.Helpers;
+using AdjacencyRule = Venomaus.FlowVitae.Grids.AdjacencyRule;
 
 namespace Mordred.WorldGen
 {
@@ -87,6 +89,31 @@ namespace Mordred.WorldGen
             _worldInitialized = true;
         }
 
+        private WorldCell Converter(int x, int y, int cellType)
+        {
+            // Return a default tile
+            if (cellType == Constants.WorldSettings.VoidTile)
+            {
+                return new WorldCell
+                {
+                    X = x,
+                    Y = y,
+                    CellType = cellType,
+                    Walkable = true,
+                    IsVisible = false,
+                    SeeThrough = true
+                };
+            }
+
+            // Get custom cell
+            var cell = ConfigLoader.GetNewWorldCell(cellType, x, y);
+            cell ??= new WorldCell() { CellType = cellType };
+            cell.X = x;
+            cell.Y = y;
+
+            return cell;
+        }
+
         public void Initialize()
         {
             // Re-initialize the starter chunks
@@ -136,31 +163,6 @@ namespace Mordred.WorldGen
             _cellEffects.RemoveAll(a => a.TicksRemaining <= 0 || a.Completed);
         }
 
-        private WorldCell Converter(int x, int y, int cellType)
-        {
-            // Return a default tile
-            if (cellType == Constants.WorldSettings.VoidTile)
-            {
-                return new WorldCell 
-                { 
-                    X = x, 
-                    Y = y, 
-                    CellType = cellType, 
-                    Walkable = true, 
-                    IsVisible = false, 
-                    SeeThrough = true 
-                };
-            }
-
-            // Get custom cell
-            var cell = ConfigLoader.GetNewWorldCell(cellType, x, y);
-            if (cell == null) 
-                return new WorldCell() { X = x, Y = y, CellType = cellType };
-            cell.X = x;
-            cell.Y = y;
-            return cell;
-        }
-
         public void Center(int x, int y)
         {
             _terrainMap.Center(x, y);
@@ -175,6 +177,18 @@ namespace Mordred.WorldGen
                 if (entity.IsVisible)
                 {
                     entity.Position = WorldToScreenCoordinate(entity.WorldPosition.X, entity.WorldPosition.Y);
+                }
+            }
+
+            // Draw an outline around each terrain type
+            var screenCellsCoords = _terrainMap.GetViewPortWorldCoordinates();
+            foreach (var coord in screenCellsCoords)
+            {
+                var cell = _terrainMap.GetCell(coord.x, coord.y);
+                if (cell.BitMask != 15)
+                {
+                    cell.Background = Color.Lerp(cell.Background, Color.Black, 0.3f);
+                    _terrainMap.SetCell(cell);
                 }
             }
         }
@@ -316,6 +330,25 @@ namespace Mordred.WorldGen
         {
             var map = GetMapLayer(layer);
             map.SetCells(newCells);
+        }
+
+        public IEnumerable<WorldCell> GetNeighbors(WorldLayer layer, int x, int y, AdjacencyRule rule)
+        {
+            var map = GetMapLayer(layer);
+            return map.GetNeighbors(x, y, rule);
+        }
+
+        public int GetCellType(WorldLayer layer, int x, int y)
+        {
+            var map = GetMapLayer(layer);
+            return map.GetCellType(x, y);
+        }
+
+        public int GetTerrainType(WorldLayer layer, int x, int y)
+        {
+            var cellType = GetCellType(layer, x, y);
+            if (cellType == -1) return -1;
+            return ConfigLoader.WorldCells[cellType].TerrainId;
         }
     }
 }

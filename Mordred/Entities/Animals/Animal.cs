@@ -11,6 +11,6 @@ namespace Mordred.Entities.Animals
     public abstract class Animal : Actor
     {
         public readonly Gender Gender;
-        public Animal(Color foreground, int glyph, Gender gender, int health = 100) : base(foreground, Color.Black, glyph, health) => Gender = gender;
+        public Animal(Color foreground, int glyph, Gender gender, int health = 100) : base(foreground, Color.Transparent, glyph, health) => Gender = gender;
     }
 }
