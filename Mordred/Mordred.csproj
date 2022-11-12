@@ -16,10 +16,19 @@
     <None Update="Config\ItemConfig\ItemConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Config\WorldGenConfig\ObjectCells.json">
+    <None Update="Config\WorldGenConfig\Csv\BiomeMappings.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Config\WorldGenConfig\WorldCells.json">
+    <None Update="Config\WorldGenConfig\Json\BiomeLevels.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Config\WorldGenConfig\Json\Biomes.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Config\WorldGenConfig\Json\ObjectCells.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Config\WorldGenConfig\Json\WorldCells.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

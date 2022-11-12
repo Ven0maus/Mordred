@@ -1,0 +1,54 @@
+﻿{
+  "temperature": [
+    {
+      "name": "Coldest",
+      "layer": 0.05
+    },
+    {
+      "name": "Colder",
+      "layer": 0.18
+    },
+    {
+      "name": "Cold",
+      "layer": 0.4
+    },
+    {
+      "name": "Warm",
+      "layer": 0.6
+    },
+    {
+      "name": "Warmer",
+      "layer": 0.8
+    },
+    {
+      "name": "Warmest",
+      "layer": 1
+    }
+  ],
+  "moisture": [
+    {
+      "name": "Dryest",
+      "layer": 0.27
+    },
+    {
+      "name": "Dryer",
+      "layer": 0.4
+    },
+    {
+      "name": "Dry",
+      "layer": 0.6
+    },
+    {
+      "name": "Wet",
+      "layer": 0.8
+    },
+    {
+      "name": "Wetter",
+      "layer": 0.9
+    },
+    {
+      "name": "Wettest",
+      "layer": 1
+    }
+  ]
+}

@@ -42,52 +42,81 @@ namespace Mordred.WorldGen
 
             // Generate noise map based on simplex noise
             var heightMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, scale, octaves, persistance, lacunarity, offset);
-            
-            /*
-            // Generate heatMap
+
+            // Generate heat and moisture map
             var heatMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, 12, 1, 0.1246, 1.2, offset);
-
-            // Substract height from heatMap
-            var minheight = heightMap.Min();
-            var maxHeight = heightMap.Max();
-            NoiseGenerator.Substract(width, height, heatMap, heightMap, (height) => 
-            NoiseGenerator.Lerp(0, 0.4, OpenSimplex2F.Normalize(maxHeight, minheight, height)));
-
-            // TODO:
-            // Create a moisture map based on wetter towards 0, dryer towards 1
-            //var moistureMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, 7, 1, 0.0846, 0.8, offset);
-            */
+            NoiseGenerator.Substract(width, height, heatMap, heightMap, (height) =>
+            {
+                if (height < 0.5) return 0.2;
+                if (height < 0.65) return 0.3;
+                if (height < 0.8) return 0.4;
+                if (height <= 1) return 0.5;
+                return 0.1;
+            });
+            var moistureMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, 12, 1, 0.1246, 1.2, offset);
+            NoiseGenerator.Add(width, height, heatMap, heightMap, (height) =>
+            {
+                if (height < 0.1) return 8;
+                if (height < 0.2) return 3;
+                if (height < 0.3) return 1;
+                return 0.25;
+            });
 
             // Normalize between 0 and 1
             heightMap = OpenSimplex2F.Normalize(heightMap);
+            heatMap = OpenSimplex2F.Normalize(heatMap);
+            moistureMap = OpenSimplex2F.Normalize(moistureMap);
 
             // Generate based on simplex noise created above
-            GenerateLands(random, chunk, width, height, heightMap);
+            GenerateBiomes(random, chunk, width, height, heightMap, heatMap, moistureMap);
             return (chunk, null);
         }
 
-        private void GenerateLands(Random random, int[] chunk, int width, int height, double[] simplexNoise)
+        private void GenerateBiomes(Random random, int[] chunk, int width, int height, double[] heightMap, double[] heatMap, double[] moistureMap)
         {
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    // Default value (empty)
-                    chunk[y * width + x] = Constants.WorldSettings.VoidTile;
+                    var index = y * width + x;
 
-                    foreach (var terrain in _proceduralTerrain.OrderByDescending(a => a.spawnChance))
+                    // Set default value (empty)
+                    chunk[index] = Constants.WorldSettings.VoidTile;
+
+                    // Set heightmap tile if it fits
+                    var heightValue = heightMap[index];
+                    foreach (var terrain in _proceduralTerrain)
                     {
-                        // Every layer starts at x and goes till < y, so the last layer needs to be included at the top
-                        var maxLayer = terrain.maxSpawnLayer == 1 ? 1.1 : terrain.maxSpawnLayer;
-                        if (simplexNoise[y * width + x] >= terrain.minSpawnLayer &&
-                            simplexNoise[y * width + x] < maxLayer)
+                        var maxHeight = terrain.maxHeight == 1 ? terrain.maxHeight + 0.1 : terrain.maxHeight;
+                        if (heightValue >= terrain.minHeight && heightValue < maxHeight)
                         {
-                            if (random.Next(0, 100) < terrain.spawnChance)
-                            {
-                                chunk[y * width + x] = ConfigLoader.GetRandomWorldCellTypeByTerrain(terrain.mainId, random);
-                            }
+                            chunk[index] = ConfigLoader.GetRandomWorldCellTypeByTerrain(terrain.mainId, random);
+                            break;
                         }
                     }
+
+                    if (chunk[index] != Constants.WorldSettings.VoidTile) continue;
+
+                    // Set biome tile
+                    var moisture = ConfigLoader.GetMoisture(moistureMap[index]);
+                    var temperature = ConfigLoader.GetTemperature(heatMap[index]);
+                    var biome = ConfigLoader.GetBiome(moisture, temperature);
+                    var terrains = _proceduralTerrain
+                        .Where(a => a.biome != null && a.biome.Equals(biome, StringComparison.OrdinalIgnoreCase))
+                        .OrderByDescending(a => a.spawnChance);
+
+                    int terrainPicked = Constants.WorldSettings.VoidTile;
+                    foreach (var terrain in terrains)
+                    {
+                        // higher spawn chance goes first, so each terrain has a chance to be picked
+                        if (random.Next(0, 100) < terrain.spawnChance)
+                        {
+                            terrainPicked = terrain.mainId;
+                        }
+                    }
+
+                    if (terrainPicked != Constants.WorldSettings.VoidTile)
+                        chunk[index] = ConfigLoader.GetRandomWorldCellTypeByTerrain(terrainPicked, random);
                 }
             }
         }

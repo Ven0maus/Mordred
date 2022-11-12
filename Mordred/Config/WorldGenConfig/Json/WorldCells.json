@@ -1,0 +1,140 @@
+﻿{
+  "cells": [
+    {
+      "glyph": "~",
+      "additionalGlyphs": [ "-", "=" ],
+      "name": "Water",
+      "foreground": "Cyan",
+      "background": "Blue",
+      "seeThrough": true,
+      "walkable": false,
+      "spawnChance": 100,
+      "minHeight": 0,
+      "maxHeight": 0.08
+    },
+    {
+      "glyph": ".",
+      "additionalGlyphs": [ ",", "'", "`", "^" ],
+      "name": "Ice",
+      "foreground": "Black",
+      "background": "GhostWhite",
+      "seeThrough": true,
+      "walkable": true,
+      "spawnChance": 100,
+      "biome": "ice",
+      "minHeight": 0.9,
+      "maxHeight": 1
+    },
+    {
+      "glyph": ".",
+      "additionalGlyphs": [ ",", "'", "`", "^" ],
+      "name": "Tundra",
+      "foreground": "Black",
+      "background": "FloralWhite",
+      "seeThrough": true,
+      "walkable": true,
+      "spawnChance": 100,
+      "biome": "tundra"
+    },
+    {
+      "glyph": ".",
+      "additionalGlyphs": [ ",", "'", "`", "^" ],
+      "name": "Desert",
+      "foreground": "Black",
+      "background": "SandyBrown",
+      "seeThrough": true,
+      "walkable": true,
+      "spawnChance": 100,
+      "biome": "desert",
+      "minHeight": 0.08,
+      "maxHeight": 0.12
+    },
+    {
+      "glyph": ".",
+      "additionalGlyphs": [ ",", "'", "`", "^", "\"" ],
+      "name": "Grassland",
+      "foreground": "Black",
+      "background": "ForestGreen",
+      "seeThrough": true,
+      "walkable": true,
+      "spawnChance": 100,
+      "biome": "grassland"
+    },
+    {
+      "glyph": ".",
+      "additionalGlyphs": [ ",", "'", "`", "^", "\"" ],
+      "name": "MossyGrass",
+      "foreground": "Black",
+      "background": "DarkGreen",
+      "seeThrough": true,
+      "walkable": true,
+      "spawnChance": 100,
+      "biome": "woodland"
+    },
+    {
+      "glyph": ".",
+      "additionalGlyphs": [ ",", "'", "`", "^", "\"" ],
+      "name": "Savanna",
+      "foreground": "Black",
+      "background": "OrangeRed",
+      "seeThrough": true,
+      "walkable": true,
+      "spawnChance": 100,
+      "biome": "savanna"
+    },
+    {
+      "glyph": ".",
+      "additionalGlyphs": [ ",", "'", "`", "^", "\"" ],
+      "name": "Boreal Forest",
+      "foreground": "Black",
+      "background": "Brown",
+      "seeThrough": true,
+      "walkable": true,
+      "spawnChance": 100,
+      "biome": "boreal forest"
+    },
+    {
+      "glyph": ".",
+      "additionalGlyphs": [ ",", "'", "`", "^", "\"" ],
+      "name": "Seasonal Forest",
+      "foreground": "Black",
+      "background": "RosyBrown",
+      "seeThrough": true,
+      "walkable": true,
+      "spawnChance": 100,
+      "biome": "seasonal forest"
+    },
+    {
+      "glyph": ".",
+      "additionalGlyphs": [ ",", "'", "`", "^", "\"" ],
+      "name": "Temperate Forest",
+      "foreground": "Black",
+      "background": "GreenYellow",
+      "seeThrough": true,
+      "walkable": true,
+      "spawnChance": 100,
+      "biome": "temperate forest"
+    },
+    {
+      "glyph": ".",
+      "additionalGlyphs": [ ",", "'", "`", "^", "\"" ],
+      "name": "Tropical Rainforest",
+      "foreground": "Black",
+      "background": "DarkOliveGreen",
+      "seeThrough": true,
+      "walkable": true,
+      "spawnChance": 100,
+      "biome": "tropical rainforest"
+    },
+    {
+      "glyph": "%",
+      "additionalGlyphs": [ "#", "£" ],
+      "name": "Mountain",
+      "foreground": "Black",
+      "background": "DarkSlateGray",
+      "seeThrough": false,
+      "walkable": false,
+      "spawnChance": 100
+    }
+  ]
+}

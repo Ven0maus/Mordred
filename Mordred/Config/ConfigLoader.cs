@@ -13,17 +13,87 @@ namespace Mordred.Config
 {
     public class ConfigLoader
     {
-        private const string WorldCellsConfigPath = "Config\\WorldGenConfig\\WorldCells.json";
-        private const string ObjectCellsConfigPath = "Config\\WorldGenConfig\\ObjectCells.json";
+        // Items config
+        private const string ItemsConfigPath = "Config\\ItemConfig\\ItemConfig.json";
+
+        // Tiles config
+        private const string WorldCellsConfigPath = "Config\\WorldGenConfig\\Json\\WorldCells.json";
+        private const string ObjectCellsConfigPath = "Config\\WorldGenConfig\\Json\\ObjectCells.json";
+
+        // Biomes config
+        private const string BiomeLevelsConfigPath = "Config\\WorldGenConfig\\Json\\BiomeLevels.json";
+        private const string BiomeMappingsConfigPath = "Config\\WorldGenConfig\\Csv\\BiomeMappings.csv";
+
+        // Items
+        public static readonly Dictionary<int, WorldItem> Items = LoadWorldItems();
+
+        // Tiles
         private static readonly TerrainObject _terrainData = new();
         private static readonly Dictionary<int, WorldCellObject> _terrainCellConfig = new();
-
         public static readonly Dictionary<string, int> TerrainCellsByCode = new(StringComparer.OrdinalIgnoreCase);
-        public static readonly Dictionary<int, WorldItem> Items = LoadWorldItems();
         public static readonly Dictionary<int, WorldCell[]> TerrainCells = LoadWorldCells();
         public static readonly Dictionary<int, WorldCell> WorldCells = TerrainCells
             .SelectMany(a => a.Value)
             .ToDictionary(a => a.CellType, a => a);
+
+        // Biomes
+        private static readonly BiomeMapping[] _biomeMapping = ParseBiomeMappings().ToArray();
+
+        public static string GetBiome(string moisture, string temperature)
+        {
+            foreach (var mapping in _biomeMapping)
+            {
+                if (mapping.moisture.name.Equals(moisture, StringComparison.OrdinalIgnoreCase) &&
+                    mapping.temperature.name.Equals(temperature, StringComparison.OrdinalIgnoreCase))
+                    return mapping.biome;
+            }
+            throw new Exception($"No biome exists for combination (Moisture: '{moisture}' Temperature: '{temperature}').");
+        }
+
+        public static string GetMoisture(double value)
+        {
+            foreach (var mapping in _biomeMapping)
+            {
+                var layer = mapping.moisture.layer == 1 ? 1.01 : mapping.moisture.layer;
+                if (value < layer)
+                    return mapping.moisture.name;
+            }
+            throw new Exception("No moisture mapping exists for value: " + value);
+        }
+
+        public static string GetTemperature(double value)
+        {
+            foreach (var mapping in _biomeMapping)
+            {
+                var layer = mapping.temperature.layer == 1 ? 1.01 : mapping.temperature.layer;
+                if (value < layer)
+                    return mapping.temperature.name;
+            }
+            throw new Exception("No moisture mapping exists for value: " + value);
+        }
+
+        private static IEnumerable<BiomeMapping> ParseBiomeMappings()
+        {
+            var biomeLevels = ParseBiomeLevels();
+            var csv = File.ReadAllLines(BiomeMappingsConfigPath);
+            // Skip header and first column
+            for (int i=1; i < csv.Length; i++)
+            {
+                var columns = csv[i].Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                for (int cI=1; cI < columns.Length; cI++)
+                {
+                    var moisture = biomeLevels.moisture[i - 1];
+                    var temperature = biomeLevels.temperature[cI - 1];
+                    var biome = columns[cI];
+                    yield return new BiomeMapping(temperature, moisture, biome);
+                }
+            }
+        }
+
+        private static BiomeLevels ParseBiomeLevels()
+        {
+            return JsonConvert.DeserializeObject<BiomeLevels>(File.ReadAllText(BiomeLevelsConfigPath));
+        }
 
         public static IEnumerable<WorldCellObject> GetTerrains(Func<WorldCellObject, bool> predicate)
         {
@@ -144,7 +214,7 @@ namespace Mordred.Config
 
         public static Dictionary<int, WorldItem> LoadWorldItems()
         {
-            var json = File.ReadAllText("Config\\ItemConfig\\ItemConfig.json");
+            var json = File.ReadAllText(ItemsConfigPath);
             var worldItemObjects = JsonConvert.DeserializeObject<ItemsObject>(json);
             var dictionary = new Dictionary<int, WorldItem>();
             foreach (var item in worldItemObjects.items)

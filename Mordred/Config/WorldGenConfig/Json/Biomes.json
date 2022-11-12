@@ -1,0 +1,14 @@
+﻿{
+  "biomes": [
+    "Desert",
+    "Savanna",
+    "Tropical Rainforest",
+    "Grassland",
+    "Woodland",
+    "Seasonal Forest",
+    "Temperate Rainforest",
+    "Boreal Forest",
+    "Tundra",
+    "Ice"
+  ]
+}

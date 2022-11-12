@@ -27,8 +27,11 @@ namespace Mordred.Config.WorldGenConfig
 
         // World gen
         public int spawnChance; // 0-100%
-        public float minSpawnLayer; // Inclusive
-        public float maxSpawnLayer; // Exclusive
+        public double minHeight = -1;
+        public double maxHeight = -1;
+        public string biome;
+
+        // Items
         public int[] spawnOnTerrain;
 
         // Resource regrowth

@@ -84,6 +84,21 @@ namespace Mordred.WorldGen
             }
         }
 
+        public static void Add(int width, int height, double[] noise1, double[] noise2, Func<double, double> modifier = null)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    var value = noise2[y * width + x];
+                    double substractModifier = 1f;
+                    if (modifier != null)
+                        substractModifier = modifier.Invoke(value);
+                    noise1[y * width + x] += substractModifier * value;
+                }
+            }
+        }
+
         public static double Lerp(double a, double b, double t)
         {
             return a + (b - a) * Clamp01(t);
