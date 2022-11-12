@@ -33,18 +33,13 @@ namespace Mordred.WorldGen
         {
             var random = new Random(seed);
             var chunk = new int[width * height];
-
-            var scale = 21d;
-            var octaves = 1;
-            var persistance = 0.286d;
-            var lacunarity = 1.9d;
             var offset = new Vector2(chunkCoordinate.x, chunkCoordinate.y);
 
             // Generate noise map based on simplex noise
-            var heightMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, scale, octaves, persistance, lacunarity, offset);
+            var heightMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, 125, 1, 0.1246, 1.4, offset);
 
             // Generate heat and moisture map
-            var heatMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, 12, 1, 0.1246, 1.2, offset);
+            var heatMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, 20, 1, 0.3548, 2.2, offset);
             NoiseGenerator.Substract(width, height, heatMap, heightMap, (height) =>
             {
                 if (height < 0.5) return 0.2;
@@ -53,7 +48,7 @@ namespace Mordred.WorldGen
                 if (height <= 1) return 0.5;
                 return 0.1;
             });
-            var moistureMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, 12, 1, 0.1246, 1.2, offset);
+            var moistureMap = NoiseGenerator.GenerateNoiseMap(_simplex, width, height, seed, 85, 1, 0.5246, 3.4, offset);
             NoiseGenerator.Add(width, height, heatMap, heightMap, (height) =>
             {
                 if (height < 0.1) return 8;
