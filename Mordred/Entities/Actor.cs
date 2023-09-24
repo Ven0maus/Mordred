@@ -268,7 +268,8 @@ namespace Mordred.Entities
             {
                 // Turn corpse to rotting for the same amount of ticks as the freshness
                 Name = Name.Replace("(corpse)", "(rotting)");
-                Appearance.Foreground = Color.Lerp(Appearance.Foreground, Color.Red, 0.7f);
+                var appearance = AppearanceSingle.Appearance;
+                appearance.Foreground = Color.Lerp(appearance.Foreground, Color.Red, 0.7f);
                 IsDirty = true;
 
                 _rottingCounter = 0;
@@ -281,7 +282,8 @@ namespace Mordred.Entities
             {
                 // Turn corpse to skeleton and start decay process which is 2x as long
                 Name = Name.Replace("(rotting)", "(skeleton)");
-                Appearance.Foreground = Color.Lerp(Color.GhostWhite, Color.Black, 0.2f);
+                var appearance = AppearanceSingle.Appearance;
+                appearance.Foreground = Color.Lerp(Color.GhostWhite, Color.Black, 0.2f);
                 IsDirty = true;
 
                 _rottingCounter = 0;

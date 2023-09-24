@@ -8,16 +8,20 @@ namespace Mordred.Graphics
     /// <summary>
     /// The general container where all windows of the game are stored.
     /// </summary>
-    public class Container : Console
+    public class Container : ScreenObject
     {
         private readonly List<Console> Consoles = new List<Console>();
+        private readonly int _width, _height;
 
-        public Container(int gameWindowWidth, int gameWindowHeight) : base(gameWindowWidth, gameWindowHeight)
-        { }
+        public Container()
+        { 
+            _width = Constants.GameSettings.GameWindowWidth;
+            _height = Constants.GameSettings.GameWindowHeight;
+        }
 
         public void InitializeConsoles()
         {
-            Consoles.Add(new MapConsole(Width, Height));
+            Consoles.Add(new MapConsole(_width, _height));
 
             // Add all consoles as children of the container
             foreach (var console in Consoles)

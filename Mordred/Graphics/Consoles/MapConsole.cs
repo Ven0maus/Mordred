@@ -16,13 +16,13 @@ namespace Mordred.Graphics.Consoles
         public static MapConsole Instance { get { return _instance; } }
         public static World World { get; private set; }
         public static Player Player { get; private set; }
-        public Renderer EntityRenderer { get; private set; }
+        public EntityManager EntityRenderer { get; private set; }
 
         public MapConsole(int width, int height) : base(width, height)
         {
             Font = GameHost.Instance.DefaultFont;
             FontSize = Font.GetFontSize(IFont.Sizes.One);
-            EntityRenderer = new Renderer();
+            EntityRenderer = new EntityManager();
             SadComponents.Add(EntityRenderer);
             _instance = this;
         }
@@ -56,7 +56,7 @@ namespace Mordred.Graphics.Consoles
 
         public void OnCellUpdate(object sender, CellUpdateArgs<int, WorldCell> args)
         {
-            Surface.SetGlyph(args.ScreenX, args.ScreenY, args.Cell);
+            Surface[args.ScreenX, args.ScreenY].CopyAppearanceFrom(args.Cell, false);
             Surface[args.ScreenX, args.ScreenY].IsVisible = args.Cell.IsVisible;
         }
 

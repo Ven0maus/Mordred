@@ -1,4 +1,5 @@
 ﻿using Mordred.Entities;
+using SadConsole;
 using SadConsole.Entities;
 using SadRogue.Primitives;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace Mordred.GameObjects.ItemInventory.Items
         public Point WorldPosition { get; set; }
 
         public readonly Dictionary<int, DropRate> DroppedBy;
+        public ColoredGlyph Appearance { get { return AppearanceSingle.Appearance; } }
 
         public int Amount;
         public WorldItem(int id, string name, Color foreground, Color background, int glyph, int? amount = null, string[] droppedBy = null) : base(foreground, background, glyph, 1)

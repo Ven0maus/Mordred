@@ -19,14 +19,14 @@ namespace Mordred
         {
             SetSettings();
 
-            // Setup the engine and create the main window.
-            SadConsole.Game.Create(Constants.GameSettings.GameWindowWidth, Constants.GameSettings.GameWindowHeight);
+            SadConsole.Game.Configuration gameStartup = new SadConsole.Game.Configuration()
+                .SetScreenSize(Constants.GameSettings.GameWindowWidth, Constants.GameSettings.GameWindowHeight)
+                .OnStart(Init)
+                .UseFrameUpdateEvent(Instance_FrameUpdate)
+                .IsStartingScreenFocused(false)
+                .SetStartingScreen<Container>();
 
-            // Hook the start event so we can add consoles to the system.
-            SadConsole.Game.Instance.OnStart = Init;
-            SadConsole.Game.Instance.FrameUpdate += Instance_FrameUpdate;
-
-            // Start the game.
+            SadConsole.Game.Create(gameStartup);
             SadConsole.Game.Instance.Run();
             SadConsole.Game.Instance.Dispose();
         }
@@ -46,18 +46,15 @@ namespace Mordred
         /// </summary>
         private static void Init()
         {
+            SadConsole.Game.Instance.DestroyDefaultStartingConsole();
+
             // Initialize random with (TODO: seed)
             Random = new Random();
-
             TicksPerSecond = (int)Math.Round(1f / Constants.GameSettings.TimePerTickInSeconds);
 
-            // Create a container console, that contains all the game consoles
-            Container = new Container(Constants.GameSettings.GameWindowWidth, Constants.GameSettings.GameWindowHeight);
+            Container = (Container)SadConsole.Game.Instance.Screen;
             Container.InitializeConsoles();
             Container.InitializeGame();
-
-            // Set container as the current/main screen
-            SadConsole.Game.Instance.Screen = Container;
         }
 
         private static void SetSettings()
