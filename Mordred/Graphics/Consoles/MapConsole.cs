@@ -58,6 +58,7 @@ namespace Mordred.Graphics.Consoles
         {
             Surface[args.ScreenX, args.ScreenY].CopyAppearanceFrom(args.Cell, false);
             Surface[args.ScreenX, args.ScreenY].IsVisible = args.Cell.IsVisible;
+            Surface.IsDirty = true;
         }
 
         public void InitializeWorld()

@@ -8,8 +8,21 @@ namespace Mordred.Entities
     public class EntitySpawner
     {
         private static readonly List<IEntity> _entities = new();
-        // Returns a shallow copy of the internal list
-        public static IReadOnlyList<IEntity> Entities { get { return _entities.ToList(); } }
+
+        private static readonly object _entityLock = new();
+        /// <summary>
+        /// Returns a shallow copy of the internal list
+        /// </summary>
+        public static IReadOnlyList<IEntity> Entities 
+        { 
+            get 
+            {
+                lock (_entityLock)
+                {
+                    return _entities.ToList();
+                }
+            } 
+        }
 
         public static readonly List<Entity> EntitiesToBeAdded = new();
         public static readonly List<Entity> EntitiesToBeRemoved = new();

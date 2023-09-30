@@ -3,6 +3,7 @@ using Mordred.Entities;
 using Mordred.GameObjects.Effects;
 using Mordred.Graphics.Consoles;
 using Mordred.Helpers;
+using SadConsole;
 using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
@@ -55,11 +56,12 @@ namespace Mordred.WorldGen
         {
             // Re-initialize the starter chunks
             ClearCache();
+            UpdateScreenCells();
         }
 
         private void LoadEntities(object sender, ChunkUpdateArgs args)
         {
-            _ = Task.Factory.StartNew(() =>
+            _ = Task.Run(() =>
             {
                 if (_chunkEntitiesLoaded.Contains((args.ChunkX, args.ChunkY))) return;
                 ProceduralGeneration.GenerateWildLife(args.ChunkX, args.ChunkY);
@@ -70,7 +72,7 @@ namespace Mordred.WorldGen
 
         private void UnloadEntities(object sender, ChunkUpdateArgs args)
         {
-            _ = Task.Factory.StartNew(() =>
+            _ = Task.Run(() =>
             {
                 var chunkCellPositions = args.GetCellPositions().ToHashSet(new TupleComparer<int>());
                 EntitySpawner.DestroyAll<IEntity>(a => chunkCellPositions.Contains(a.WorldPosition));
